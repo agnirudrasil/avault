@@ -11,11 +11,11 @@ def init_app(app: Flask):
 
 
 def init_db():
-    db = get_db()[0]
+    cursor = get_db()[0]
 
     with current_app.open_resource('schema.sql') as f:
         sql = f.read().decode('utf-8')
-        db.execute(sql, multi=True)
+        cursor.execute(sql, multi=True)
 
 
 @click.command('init-db')
@@ -27,21 +27,21 @@ def init_db_command():
 
 def get_db():
     if 'db' not in g:
-        g.connection = ms.connect(
+        g.db = ms.connect(
             host='localhost',
             user="root",
             passwd="argha@1234",
             database="avault"
         )
-        g.db = g.connection.cursor(dictionary=True)
+        g.cursor = g.db.cursor(dictionary=True)
 
-    return g.db, g.connection
+    return g.cursor, g.db
 
 
-def close_db(e=None):
+def close_db():
     db = g.pop('db', None)
-    connection = g.pop('connection', None)
+    cursor = g.pop('cursor', None)
 
     if db is not None:
         db.close()
-        connection.close()
+        cursor.close()
