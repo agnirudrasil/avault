@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/backend/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/MANIFEST.in" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/avault/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/avault/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/avault/auth.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/avault/blog.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/avault/db.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/avault/schema.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/avault/static/style.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/avault/templates/auth/login.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/avault/templates/auth/register.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/avault/templates/base.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/avault/templates/blog/create.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/avault/templates/blog/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/avault/templates/blog/update.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/setup.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/components/OpenButton.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/website/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/_app.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/styles/Home.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/styles/globals.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/website/yarn.lock" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1wPPN64n9uYOHyoP8drDLeDb6zX" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="" />
+      <created>1628357209793</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1628357209793</updated>
+    </task>
+    <servers />
+  </component>
+</project>

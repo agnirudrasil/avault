@@ -1,4 +1,0 @@
-include avault/schema.sql
-graft avault/static
-graft avault/templates
-global-exclude *.pyc
