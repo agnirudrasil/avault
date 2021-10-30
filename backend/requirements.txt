@@ -80,6 +80,7 @@ Flask-Bcrypt==0.7.1
 Flask-Compress==1.8.0
 Flask-Cors==3.0.10
 Flask-Gravatar==0.5.0
+Flask-JWT-Extended==4.3.1
 Flask-Login==0.5.0
 Flask-Mail==0.9.1
 Flask-Migrate==3.1.0
@@ -187,6 +188,7 @@ PyGetWindow==0.0.9
 pyglet==1.5.16
 Pygments==2.10.0
 PyGObject==3.40.1
+PyJWT==2.3.0
 pylint==2.11.1
 PyMsgBox==1.0.9
 PyNaCl==1.4.0
