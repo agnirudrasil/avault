@@ -2,29 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/backend/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/MANIFEST.in" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/avault/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/avault/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/avault/auth.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/avault/blog.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/avault/db.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/avault/schema.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/avault/static/style.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/avault/templates/auth/login.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/avault/templates/auth/register.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/avault/templates/base.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/avault/templates/blog/create.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/avault/templates/blog/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/avault/templates/blog/update.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/backend/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/setup.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/components/OpenButton.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/avault/server/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/avault/server/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/conjecture.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/voice/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/voice/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/voice/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/voice/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/.prettierrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/components/message/MessageInput.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/components/message/MessageInput.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/components/message/MessagesContainer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/components/message/MessagesContainer.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/website/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/_app.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/styles/Home.module.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/styles/globals.css" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/website/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/website/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -43,7 +29,9 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../alfred-discord-bot" />
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="" />
