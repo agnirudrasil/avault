@@ -29,8 +29,6 @@ def generator(worker_id: int = 1, process_id: int = os.getpid(), sleep=lambda x:
     """
     Generate a unique id.
     """
-#     assert worker_id >= 0 and worker_id <= max_worker_id
-#     assert process_id >= 0 and process_id <= max_worker_id
 
     last_timestamp = -1
 

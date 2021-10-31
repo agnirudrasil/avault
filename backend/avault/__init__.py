@@ -1,6 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 import os
-from venv import create
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -46,6 +45,10 @@ def create_app():
                                 'http://localhost:5500'])
 
     from avault.users.views import bp
+    from avault.guild.views import bp as guild_bp
+    from avault.channels.views import bp as channel_bp
     app.register_blueprint(bp)
+    app.register_blueprint(guild_bp)
+    app.register_blueprint(channel_bp)
 
     return app
