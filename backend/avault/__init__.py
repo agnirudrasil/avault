@@ -47,8 +47,10 @@ def create_app():
     from avault.users.views import bp
     from avault.guild.views import bp as guild_bp
     from avault.channels.views import bp as channel_bp
+    from avault.messages.views import bp as message_bp
     app.register_blueprint(bp)
     app.register_blueprint(guild_bp)
     app.register_blueprint(channel_bp)
+    app.register_blueprint(message_bp)
 
     return app

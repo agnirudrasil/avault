@@ -1,0 +1,25 @@
+{
+  "name": "website",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emotion/cache": "^11.5.0",
+    "@emotion/react": "^11.5.0",
+    "@emotion/server": "^11.4.0",
+    "@emotion/styled": "^11.3.0",
+    "@mui/material": "^5.0.6",
+    "next": "12.0.2",
+    "react": "^18.0.0-alpha-6bce0355c-20211031",
+    "react-dom": "^18.0.0-alpha-6bce0355c-20211031"
+  },
+  "devDependencies": {
+    "eslint": "7",
+    "eslint-config-next": "12.0.2",
+    "typescript": "^4.4.4"
+  }
+}

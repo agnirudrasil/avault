@@ -16,10 +16,10 @@ class ChannelType(enum.Enum):
 
 
 channel_members = db.Table('channel_members',
-                           db.Column('channel_id', db.Integer, db.ForeignKey(
+                           db.Column('channel_id', db.BigInteger, db.ForeignKey(
                                'channels.id'), primary_key=True),
-                           db.Column('user_id', db.Integer, db.ForeignKey(
-                               'user.id'), primary_key=True))
+                           db.Column('user_id', db.BigInteger, db.ForeignKey(
+                               'users.id'), primary_key=True))
 
 
 class Channel(db.Model):
@@ -35,8 +35,6 @@ class Channel(db.Model):
     last_message_timestamp = db.Column(db.DateTime, nullable=True)
     owner_id = db.Column(db.BigInteger, db.ForeignKey(
         'users.id'), nullable=True)
-    recipients = db.relationship('User', secondary='channel_recipients',
-                                 backref='channels')
     parent_id = db.Column(db.BigInteger, db.ForeignKey(
         'channels.id'), nullable=True)
     members = db.relationship(
