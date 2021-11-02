@@ -1,6 +1,6 @@
 module.exports = {
     reactStrictMode: true,
     experimental: {
-        concurrentFeatures: true,
+        // concurrentFeatures: true,
     },
 };

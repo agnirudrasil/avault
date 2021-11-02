@@ -1,5 +1,6 @@
 import random
-from avault import db, snowflake_id, bcrypt
+from avault import db, snowflake_id, ph
+from argon2.exceptions import VerifyMismatchError, VerificationError, HashingError, InvalidHash
 
 
 class User(db.Model):
@@ -20,7 +21,19 @@ class User(db.Model):
         return tag
 
     def check_password(self, password):
-        return bcrypt.check_password_hash(self.password, password)
+        verified = False
+        try:
+            ph.verify(self.password, password)
+            verified = True
+        except VerificationError:
+            pass
+        except VerifyMismatchError:
+            pass
+        except HashingError:
+            pass
+        except InvalidHash:
+            pass
+        return verified
 
     def serialize(self):
         return {
@@ -35,8 +48,7 @@ class User(db.Model):
         self.id = next(snowflake_id)
         self.username = username
         self.email = email
-        self.password = bcrypt.generate_password_hash(
-            password, 12).decode('utf-8')
+        self.password = ph.hash(password)
         self.tag = '#' + str(self.generate_tag(username)).zfill(4)
 
     def __repr__(self):
