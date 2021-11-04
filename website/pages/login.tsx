@@ -1,9 +1,11 @@
 import { NextPage } from "next";
 import { Field } from "formik";
-import { Button, Link, Typography } from "@mui/material";
+import { Link, Typography } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 import { CustomTextField } from "../src/CustomTextField";
-import { AuthLayout } from "../src/AuthLayout";
+import { AuthLayout } from "../src/layouts/AuthLayout";
 import { useLogin } from "../hooks/useLogin";
+import Router from "next/router";
 
 const LoginPage: NextPage = () => {
     const { mutateAsync } = useLogin();
@@ -22,13 +24,18 @@ const LoginPage: NextPage = () => {
                         errorMap[key as string] = error;
                     }
                     setErrors(errorMap);
+                    setSubmitting(false);
+                    return;
                 } else if (data.error) {
                     setStatus(data.error);
+                    setSubmitting(false);
+                    return;
                 }
+                Router.replace("/channels");
                 setSubmitting(false);
             }}
         >
-            {({ status }: any) => (
+            {({ status, isSubmitting }: any) => (
                 <>
                     <div
                         style={{
@@ -68,15 +75,16 @@ const LoginPage: NextPage = () => {
                         </Link>
                     </div>
                     <div style={{ width: "100%" }}>
-                        <Button
+                        <LoadingButton
                             variant="contained"
                             disableElevation
                             type="submit"
                             fullWidth
+                            loading={isSubmitting}
                             style={{ marginTop: "2rem" }}
                         >
                             Login
-                        </Button>
+                        </LoadingButton>
                         <Typography
                             variant="body1"
                             color="textSecondary"

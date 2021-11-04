@@ -37,11 +37,10 @@ class User(db.Model):
 
     def serialize(self):
         return {
-            'id': self.id,
+            'id': str(self.id),
             'username': self.username,
             'tag': self.tag,
             'email': self.email,
-            'created_at': self.created_at,
         }
 
     def __init__(self, username, password, email):

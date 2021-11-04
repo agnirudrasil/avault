@@ -5,10 +5,13 @@ export const register = async (credentials: any) => {
     for (const [key, value] of Object.entries(credentials)) {
         form.append(key, value as string);
     }
-    const response = await fetch("http://localhost:5000/auth/register", {
-        method: "POST",
-        body: form,
-    });
+    const response = await fetch(
+        `${process.env.NEXT_PUBLIC_URL}/auth/register`,
+        {
+            method: "POST",
+            body: form,
+        }
+    );
 
     return response.json();
 };

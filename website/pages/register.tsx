@@ -2,7 +2,7 @@ import { NextPage } from "next";
 import { Field } from "formik";
 import { Button, Link, Typography } from "@mui/material";
 import { CustomTextField } from "../src/CustomTextField";
-import { AuthLayout } from "../src/AuthLayout";
+import { AuthLayout } from "../src/layouts/AuthLayout";
 import { useRegister } from "../hooks/useRegister";
 
 const RegisterPage: NextPage = () => {

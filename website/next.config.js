@@ -1,6 +1,12 @@
 module.exports = {
     reactStrictMode: true,
-    experimental: {
-        // concurrentFeatures: true,
+    async redirects() {
+        return [
+            {
+                source: "/channels",
+                destination: "/channels/@me",
+                permanent: false,
+            },
+        ];
     },
 };

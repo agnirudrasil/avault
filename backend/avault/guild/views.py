@@ -1,8 +1,10 @@
-from wtforms import Form, validators, StringField
+from sqlalchemy.sql.expression import false
+from wtforms import Form, validators, StringField, FileField
 from flask import Blueprint, jsonify, request
 from avault import db
 from avault.guild import Guild, GuildMembers
 from avault.users import User
+from avault.channels import Channel, ChannelType
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
@@ -12,6 +14,7 @@ bp = Blueprint('guild', __name__, url_prefix='/guild')
 class GuildCreate(Form):
     name = StringField('name', [validators.length(
         min=5, max=80), validators.DataRequired()])
+    icon = FileField('icon')
 
 
 @bp.route('/create', methods=['POST'])
@@ -19,14 +22,47 @@ class GuildCreate(Form):
 def create():
     form = GuildCreate(request.form)
     if form.validate():
-        user = User.query.filter_by(id=get_jwt_identity()).first()
+        user_id = get_jwt_identity()
+        user = User.query.filter_by(id=user_id).first()
         if user:
-            guild = Guild(form.name.data, get_jwt_identity())
+            guild = Guild(form.name.data, user_id)
+            if form.icon.data:
+                form.icon.data.save(
+                    "/home/agnirudra/Projects/avault/backend/uploads/" + guild.id)
+                guild.icon = "/home/agnirudra/Projects/avault/backend/uploads/" + guild.id
             guild_member = GuildMembers()
+            category = Channel(ChannelType.guild_category,
+                               guild.id, 0, 'TEXT CHANNELS')
+            general = Channel(ChannelType.guild_text,
+                              guild.id, 0, 'general')
+            guild.channels.append(category)
+            guild.channels.append(general)
             guild_member.member = user
             guild.members.append(guild_member)
             db.session.add(guild)
             db.session.commit()
-            return jsonify({'success': True})
+            return jsonify({'success': True, 'guild': guild.preview()})
         return jsonify({'success': False, 'error': 'User not found'}), 401
     return jsonify({'success': 'false', 'errors': form.errors}), 403
+
+
+@bp.route('/', methods=['GET'])
+@jwt_required()
+def get_guilds():
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if user:
+        guilds = user.guilds
+        if guilds:
+            return jsonify({'guilds': [guild.guild.preview() for guild in guilds]})
+        return jsonify({'guilds': []})
+    return jsonify({'guilds': []}), 401
+
+
+@bp.route('/<int:guild_id>', methods=['GET'])
+@jwt_required()
+def get_guild(guild_id):
+    guild = Guild.query.filter_by(id=guild_id).first()
+    if guild:
+        print(guild)
+        return jsonify({'guild': guild.serialize()})
+    return jsonify({'guild': None}), 404

@@ -12,6 +12,14 @@ class GuildMembers(db.Model):
     member = db.relationship('User', back_populates="guilds")
     guild = db.relationship('Guild', back_populates="members")
 
+    def serialize(self):
+        return {
+            "id": str(self.id),
+            "guild_id": self.guild_id,
+            "user": self.member.serialize(),
+            "nickname": self.nickname
+        }
+
     def __init__(self, nickname=None):
         self.id = next(snowflake_id)
         self.nickname = nickname
@@ -26,6 +34,27 @@ class Guild(db.Model):
     owner_id = db.Column(db.BigInteger, db.ForeignKey('users.id'))
     owner = db.relationship('User', backref='owner')
     members = db.relationship('GuildMembers', back_populates="guild")
+    channels = db.relationship('Channel')
+
+    def is_owner(self, member: GuildMembers):
+        return member.user_id == self.owner_id
+
+    def preview(self):
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "icon": self.icon,
+        }
+
+    def serialize(self):
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "icon": self.icon,
+            "owner": self.owner.serialize(),
+            "members": [member.serialize() for member in self.members],
+            "channels": [channel.serialize() for channel in self.channels]
+        }
 
     def __init__(self, name, owner_id, icon=None):
         self.id = next(snowflake_id)

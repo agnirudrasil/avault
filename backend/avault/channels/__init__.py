@@ -40,7 +40,21 @@ class Channel(db.Model):
     members = db.relationship(
         'User', secondary=channel_members, backref='channels')
 
-    def __init__(self, type, guild_id, position, name, topic, nsfw, owner_id, parent_id):
+    def serialize(self):
+        return {
+            'id': str(self.id),
+            'type': self.type.value,
+            'position': self.position,
+            'name': self.name,
+            'topic': self.topic,
+            'nsfw': self.nsfw,
+            'last_message_timestamp': self.last_message_timestamp,
+            'owner_id': str(self.owner_id),
+            'parent_id': str(self.parent_id),
+            'members': [member.serialize() for member in self.members]
+        }
+
+    def __init__(self, type, guild_id, position, name, topic="", nsfw=False, owner_id=None, parent_id=None):
         self.id = next(snowflake_id)
         self.type = type
         self.guild_id = guild_id

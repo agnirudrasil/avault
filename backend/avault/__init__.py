@@ -2,6 +2,7 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 import os
+import re
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -39,11 +40,12 @@ def create_app():
         JWT_SECRET_KEY=os.environ.get("JWT_SECRET_KEY", "dev"),
         SQLALCHEMY_DATABASE_URI=db_url,
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        JWT_ACCESS_TOKEN_EXPIRES=timedelta(hours=1),
+        JWT_ACCESS_TOKEN_EXPIRES=timedelta(days=30),
         JWT_REFRESH_TOKEN_EXPIRES=timedelta(days=30),
         CORS_HEADERS='Content-Type',
         JWT_TOKEN_LOCATION=['cookies'],
         JWT_ACCESS_COOKIE_NAME="jwt",
+        JWT_COOKIE_CSRF_PROTECT=False,
     )
 
     db.init_app(app)
@@ -52,7 +54,7 @@ def create_app():
     jwt.init_app(app)
     socketio.init_app(app, message_queue='redis://')
     cors.init_app(
-        app, origins=["http://localhost:3000"])
+        app, origins=["http://localhost:3000"], supports_credentials=True)
 
     from avault.users.views import bp
     from avault.guild.views import bp as guild_bp
