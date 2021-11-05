@@ -4,7 +4,7 @@ import { Link, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { CustomTextField } from "../src/CustomTextField";
 import { AuthLayout } from "../src/layouts/AuthLayout";
-import { useLogin } from "../hooks/useLogin";
+import { useLogin } from "../hooks/requests/useLogin";
 import Router from "next/router";
 
 const LoginPage: NextPage = () => {

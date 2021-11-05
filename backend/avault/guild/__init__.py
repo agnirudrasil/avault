@@ -34,7 +34,7 @@ class Guild(db.Model):
     owner_id = db.Column(db.BigInteger, db.ForeignKey('users.id'))
     owner = db.relationship('User', backref='owner')
     members = db.relationship('GuildMembers', back_populates="guild")
-    channels = db.relationship('Channel')
+    channels = db.relationship('Channel', order_by="asc(Channel.position)")
 
     def is_owner(self, member: GuildMembers):
         return member.user_id == self.owner_id

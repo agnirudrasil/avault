@@ -1,4 +1,3 @@
-import { ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { useMemo } from "react";
 import { CategoryChannel } from "./channels/CategoryChannel";
 import { TextChannel } from "./channels/TextChannel";
@@ -15,6 +14,7 @@ const createHeirarchy = (channels: any[]) => {
             heirarchy[channel.id] = { self: channel, children: [] };
         }
     }
+    console.log(heirarchy);
     return heirarchy;
 };
 
@@ -24,14 +24,25 @@ export const ChannelLayout: React.FC<{ channels: any[] }> = ({ channels }) => {
         <>
             {Object.keys(heirarchy).map(key =>
                 heirarchy[key].children.length === 0 ? (
-                    <ListItemButton key={key}>
-                        <ListItemIcon>#</ListItemIcon>
-                        <ListItemText primary={heirarchy[key].self.name} />
-                    </ListItemButton>
+                    heirarchy[key].self.type ===
+                    "guild_category".toUpperCase() ? (
+                        <CategoryChannel
+                            name={heirarchy[key].self.name}
+                            key={key}
+                            id={key}
+                        />
+                    ) : (
+                        <TextChannel
+                            name={heirarchy[key].self.name}
+                            key={key}
+                            id={key}
+                        />
+                    )
                 ) : (
                     <>
                         <CategoryChannel
                             key={key}
+                            id={key}
                             name={heirarchy[key].self.name}
                         >
                             {heirarchy[key].children.map(channel => (

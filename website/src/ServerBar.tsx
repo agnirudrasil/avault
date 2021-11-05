@@ -3,8 +3,8 @@ import { Add } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import Router from "next/router";
 import { useState } from "react";
-import { useGetGuilds } from "../hooks/useGetGuilds";
-import { CreateServerDialog } from "./CreateServerDialog";
+import { useGetGuilds } from "../hooks/requests/useGetGuilds";
+import { CreateServerDialog } from "./dialogs/CreateServerDialog";
 import { ServerItems } from "./ServerItems";
 
 const Container = styled.div`

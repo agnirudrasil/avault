@@ -12,8 +12,8 @@ import { Formik, Form, Field } from "formik";
 import produce from "immer";
 import { useState } from "react";
 import { useQueryClient } from "react-query";
-import { useGuildCreate } from "../hooks/useGuildCreate";
-import { CustomTextField } from "./CustomTextField";
+import { useGuildCreate } from "../../hooks/requests/useGuildCreate";
+import { CustomTextField } from "../CustomTextField";
 
 export interface CreateServerDialogProps {
     open: boolean;

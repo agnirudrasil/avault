@@ -3,7 +3,7 @@ import { Field } from "formik";
 import { Button, Link, Typography } from "@mui/material";
 import { CustomTextField } from "../src/CustomTextField";
 import { AuthLayout } from "../src/layouts/AuthLayout";
-import { useRegister } from "../hooks/useRegister";
+import { useRegister } from "../hooks/requests/useRegister";
 
 const RegisterPage: NextPage = () => {
     const { mutateAsync } = useRegister();

@@ -1,35 +1,35 @@
 import { List } from "@mui/material";
+import { CreateChannelDialogProvider } from "../contexts/CreateChannelContext";
+import { ServerNavbar } from "./ServerNavbar";
 
 export const ChannelBar: React.FC<{ name?: string }> = ({ children, name }) => {
     return (
-        <List
-            sx={{
-                borderRight: "1px solid #ccc",
-                height: "100vh",
-                maxHeight: "100vh",
-                overflowY: "hidden",
-                minWidth: "max-content",
-            }}
-            dense
-        >
-            <div
-                style={{
-                    borderBottom: "1px solid #ccc",
-                    width: "100%",
-                    padding: "1rem",
-                    position: "sticky",
-                    top: "0",
-                    right: "0",
-                }}
-            >
-                {name || "Channels"}
-            </div>
-
+        <CreateChannelDialogProvider>
             <List
-                sx={{ padding: "1rem", maxHeight: "100%", overflowY: "auto" }}
+                sx={{
+                    borderRight: "1px solid #ccc",
+                    height: "100vh",
+                    maxHeight: "100vh",
+                    overflowY: "hidden",
+                    minWidth: "max-content",
+                }}
+                dense
             >
-                {children}
+                {name ? <ServerNavbar name={name} /> : "Channels"}
+                <List
+                    sx={{
+                        padding: "1rem",
+                        maxHeight: "100%",
+                        overflowY: "auto",
+                        gap: "0.5rem",
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                    dense
+                >
+                    {children}
+                </List>
             </List>
-        </List>
+        </CreateChannelDialogProvider>
     );
 };

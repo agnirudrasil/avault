@@ -32,9 +32,9 @@ def create():
                 guild.icon = "/home/agnirudra/Projects/avault/backend/uploads/" + guild.id
             guild_member = GuildMembers()
             category = Channel(ChannelType.guild_category,
-                               guild.id, 0, 'TEXT CHANNELS')
+                               guild.id, 'TEXT CHANNELS')
             general = Channel(ChannelType.guild_text,
-                              guild.id, 0, 'general')
+                              guild.id, 'general')
             guild.channels.append(category)
             guild.channels.append(general)
             guild_member.member = user
@@ -63,6 +63,5 @@ def get_guilds():
 def get_guild(guild_id):
     guild = Guild.query.filter_by(id=guild_id).first()
     if guild:
-        print(guild)
         return jsonify({'guild': guild.serialize()})
     return jsonify({'guild': None}), 404

@@ -2,7 +2,6 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 import os
-import re
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -17,7 +16,9 @@ from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import set_access_cookies
 from avault import snowflake
 from argon2 import PasswordHasher
-
+# import logging
+# logging.basicConfig()
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 __version__ = (1, 0, 0, 'dev')
 
 snowflake_id = snowflake.generator()
