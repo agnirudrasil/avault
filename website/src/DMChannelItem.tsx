@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { Close } from "@mui/icons-material";
 import { Avatar, IconButton, Typography } from "@mui/material";
 
-const DMChannelItemBase = styled.button<{ selected?: boolean }>`
+const DMChannelItemBase = styled.div<{ selected?: boolean }>`
     display: flex;
     width: 100%;
     min-width: 224px;

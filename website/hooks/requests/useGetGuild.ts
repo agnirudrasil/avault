@@ -1,4 +1,5 @@
 import { useQuery } from "react-query";
+import { useChannelsStore } from "../../stores/useGuildsStore";
 
 export const getGuild = async ({ queryKey }) => {
     const [_, guildId] = queryKey;
@@ -12,4 +13,8 @@ export const getGuild = async ({ queryKey }) => {
 };
 
 export const useGetGuild = (guildId: string) =>
-    useQuery(["guild", guildId], getGuild);
+    useQuery(["guild", guildId], getGuild, {
+        onSuccess: data => {
+            useChannelsStore.getState().setChannels(data.guild.channels);
+        },
+    });

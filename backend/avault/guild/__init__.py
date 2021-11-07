@@ -1,4 +1,7 @@
 from avault import db, snowflake_id
+from sqlalchemy.ext.hybrid import hybrid_property
+from avault.channels import ChannelType
+import copy
 
 
 class GuildMembers(db.Model):
@@ -39,11 +42,18 @@ class Guild(db.Model):
     def is_owner(self, member: GuildMembers):
         return member.user_id == self.owner_id
 
+    @hybrid_property
+    def first_channel(self):
+        for channel in self.channels:
+            if channel.type == ChannelType.guild_text:
+                return str(channel.id)
+
     def preview(self):
         return {
             "id": str(self.id),
             "name": self.name,
             "icon": self.icon,
+            "first_channel": self.first_channel
         }
 
     def serialize(self):
@@ -53,7 +63,7 @@ class Guild(db.Model):
             "icon": self.icon,
             "owner": self.owner.serialize(),
             "members": [member.serialize() for member in self.members],
-            "channels": [channel.serialize() for channel in self.channels]
+            "channels": [channel.serialize() for channel in self.channels],
         }
 
     def __init__(self, name, owner_id, icon=None):

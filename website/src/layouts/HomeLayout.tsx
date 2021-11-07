@@ -58,8 +58,8 @@ export const HomeLayout: React.FC = () => {
                 >
                     {Array(5)
                         .fill(0)
-                        .map(() => (
-                            <DMChannelItem text="Agnirudra Sil" />
+                        .map((_, index) => (
+                            <DMChannelItem key={index} text="Agnirudra Sil" />
                         ))}
                 </List>
             </ChannelBar>

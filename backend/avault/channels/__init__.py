@@ -54,8 +54,8 @@ class Channel(db.Model):
             'topic': self.topic,
             'nsfw': self.nsfw,
             'last_message_timestamp': self.last_message_timestamp,
-            'owner_id': str(self.owner_id),
-            'parent_id': str(self.parent_id),
+            'owner_id': str(self.owner_id) if self.owner_id else None,
+            'parent_id': str(self.parent_id) if self.parent_id else None,
             'members': [member.serialize() for member in self.members]
         }
 

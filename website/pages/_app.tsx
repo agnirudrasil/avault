@@ -6,6 +6,7 @@ import theme from "../src/theme";
 import { CssBaseline } from "@mui/material";
 import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
 import { useState } from "react";
+import { WebsocketProvider } from "../contexts/WebsocketProvider";
 
 const clientSideCache = createEmotionCache();
 
@@ -17,13 +18,16 @@ interface MyAppProps extends AppProps {
 const MyApp = (props: MyAppProps) => {
     const { Component, emotionCache = clientSideCache, pageProps } = props;
     const [queryClient] = useState(() => new QueryClient());
+    console.log("I am built");
     return (
         <QueryClientProvider client={queryClient}>
             <Hydrate state={pageProps.dehydratedState}>
                 <CacheProvider value={emotionCache}>
                     <ThemeProvider theme={theme}>
                         <CssBaseline />
-                        <Component {...pageProps} />
+                        <WebsocketProvider>
+                            <Component {...pageProps} />
+                        </WebsocketProvider>
                     </ThemeProvider>
                 </CacheProvider>
             </Hydrate>

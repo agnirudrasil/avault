@@ -2,13 +2,11 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 import os
-
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_socketio import SocketIO
 from flask_cors import CORS
-from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt
@@ -24,15 +22,14 @@ __version__ = (1, 0, 0, 'dev')
 snowflake_id = snowflake.generator()
 db = SQLAlchemy()
 migrate = Migrate()
-bcrypt = Bcrypt()
-socketio = SocketIO(cors_allowed_origins=["http://localhost:3000"])
+socketio = SocketIO(cors_allowed_origins=[
+                    "http://localhost:3000"])
 jwt = JWTManager()
 cors = CORS()
 ph = PasswordHasher()
 
 
 def create_app():
-
     app = Flask(__name__)
     db_url = os.environ.get('DATABASE_URL')
 
@@ -46,21 +43,23 @@ def create_app():
         CORS_HEADERS='Content-Type',
         JWT_TOKEN_LOCATION=['cookies'],
         JWT_ACCESS_COOKIE_NAME="jwt",
+        JWT_COOKIE_SECURE=False,
         JWT_COOKIE_CSRF_PROTECT=False,
+        JWT_SESSION_COOKIE=False,
     )
 
     db.init_app(app)
     migrate.init_app(app, db)
-    bcrypt.init_app(app)
     jwt.init_app(app)
-    socketio.init_app(app, message_queue='redis://')
+    socketio.init_app(app, message_queue="redis://")
     cors.init_app(
         app, origins=["http://localhost:3000"], supports_credentials=True)
 
-    from avault.users.views import bp
-    from avault.guild.views import bp as guild_bp
-    from avault.channels.views import bp as channel_bp
     from avault.messages.views import bp as message_bp
+    from avault.channels.views import bp as channel_bp
+    from avault.guild.views import bp as guild_bp
+    from avault.users.views import bp
+
     app.register_blueprint(bp)
     app.register_blueprint(guild_bp)
     app.register_blueprint(channel_bp)
@@ -79,5 +78,4 @@ def create_app():
         except (RuntimeError, KeyError):
             # Case where there is not a valid JWT. Just return the original respone
             return response
-
     return app

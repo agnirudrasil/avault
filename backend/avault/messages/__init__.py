@@ -1,5 +1,8 @@
-from avault import db
-from sqlalchemy.dialects.postgresql import JSONB
+from datetime import datetime
+from avault.channels import Channel
+from avault import db, snowflake_id
+from sqlalchemy.dialects.postgresql import JSONB, ARRAY
+from sqlalchemy.ext.hybrid import hybrid_property
 import re
 
 
@@ -16,7 +19,7 @@ class Reactions(db.Model):
         return {
             'id': self.id,
             'message_id': self.message_id,
-            'user_id': self.user,
+            'user_id': self.user_id,
             'reaction': self.reaction
         }
 
@@ -35,38 +38,47 @@ class Message(db.Model):
     author_id = db.Column(db.BigInteger, db.ForeignKey(
         'users.id'))
     content = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    timestamp: datetime = db.Column(
+        db.DateTime, nullable=False, default=db.func.now())
     replies_to = db.Column(db.BigInteger, db.ForeignKey('messages.id'))
     edited_timestamp = db.Column(db.DateTime)
     tts = db.Column(db.Boolean, nullable=False, default=False)
     mention_everyone = db.Column(db.Boolean, nullable=False, default=False)
-    mentions = db.Column(db.ARRAY(db.BigInteger))
-    mention_roles = db.Column(db.ARRAY(db.BigInteger))
-    mention_channels = db.Column(db.ARRAY(db.BigInteger))
+    mentions = db.Column(ARRAY(db.BigInteger))
+    mention_roles = db.Column(ARRAY(db.BigInteger))
+    mention_channels = db.Column(ARRAY(db.BigInteger))
     embeds = db.Column(JSONB)
     attachments = db.Column(JSONB)
     reactions = db.relationship('Reactions', back_populates='message')
-    channel = db.relationship('Channel')
+    channel: Channel = db.relationship('Channel')
     author = db.relationship('User')
     reply = db.relationship('Message', remote_side=[id])
 
     def serialize(self):
+        print(type(self.timestamp))
         return {
             'id': self.id,
             'channel_id': self.channel_id,
+            'guild_id': self.guild_id,
             'author_id': self.author_id,
             'content': self.content,
-            'timestamp': self.timestamp,
+            'timestamp': self.timestamp.isoformat(),
             'edited_timestamp': self.edited_timestamp,
             'tts': self.tts,
-            'mention_everyone': self.mention_everyone,
-            'mentions': self.mentions,
-            'mention_roles': self.mention_roles,
-            'mention_channels': self.mention_channels,
+            'mention_everyone': self.mention_everyone(self.content),
+            'mentions': self.mentions(self.content),
+            'mention_roles': self.mention_roles(self.content),
+            'mention_channels': self.mention_channels(self.content),
             'embeds': self.embeds,
             'attachments': self.attachments,
-            'reactions': [reaction.serialize() for reaction in self.reactions]
+            'reactions': [reaction.serialize() for reaction in self.reactions],
+            'author': self.author.serialize() if self.author else None,
+            'reply': self.reply.serialize() if self.reply else None
         }
+
+    @hybrid_property
+    def guild_id(self):
+        return self.channel.guild_id
 
     def mention_everyone(self, content):
         return '@everyone' in content
@@ -87,13 +99,14 @@ class Message(db.Model):
                  tts,
                  embeds,
                  attachments):
+        self.id = next(snowflake_id)
         self.content = content
         self.channel_id = channel_id
         self.author_id = author_id
         self.tts = tts
-        self.mention_everyone = self.mention_everyone(content)
-        self.mentions = self.mentions(content)
-        self.mention_roles = self.mention_roles(content)
-        self.mention_channels = self.mention_channels(content)
+        self.mentions_everyone = self.mention_everyone(content)
+        self.mention = self.mentions(content)
+        self.mention_role = self.mention_roles(content)
+        self.mention_channel = self.mention_channels(content)
         self.embeds = embeds
         self.attachments = attachments

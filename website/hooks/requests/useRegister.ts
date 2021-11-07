@@ -6,7 +6,7 @@ export const register = async (credentials: any) => {
         form.append(key, value as string);
     }
     const response = await fetch(
-        `${process.env.NEXT_PUBLIC_URL}/auth/register`,
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
         {
             method: "POST",
             body: form,

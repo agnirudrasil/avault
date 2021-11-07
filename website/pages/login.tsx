@@ -31,7 +31,7 @@ const LoginPage: NextPage = () => {
                     setSubmitting(false);
                     return;
                 }
-                Router.replace("/channels");
+                Router.replace("/channels/@me");
                 setSubmitting(false);
             }}
         >
