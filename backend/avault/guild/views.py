@@ -8,7 +8,7 @@ from avault.channels import Channel, ChannelType
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
-bp = Blueprint('guild', __name__, url_prefix='/guild')
+bp = Blueprint('guild', __name__, url_prefix='/guilds')
 
 
 class GuildCreate(Form):
@@ -17,7 +17,7 @@ class GuildCreate(Form):
     icon = FileField('icon')
 
 
-@bp.route('/create', methods=['POST'])
+@bp.route('/', methods=['POST'])
 @jwt_required()
 def create():
     form = GuildCreate(request.form)
@@ -46,22 +46,10 @@ def create():
     return jsonify({'success': 'false', 'errors': form.errors}), 403
 
 
-@bp.route('/', methods=['GET'])
-@jwt_required()
-def get_guilds():
-    user = User.query.filter_by(id=get_jwt_identity()).first()
-    if user:
-        guilds = user.guilds
-        if guilds:
-            return jsonify({'guilds': [guild.guild.preview() for guild in guilds]})
-        return jsonify({'guilds': []})
-    return jsonify({'guilds': []}), 401
-
-
 @bp.route('/<int:guild_id>', methods=['GET'])
 @jwt_required()
 def get_guild(guild_id):
     guild = Guild.query.filter_by(id=guild_id).first()
-    if guild:
+    if guild and guild.is_member(get_jwt_identity()):
         return jsonify({'guild': guild.serialize()})
     return jsonify({'guild': None}), 404

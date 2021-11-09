@@ -9,10 +9,9 @@ import {
     Button,
 } from "@mui/material";
 import { Formik, Form, Field } from "formik";
-import produce from "immer";
 import { useState } from "react";
-import { useQueryClient } from "react-query";
 import { useGuildCreate } from "../../hooks/requests/useGuildCreate";
+import { useGuildsStore } from "../../stores/useGuildsStore";
 import { CustomTextField } from "../CustomTextField";
 
 export interface CreateServerDialogProps {
@@ -23,7 +22,7 @@ export interface CreateServerDialogProps {
 export const CreateServerDialog: React.FC<CreateServerDialogProps> = props => {
     const { onClose, open } = props;
     const { mutateAsync } = useGuildCreate();
-    const queryClient = useQueryClient();
+    const addGuilds = useGuildsStore(state => state.addGuilds);
 
     const handleClose = () => {
         onClose();
@@ -55,12 +54,7 @@ export const CreateServerDialog: React.FC<CreateServerDialogProps> = props => {
                     form.append("name", values.name);
                     if (values.icon) form.append("icon", values.icon);
                     const data = await mutateAsync(form);
-                    queryClient.setQueryData("guilds", old => {
-                        console.log(old);
-                        return produce(old, (draft: any) => {
-                            draft.guilds.push(data.guild);
-                        });
-                    });
+                    addGuilds(data.guild);
                     setSubmitting(false);
                     handleClose();
                 }}

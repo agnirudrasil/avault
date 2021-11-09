@@ -6,25 +6,22 @@ import copy
 
 class GuildMembers(db.Model):
     __tablename__ = "guild_members"
-    id = db.Column(db.BigInteger, primary_key=True)
     guild_id = db.Column(db.BigInteger, db.ForeignKey(
-        "guilds.id"), nullable=False)
+        "guilds.id"), nullable=False, primary_key=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey(
-        "users.id"), nullable=False)
+        "users.id"), nullable=False, primary_key=True)
     nickname = db.Column(db.String(80), nullable=True)
     member = db.relationship('User', back_populates="guilds")
     guild = db.relationship('Guild', back_populates="members")
 
     def serialize(self):
         return {
-            "id": str(self.id),
             "guild_id": self.guild_id,
             "user": self.member.serialize(),
             "nickname": self.nickname
         }
 
     def __init__(self, nickname=None):
-        self.id = next(snowflake_id)
         self.nickname = nickname
 
 
@@ -41,6 +38,9 @@ class Guild(db.Model):
 
     def is_owner(self, member: GuildMembers):
         return member.user_id == self.owner_id
+
+    def is_member(self, user_id):
+        return GuildMembers.query.filter_by(user_id=user_id, guild_id=self.id).first() is not None
 
     @hybrid_property
     def first_channel(self):

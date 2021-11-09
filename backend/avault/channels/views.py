@@ -1,14 +1,100 @@
+from datetime import datetime, timedelta
 from typing import Optional
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from avault.channels import Channel, ChannelType
-from avault.guild import Guild
+from avault.guild import Guild, GuildMembers
+from avault.invites import Invite
 from avault.users import User
 from avault import db
 from pydantic import BaseModel, validator, ValidationError
 
 
 bp = Blueprint("channels", __name__, url_prefix="/channels")
+
+
+class ChannelInvite(BaseModel):
+    max_age: Optional[int] = 86400
+    max_uses: Optional[int] = 0
+    unique: Optional[bool] = False
+
+    @validator('max_age')
+    def validate_max_age(cls, v):
+        if v is not None:
+            if 0 <= v <= 604800:
+                return v
+            else:
+                raise ValueError('max_age must be between 0 and 604800')
+        v = 86400
+        return v
+
+    @validator('max_uses')
+    def validate_max_uses(cls, v):
+        if v is not None:
+            if 0 <= v <= 100:
+                return v
+            else:
+                raise ValueError('max_uses must be between 0 and 100')
+        v = 0
+        return v
+
+    @validator('unique')
+    def validate_unique(cls, v):
+        return v if v is not None else False
+
+
+@bp.route('/join/<string:code>', methods=['GET'])
+@jwt_required()
+def join_guild(code):
+    invite: Invite = Invite.query.filter_by(id=code).first()
+    if invite:
+        guild_id = invite.channel.guild_id
+        if invite.max_uses != 0 and invite.max_uses == invite.count:
+            db.session.delete(invite)
+            db.session.commit()
+            return jsonify({"message": "Invite has been used"}), 403
+        if invite.max_age != 0 and (invite.created_at + timedelta(seconds=invite.max_age)) >= datetime.now():
+            # db.session.delete(invite)
+            # db.session.commit()
+            return jsonify({"message": "Invite has expired"}), 403
+        if guild_id:
+            invite.count += 1
+            db.session.add(invite)
+            guild: Guild = Guild.query.filter_by(id=guild_id).first()
+            user = User.query.filter_by(id=get_jwt_identity()).first()
+            guild_member = GuildMembers()
+            guild_member.member = user
+            guild_member.guild = guild
+            guild.members.append(guild_member)
+            db.session.add(guild)
+            db.session.commit()
+        return "Sucess"
+    return "", 404
+
+
+@bp.route('/<int:channel_id>/invites', methods=['POST', 'GET'])
+@jwt_required()
+def invite(channel_id):
+    if request.method == 'POST':
+        try:
+            data = ChannelInvite(**request.json)
+            if data.unique == False:
+                invite = Invite.query.filter_by(channel_id=channel_id).\
+                    filter_by(user_id=get_jwt_identity()).\
+                    filter_by(max_uses=data.max_uses).\
+                    filter_by(max_age=data.max_age).first()
+                if invite:
+                    return jsonify(**invite.serialize())
+            invite = Invite(channel_id, get_jwt_identity(),
+                            data.max_age, data.max_uses)
+            db.session.add(invite)
+            db.session.commit()
+            return jsonify(**invite.serialize())
+        except ValidationError as e:
+            return jsonify({'errors': e.json()}), 400
+    else:
+        invites = Invite.query.filter_by(channel_id=channel_id).all()
+        return jsonify({'invites': [invite.serialize() for invite in invites]})
 
 
 class ChannelValidate(BaseModel):

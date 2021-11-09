@@ -1,16 +1,20 @@
 import random
+from typing import List
 from avault import db, snowflake_id, ph
+from avault.guild import Guild
 from argon2.exceptions import VerifyMismatchError, VerificationError, HashingError, InvalidHash
 
 
 class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.BigInteger, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    username = db.Column(db.String(80), nullable=False)
     password = db.Column(db.Text, nullable=False)
     tag = db.Column(db.String(5), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    guilds = db.relationship("GuildMembers", back_populates="member")
+    guilds: List[Guild] = db.relationship(
+        "GuildMembers", back_populates="member")
+    __table_args__ = (db.UniqueConstraint('username', 'tag'),)
 
     def generate_tag(self, username):
         tag = random.randint(1, 9999)

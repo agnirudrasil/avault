@@ -1,14 +1,11 @@
 import { useMutation } from "react-query";
 
 export const guildCreate = async (guild: FormData) => {
-    const data = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/guild/create`,
-        {
-            method: "POST",
-            body: guild,
-            credentials: "include",
-        }
-    );
+    const data = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/guilds/`, {
+        method: "POST",
+        body: guild,
+        credentials: "include",
+    });
     return data.json();
 };
 

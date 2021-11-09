@@ -55,12 +55,11 @@ class Message(db.Model):
     reply = db.relationship('Message', remote_side=[id])
 
     def serialize(self):
-        print(type(self.timestamp))
         return {
             'id': self.id,
-            'channel_id': self.channel_id,
-            'guild_id': self.guild_id,
-            'author_id': self.author_id,
+            'channel_id': str(self.channel_id) if self.channel_id else None,
+            'guild_id': str(self.guild_id) if self.guild_id else None,
+            'author_id': str(self.author_id) if self.author_id else None,
             'content': self.content,
             'timestamp': self.timestamp.isoformat(),
             'edited_timestamp': self.edited_timestamp,

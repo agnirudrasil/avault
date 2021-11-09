@@ -3,8 +3,16 @@ import { combine } from "zustand/middleware";
 import { Channel } from "../types/Channel";
 
 export const useGuildsStore = create(
-    combine({ guilds: [] }, set => ({
+    combine({ guilds: [] as any[] }, set => ({
         setGuilds: (guilds: any) => set(() => ({ guilds })),
+        addGuilds: (guild: any) =>
+            set(({ guilds }) => ({ guilds: [...guilds, guild] })),
+        removeGuild: (guildId: string) =>
+            set(({ guilds }) => {
+                return {
+                    guilds: guilds.filter(g => g.id !== guildId),
+                };
+            }),
     }))
 );
 

@@ -1,9 +1,9 @@
-import { InputBase, Paper, IconButton, Divider } from "@mui/material";
+import { Paper, IconButton, Divider } from "@mui/material";
 import { AddCircle, EmojiEmotions, Send } from "@mui/icons-material";
 import { useRouter } from "next/router";
 import { useChannelsStore } from "../stores/useGuildsStore";
 import shallow from "zustand/shallow";
-import { FormEvent, useEffect } from "react";
+import { useEffect } from "react";
 import { useSocket } from "../hooks/useSocket";
 import { Formik, Form, Field } from "formik";
 import { MessageField } from "./CustomTextField";

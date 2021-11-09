@@ -1,59 +1,31 @@
-from flask import Blueprint, jsonify, request, Response
-from wtforms import Form, StringField, validators, PasswordField
+from flask import Blueprint, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from avault.guild import GuildMembers
 from avault.users import User
 from avault import db
-from flask_jwt_extended import create_access_token, set_access_cookies
-from flask_jwt_extended import jwt_required
 
-bp = Blueprint('auth', __name__, url_prefix='/auth')
+bp = Blueprint('users', __name__, url_prefix='/users')
 
 
-class Registration(Form):
-    username = StringField('username', [validators.Length(
-        min=3, max=80), validators.DataRequired()], (lambda x: x.strip(),))
-    password = PasswordField('password', [validators.Length(
-        min=6, max=25), validators.DataRequired(), validators.Regexp(
-            '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
-            message='Password must contain at least one uppercase letter, one lowercase letter, one number and one special character')],
-    )
-    email = StringField(
-        'email', [validators.Email(), validators.DataRequired()], (lambda x: x.strip(),))
-
-
-@bp.route('/register', methods=['POST'])
-def register():
-    form = Registration(request.form)
-    if form.validate():
-        user = User.query.filter_by(email=form.email.data).first()
-        if (user):
-            return jsonify({'error': 'User already exists'}), 409
-        user = User(form.username.data, form.password.data, form.email.data)
-        db.session.add(user)
-        db.session.commit()
-        return jsonify({'success': True}), 201
-    else:
-        return jsonify({'success': False, 'errors': form.errors}), 403
-
-
-@bp.route('/login', methods=['POST'])
-def login():
-    email = request.form.get('email', '').strip()
-    password = request.form.get('password', '').strip()
-    user = User.query.filter_by(email=email).first()
-    if (user):
-        if (user.check_password(password)):
-            access_token = create_access_token(identity=user.id)
-            response = jsonify({'success': True})
-            set_access_cookies(response, access_token)
-            return response, 200
-        else:
-            return jsonify({'errors': {"email": "Login or password is invalid",
-                                       "password": "Login or password is invalid"}}), 401
-    else:
-        return jsonify({'error': 'User does not exist'}), 404
-
-
-@bp.route("/protected", methods=['GET'])
+@bp.route('/@me/guilds', methods=['GET'])
 @jwt_required()
-def protected():
-    return jsonify({'success': True}), 200
+def get_guilds():
+    user = User.query.filter_by(id=get_jwt_identity()).first()
+    if user:
+        guilds = user.guilds
+        if guilds:
+            return jsonify({'guilds': [guild.guild.preview() for guild in guilds]})
+        return jsonify({'guilds': []})
+    return jsonify({'guilds': []}), 401
+
+
+@bp.route('/@me/guilds/<int:guild_id>', methods=['DELETE'])
+@jwt_required()
+def leave_guild(guild_id):
+    guild_memeber = GuildMembers.query.filter_by(
+        user_id=get_jwt_identity(), guild_id=guild_id).first()
+    if guild_memeber:
+        db.session.delete(guild_memeber)
+        db.session.commit()
+        return '', 204
+    return jsonify({'success': False}), 404

@@ -29,6 +29,9 @@ export const CategoryChannel: React.FC<{ name: string; id: string }> = ({
                     justifyContent: "flex-start",
                     gap: "1rem",
                     color: "#ccc",
+                    cursor: "pointer",
+                    maxWidth: "100%",
+                    textOverflow: "ellipsis",
                     ":hover": {
                         background: "transparent",
                         color: "black",
@@ -68,7 +71,7 @@ export const CategoryChannel: React.FC<{ name: string; id: string }> = ({
                 </ListItemSecondaryAction>
             </ListItem>
             <Collapse in={open} timeout="auto" unmountOnExit>
-                <List dense component="div" sx={{ pl: 4 }}>
+                <List dense component="div" sx={{ pl: 0.5 }}>
                     {children}
                 </List>
             </Collapse>

@@ -20,7 +20,10 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
+import { useLeaveServer } from "../hooks/requests/useLeaveServer";
 import { useCreateChannel } from "../hooks/useCreateChannel";
+import { useCreateInvite } from "../hooks/useCreateInvite";
+import { useGuildsStore } from "../stores/useGuildsStore";
 
 const MyMenuItems: React.FC<{ lable: string; onClick?: () => any }> = ({
     lable,
@@ -45,6 +48,9 @@ const MyMenu: React.FC<{
     const createChannelHandler = (type: any) => {
         createChannel({ guild_id: router.query.server_id as string, type });
     };
+    const removeGuild = useGuildsStore(state => state.removeGuild);
+    const { createInvite } = useCreateInvite();
+    const { mutateAsync } = useLeaveServer(() => {});
 
     return (
         <Menu
@@ -67,7 +73,7 @@ const MyMenu: React.FC<{
             transformOrigin={{ horizontal: "right", vertical: "top" }}
             anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         >
-            <MyMenuItems lable="Invite People">
+            <MyMenuItems onClick={() => createInvite()} lable="Invite People">
                 <PersonAdd />
             </MyMenuItems>
             <MyMenuItems lable="Server Settings">
@@ -93,7 +99,15 @@ const MyMenu: React.FC<{
                 <CheckBox />
             </MyMenuItems>
             <Divider />
-            <MyMenuItems lable="Leave Server">
+            <MyMenuItems
+                onClick={async () => {
+                    const id = router.query.server_id as string;
+                    await mutateAsync(id);
+                    removeGuild(id);
+                    router.replace("/channels/@me");
+                }}
+                lable="Leave Server"
+            >
                 <ExitToApp />
             </MyMenuItems>
         </Menu>

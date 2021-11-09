@@ -12,7 +12,7 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import set_access_cookies
-from avault import snowflake
+from avault.utils import snowflake
 from argon2 import PasswordHasher
 # import logging
 # logging.basicConfig()
@@ -46,6 +46,7 @@ def create_app():
         JWT_COOKIE_SECURE=False,
         JWT_COOKIE_CSRF_PROTECT=False,
         JWT_SESSION_COOKIE=False,
+        CORS_METHODS='GET,PUT,POST,DELETE,OPTIONS'
     )
 
     db.init_app(app)
@@ -58,12 +59,16 @@ def create_app():
     from avault.messages.views import bp as message_bp
     from avault.channels.views import bp as channel_bp
     from avault.guild.views import bp as guild_bp
-    from avault.users.views import bp
+    from avault.invites.views import bp as invite_bp
+    from avault.users.views import bp as user_bp
+    from avault.users.auth_views import bp
 
     app.register_blueprint(bp)
+    app.register_blueprint(user_bp)
     app.register_blueprint(guild_bp)
     app.register_blueprint(channel_bp)
     app.register_blueprint(message_bp)
+    app.register_blueprint(invite_bp)
 
     @app.after_request
     def refresh_expiring_jwts(response):
