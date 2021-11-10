@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
+from sqlalchemy.exc import IntegrityError
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from avault.channels import Channel, ChannelType
@@ -58,16 +59,20 @@ def join_guild(code):
             # db.session.commit()
             return jsonify({"message": "Invite has expired"}), 403
         if guild_id:
-            invite.count += 1
-            db.session.add(invite)
-            guild: Guild = Guild.query.filter_by(id=guild_id).first()
-            user = User.query.filter_by(id=get_jwt_identity()).first()
-            guild_member = GuildMembers()
-            guild_member.member = user
-            guild_member.guild = guild
-            guild.members.append(guild_member)
-            db.session.add(guild)
-            db.session.commit()
+            try:
+                guild: Guild = Guild.query.filter_by(id=guild_id).first()
+                user = User.query.filter_by(id=get_jwt_identity()).first()
+                guild_member = GuildMembers()
+                guild_member.member = user
+                guild_member.guild = guild
+                guild.members.append(guild_member)
+                db.session.add(guild)
+                invite.count += 1
+                db.session.add(invite)
+                db.session.commit()
+                return jsonify({"message": "Joined guild"}), 200
+            except IntegrityError:
+                return jsonify({"message": "Already in guild"}), 403
         return "Sucess"
     return "", 404
 

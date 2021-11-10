@@ -1,27 +1,31 @@
 from avault import db, snowflake_id
 from sqlalchemy.ext.hybrid import hybrid_property
 from avault.channels import ChannelType
-import copy
 
 
 class GuildMembers(db.Model):
     __tablename__ = "guild_members"
+    id = db.Column(db.BigInteger, primary_key=True)
     guild_id = db.Column(db.BigInteger, db.ForeignKey(
-        "guilds.id"), nullable=False, primary_key=True)
+        "guilds.id"), nullable=False)
     user_id = db.Column(db.BigInteger, db.ForeignKey(
-        "users.id"), nullable=False, primary_key=True)
+        "users.id"), nullable=False)
     nickname = db.Column(db.String(80), nullable=True)
     member = db.relationship('User', back_populates="guilds")
     guild = db.relationship('Guild', back_populates="members")
+    __table_args__ = (db.UniqueConstraint(
+        'guild_id', 'user_id', name='_guild_member_uc'),)
 
     def serialize(self):
         return {
             "guild_id": self.guild_id,
             "user": self.member.serialize(),
-            "nickname": self.nickname
+            "nickname": self.nickname,
+            'roles': self.roles
         }
 
     def __init__(self, nickname=None):
+        self.id = next(snowflake_id)
         self.nickname = nickname
 
 

@@ -3,6 +3,7 @@ from wtforms import Form, validators, StringField, FileField
 from flask import Blueprint, jsonify, request
 from avault import db
 from avault.guild import Guild, GuildMembers
+from avault.guild.roles import Role
 from avault.users import User
 from avault.channels import Channel, ChannelType
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -31,6 +32,7 @@ def create():
                     "/home/agnirudra/Projects/avault/backend/uploads/" + guild.id)
                 guild.icon = "/home/agnirudra/Projects/avault/backend/uploads/" + guild.id
             guild_member = GuildMembers()
+            role = Role(guild.id, '@everyone', 0, 0, 0x0, True, guild.id)
             category = Channel(ChannelType.guild_category,
                                guild.id, 'TEXT CHANNELS')
             general = Channel(ChannelType.guild_text,
@@ -40,6 +42,7 @@ def create():
             guild_member.member = user
             guild.members.append(guild_member)
             db.session.add(guild)
+            db.session.add(role)
             db.session.commit()
             return jsonify({'success': True, 'guild': guild.preview()})
         return jsonify({'success': False, 'error': 'User not found'}), 401
