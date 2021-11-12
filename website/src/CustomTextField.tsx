@@ -17,6 +17,11 @@ export const MessageField = (props: InputBaseProps) => (
         inputProps={{
             "aria-label": "send message",
         }}
+        onKeyDown={e => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+            }
+        }}
         multiline
         {...fieldToInputBase(props)}
     />

@@ -1,0 +1,115 @@
+
+from datetime import datetime
+from avault.models.channels import Channel
+from avault.core.security import snowflake_id
+from sqlalchemy.dialects.postgresql import JSONB, ARRAY
+from sqlalchemy.ext.hybrid import hybrid_property
+from avault.db.base_class import Base
+from sqlalchemy import Column, Integer, ForeignKey, String, DateTime, Boolean, func, BigInteger, Text
+from sqlalchemy.orm import relationship
+import re
+
+
+class Reactions(Base):
+    __tablename__ = 'reactions'
+    id = Column(Integer, primary_key=True)
+    message_id = Column(Integer, ForeignKey('messages.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
+    reaction = Column(String(1), nullable=False)
+    message = relationship('Message', back_populates='reactions')
+    user = relationship('User')
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'message_id': self.message_id,
+            'user_id': self.user_id,
+            'reaction': self.reaction
+        }
+
+    def __init__(self, reaction):
+        self.reaction = reaction
+
+    def __repr__(self):
+        return '<Reactions {}>'.format(self.reaction)
+
+
+class Message(Base):
+    __tablename__ = 'messages'
+    id = Column(BigInteger, primary_key=True)
+    channel_id = Column(BigInteger, ForeignKey(
+        'channels.id'), nullable=False)
+    author_id = Column(BigInteger, ForeignKey(
+        'users.id'))
+    content = Column(Text)
+    timestamp: datetime = Column(
+        DateTime, nullable=False, default=func.now())
+    replies_to = Column(BigInteger, ForeignKey('messages.id'))
+    edited_timestamp = Column(DateTime)
+    tts = Column(Boolean, nullable=False, default=False)
+    mention_everyone = Column(Boolean, nullable=False, default=False)
+    mentions = Column(ARRAY(BigInteger))
+    mention_roles = Column(ARRAY(BigInteger))
+    mention_channels = Column(ARRAY(BigInteger))
+    embeds = Column(JSONB)
+    attachments = Column(JSONB)
+    reactions = relationship('Reactions', back_populates='message')
+    channel: Channel = relationship('Channel')
+    author = relationship('User')
+    reply = relationship('Message', remote_side=[id])
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'channel_id': str(self.channel_id) if self.channel_id else None,
+            'guild_id': str(self.guild_id) if self.guild_id else None,
+            'author_id': str(self.author_id) if self.author_id else None,
+            'content': self.content,
+            'timestamp': self.timestamp.isoformat(),
+            'edited_timestamp': self.edited_timestamp,
+            'tts': self.tts,
+            'mention_everyone': self.mention_everyone(self.content),
+            'mentions': self.mentions(self.content),
+            'mention_roles': self.mention_roles(self.content),
+            'mention_channels': self.mention_channels(self.content),
+            'embeds': self.embeds,
+            'attachments': self.attachments,
+            'reactions': [reaction.serialize() for reaction in self.reactions],
+            'author': self.author.serialize() if self.author else None,
+            'reply': self.reply.serialize() if self.reply else None
+        }
+
+    @hybrid_property
+    def guild_id(self):
+        return self.channel.guild_id
+
+    def mention_everyone(self, content):
+        return '@everyone' in content
+
+    def mentions(self, content):
+        return re.findall(r'<@(\d+)>', content)
+
+    def mention_roles(self, content):
+        return re.findall(r'<@&(\d+)>', content)
+
+    def mention_channels(self, content):
+        return re.findall(r'<#(\d+)>', content)
+
+    def __init__(self,
+                 content,
+                 channel_id,
+                 author_id,
+                 tts,
+                 embeds,
+                 attachments):
+        self.id = next(snowflake_id)
+        self.content = content
+        self.channel_id = channel_id
+        self.author_id = author_id
+        self.tts = tts
+        self.mentions_everyone = self.mention_everyone(content)
+        self.mention = self.mentions(content)
+        self.mention_role = self.mention_roles(content)
+        self.mention_channel = self.mention_channels(content)
+        self.embeds = embeds
+        self.attachments = attachments

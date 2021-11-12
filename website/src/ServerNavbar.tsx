@@ -76,7 +76,14 @@ const MyMenu: React.FC<{
             <MyMenuItems onClick={() => createInvite()} lable="Invite People">
                 <PersonAdd />
             </MyMenuItems>
-            <MyMenuItems lable="Server Settings">
+            <MyMenuItems
+                onClick={() => {
+                    router.replace(
+                        `/channels/${router.query.server_id}/settings`
+                    );
+                }}
+                lable="Server Settings"
+            >
                 <Settings />
             </MyMenuItems>
             <MyMenuItems

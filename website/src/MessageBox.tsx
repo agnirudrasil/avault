@@ -27,6 +27,8 @@ export const MessageBox: React.FC = () => {
                 content: "",
             }}
             onSubmit={({ content }, { setSubmitting, setValues }) => {
+                content = content.trim();
+                if (!content) return;
                 if (!socket) {
                 } else {
                     socket.emit("message", {
@@ -38,8 +40,15 @@ export const MessageBox: React.FC = () => {
                 setSubmitting(false);
             }}
         >
-            {() => (
-                <Form style={{ width: "100%" }}>
+            {({ submitForm }) => (
+                <Form
+                    onKeyDown={e => {
+                        if (e.key === "Enter" && e.shiftKey === false) {
+                            submitForm();
+                        }
+                    }}
+                    style={{ width: "100%" }}
+                >
                     <Paper
                         component="div"
                         sx={{
