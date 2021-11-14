@@ -1,4 +1,5 @@
 import { useMutation } from "react-query";
+import { request } from "../../src/request";
 
 type PostData = {
     max_uses: number;
@@ -12,7 +13,7 @@ export const createInvite = async ({
     channelId: string;
     body: PostData;
 }) => {
-    const data = await fetch(
+    const data = await request(
         `${process.env.NEXT_PUBLIC_API_URL}/channels/${channelId}/invites`,
         {
             credentials: "include",

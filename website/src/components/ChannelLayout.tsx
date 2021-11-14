@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useChannelsStore } from "../stores/useGuildsStore";
 import { CategoryChannel } from "./channels/CategoryChannel";
 import { TextChannel } from "./channels/TextChannel";
 
@@ -22,8 +21,7 @@ const createHeirarchy = (channels: any[]) => {
     return heirarchy;
 };
 
-export const ChannelLayout: React.FC = () => {
-    const channels = useChannelsStore(state => state.channels);
+export const ChannelLayout: React.FC<{ channels: any[] }> = ({ channels }) => {
     const heirarchy = useMemo(() => createHeirarchy(channels), [channels]);
     return (
         <>

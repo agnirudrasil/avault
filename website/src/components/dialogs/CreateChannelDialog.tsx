@@ -22,7 +22,7 @@ import produce from "immer";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "react-query";
-import { useCreateChannel } from "../../hooks/requests/useCreateChannel";
+import { useCreateChannel } from "../../../hooks/requests/useCreateChannel";
 import { ChannelIcon } from "../ChannelIcon";
 import { Android12Switch } from "../Form/AndroidSwitch";
 

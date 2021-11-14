@@ -1,8 +1,7 @@
 import { LinearProgress } from "@mui/material";
 import { NextPage } from "next";
-import { useRouter } from "next/router";
 import { useGetGuild } from "../../../hooks/requests/useGetGuild";
-import { ServerLayout } from "../../../src/layouts/ServerLayout";
+import { ServerLayout } from "../../../src/components/layouts/ServerLayout";
 
 interface Props {
     serverId: string;
@@ -12,7 +11,7 @@ interface Props {
 const ChannelMessagePage: NextPage<Props> = ({ serverId }) => {
     const { data, status } = useGetGuild(serverId);
 
-    return status === "loading" ? (
+    return status === "loading" || !data ? (
         <div>
             <LinearProgress />
         </div>

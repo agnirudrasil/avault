@@ -20,10 +20,10 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { useLeaveServer } from "../hooks/requests/useLeaveServer";
-import { useCreateChannel } from "../hooks/useCreateChannel";
-import { useCreateInvite } from "../hooks/useCreateInvite";
-import { useGuildsStore } from "../stores/useGuildsStore";
+import { useLeaveServer } from "../../hooks/requests/useLeaveServer";
+import { useCreateChannel } from "../../hooks/useCreateChannel";
+import { useCreateInvite } from "../../hooks/useCreateInvite";
+import { useGuildsStore } from "../../stores/useGuildsStore";
 
 const MyMenuItems: React.FC<{ lable: string; onClick?: () => any }> = ({
     lable,

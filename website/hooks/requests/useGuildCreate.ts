@@ -1,7 +1,8 @@
 import { useMutation } from "react-query";
+import { request } from "../../src/request";
 
 export const guildCreate = async (guild: FormData) => {
-    const data = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/guilds/`, {
+    const data = await request(`${process.env.NEXT_PUBLIC_API_URL}/guilds/`, {
         method: "POST",
         body: guild,
         credentials: "include",

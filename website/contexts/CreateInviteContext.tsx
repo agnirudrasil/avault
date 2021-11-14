@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import { CreateInviteDialog } from "../src/dialogs/CreateInviteDialog";
+import { CreateInviteDialog } from "../src/components/dialogs/CreateInviteDialog";
 
 export interface CreateInviteConfig {
     channel_id?: string;

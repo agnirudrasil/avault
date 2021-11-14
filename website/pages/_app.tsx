@@ -4,7 +4,7 @@ import { createEmotionCache } from "../src/createEmotionCache";
 import { CacheProvider, EmotionCache } from "@emotion/react";
 import theme from "../src/theme";
 import { CssBaseline } from "@mui/material";
-import { Hydrate, QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { useState } from "react";
 import { WebsocketProvider } from "../contexts/WebsocketProvider";
 
@@ -21,16 +21,14 @@ const MyApp = (props: MyAppProps) => {
     console.log("I am built");
     return (
         <QueryClientProvider client={queryClient}>
-            <Hydrate state={pageProps.dehydratedState}>
-                <CacheProvider value={emotionCache}>
-                    <ThemeProvider theme={theme}>
-                        <CssBaseline />
-                        <WebsocketProvider>
-                            <Component {...pageProps} />
-                        </WebsocketProvider>
-                    </ThemeProvider>
-                </CacheProvider>
-            </Hydrate>
+            <CacheProvider value={emotionCache}>
+                <ThemeProvider theme={theme}>
+                    <CssBaseline />
+                    <WebsocketProvider>
+                        <Component {...pageProps} />
+                    </WebsocketProvider>
+                </ThemeProvider>
+            </CacheProvider>
         </QueryClientProvider>
     );
 };

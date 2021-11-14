@@ -1,5 +1,5 @@
 import { Formik, FormikConfig, FormikValues } from "formik";
-import { AuthContainer, StyledForm } from "../../styles/auth-pages/styles";
+import { AuthContainer, StyledForm } from "../../../styles/auth-pages/styles";
 
 export interface AuthLayoutProps extends FormikConfig<FormikValues> {
     children: React.ReactNode;

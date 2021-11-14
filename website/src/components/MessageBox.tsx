@@ -1,24 +1,23 @@
 import { Paper, IconButton, Divider } from "@mui/material";
 import { AddCircle, EmojiEmotions, Send } from "@mui/icons-material";
 import { useRouter } from "next/router";
-import { useChannelsStore } from "../stores/useGuildsStore";
-import shallow from "zustand/shallow";
-import { useEffect } from "react";
-import { useSocket } from "../hooks/useSocket";
+import { useEffect, useState } from "react";
 import { Formik, Form, Field } from "formik";
 import { MessageField } from "./CustomTextField";
+import { useQueryClient } from "react-query";
 
 export const MessageBox: React.FC = () => {
     const router = useRouter();
-    const { socket } = useSocket();
-    const channels = useChannelsStore(state => state.channels, shallow);
-    const currentChannel = useChannelsStore(state => state.currentChannel);
-    const setCurrentChannel = useChannelsStore(
-        state => state.setCurrentChannel
-    );
+    const queryClient = useQueryClient();
+    const channels = (
+        queryClient.getQueryData(["guild", router.query.server_id]) as any
+    ).guild.channels;
+    const [currentChannel, setCurrentChannel] = useState<any>("");
 
     useEffect(() => {
-        setCurrentChannel(channels.find(v => v.id === router.query.channel)!);
+        setCurrentChannel(
+            channels.find((v: any) => v.id === router.query.channel)!
+        );
     }, [channels, router]);
 
     return (
@@ -29,13 +28,6 @@ export const MessageBox: React.FC = () => {
             onSubmit={({ content }, { setSubmitting, setValues }) => {
                 content = content.trim();
                 if (!content) return;
-                if (!socket) {
-                } else {
-                    socket.emit("message", {
-                        channel: currentChannel.id,
-                        content,
-                    });
-                }
                 setValues({ content: "" });
                 setSubmitting(false);
             }}
@@ -70,7 +62,6 @@ export const MessageBox: React.FC = () => {
                             name="content"
                             type="text"
                             placeholder={`Message #${currentChannel.name}`}
-                            disabled={!socket}
                         />
                         <IconButton
                             type="submit"

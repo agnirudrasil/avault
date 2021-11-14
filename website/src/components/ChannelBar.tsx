@@ -1,6 +1,6 @@
 import { List } from "@mui/material";
-import { CreateChannelDialogProvider } from "../contexts/CreateChannelContext";
-import { CreateInviteDialogProvider } from "../contexts/CreateInviteContext";
+import { CreateChannelDialogProvider } from "../../contexts/CreateChannelContext";
+import { CreateInviteDialogProvider } from "../../contexts/CreateInviteContext";
 import { ServerNavbar } from "./ServerNavbar";
 
 export const ChannelBar: React.FC<{ name?: string }> = ({ children, name }) => {

@@ -1,5 +1,5 @@
 import { Button, ButtonProps } from "@mui/material";
-import { useCopy } from "../../hooks/useCopy";
+import { useCopy } from "../../../hooks/useCopy";
 
 export const CopyButton: React.FC<ButtonProps & { text: string }> = ({
     text,

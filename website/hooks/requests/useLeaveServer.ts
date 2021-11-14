@@ -1,7 +1,8 @@
 import { useMutation } from "react-query";
+import { request } from "../../src/request";
 
 export const leaveServer = async (serverId: string) => {
-    return fetch(
+    return request(
         `${process.env.NEXT_PUBLIC_API_URL}/users/@me/guilds/${serverId}`,
         {
             method: "DELETE",

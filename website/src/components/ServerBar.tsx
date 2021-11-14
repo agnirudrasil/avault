@@ -3,7 +3,7 @@ import { Add } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import Router from "next/router";
 import { useState } from "react";
-import { useGuildsStore } from "../stores/useGuildsStore";
+import { useGetGuilds } from "../../hooks/requests/useGetGuilds";
 import { CreateServerDialog } from "./dialogs/CreateServerDialog";
 import { ServerItems } from "./ServerItems";
 
@@ -34,8 +34,7 @@ const getGuildInitials = (name: string) =>
 
 export const ServersBar: React.FC = () => {
     const [open, setOpen] = useState(false);
-    const guilds = useGuildsStore(state => state.guilds);
-
+    const { data } = useGetGuilds();
     const handleClickOpen = () => {
         setOpen(true);
     };
@@ -50,19 +49,21 @@ export const ServersBar: React.FC = () => {
                 <img style={{ width: "90%" }} src="/logo-black.png" />
             </ServerItems>
             <Separator />
-            {guilds.map((guild: any) => (
-                <ServerItems
-                    onClick={() =>
-                        Router.replace(
-                            `/channels/${guild.id}/${guild.first_channel}`
-                        )
-                    }
-                    title={guild.name}
-                    key={guild.id}
-                >
-                    {getGuildInitials(guild.name)}
-                </ServerItems>
-            ))}
+            {data &&
+                data.guilds &&
+                data.guilds.map((guild: any) => (
+                    <ServerItems
+                        onClick={() =>
+                            Router.replace(
+                                `/channels/${guild.id}/${guild.first_channel}`
+                            )
+                        }
+                        title={guild.name}
+                        key={guild.id}
+                    >
+                        {getGuildInitials(guild.name)}
+                    </ServerItems>
+                ))}
             <Separator />
             <Tooltip title="Add a server">
                 <IconButton onClick={handleClickOpen}>

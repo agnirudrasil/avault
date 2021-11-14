@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import { Formik, Form, Field } from "formik";
 import { useState } from "react";
-import { useGuildCreate } from "../../hooks/requests/useGuildCreate";
-import { useGuildsStore } from "../../stores/useGuildsStore";
+import { useGuildCreate } from "../../../hooks/requests/useGuildCreate";
+import { useGuildsStore } from "../../../stores/useGuildsStore";
 import { CustomTextField } from "../CustomTextField";
 
 export interface CreateServerDialogProps {

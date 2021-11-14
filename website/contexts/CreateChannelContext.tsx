@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import { CreateChannelDialog } from "../src/dialogs/CreateChannelDialog";
+import { CreateChannelDialog } from "../src/components/dialogs/CreateChannelDialog";
 
 export interface CreateChannelConfig {
     guild_id?: string;

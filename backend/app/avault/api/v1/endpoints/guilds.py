@@ -12,12 +12,6 @@ from avault.models.channels import Channel, ChannelType
 router = APIRouter()
 
 
-# class GuildCreate(Form):
-#     name = StringField('name', [validators.length(
-#         min=5, max=80), validators.DataRequired()])
-#     icon = FileField('icon')
-
-
 class RoleCreate(BaseModel):
     name: Optional[str] = 'new role'
     permissions: Optional[int] = 0

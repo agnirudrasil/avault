@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { useCreateChannel } from "../../hooks/useCreateChannel";
+import { useCreateChannel } from "../../../hooks/useCreateChannel";
 
 export const CategoryChannel: React.FC<{ name: string; id: string }> = ({
     name,

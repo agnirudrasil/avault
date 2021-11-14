@@ -1,9 +1,9 @@
 import { useQuery } from "react-query";
-import { useChannelsStore } from "../../stores/useGuildsStore";
+import { request } from "../../src/request";
 
 export const getGuild = async ({ queryKey }: any) => {
     const [_, guildId] = queryKey;
-    const data = await fetch(
+    const data = await request(
         `${process.env.NEXT_PUBLIC_API_URL}/guilds/${guildId}`,
         {
             credentials: "include",
@@ -13,8 +13,4 @@ export const getGuild = async ({ queryKey }: any) => {
 };
 
 export const useGetGuild = (guildId: string) =>
-    useQuery(["guild", guildId], getGuild, {
-        onSuccess: data => {
-            useChannelsStore.getState().setChannels(data.guild.channels);
-        },
-    });
+    useQuery(["guild", guildId], getGuild);

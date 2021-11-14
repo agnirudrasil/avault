@@ -13,35 +13,35 @@ export const WebsocketProvider: React.FC = ({ children }) => {
     const addMessage = useMessagesStore(state => state.addMessage);
 
     useEffect(() => {
-        const socket = io(process.env.NEXT_PUBLIC_API_URL || "", {
-            transports: ["websocket"],
-        });
+        // const socket = io(process.env.NEXT_PUBLIC_API_URL || "", {
+        //     transports: ["websocket"],
+        // });
         setSocket(socket);
         return () => {
-            socket.disconnect();
+            socket?.disconnect();
         };
     }, []);
 
     useEffect(() => {
-        if (socket) {
-            socket.on("connect", () => {
-                console.log("connected");
-            });
-            socket.on("connect-data", data => {
-                setGuilds(data.guilds);
-                socket.emit("join", "I have joined");
-                console.log("connect-data", data);
-            });
-            socket.on("message", data => {
-                addMessage(data.message);
-            });
-            socket.on("disconnect", () => {
-                console.log("disconnected");
-            });
-            socket.on("connect_error", data => {
-                console.error("connect_error", data);
-            });
-        }
+        // if (socket) {
+        //     socket.on("connect", () => {
+        //         console.log("connected");
+        //     });
+        //     socket.on("connect-data", data => {
+        //         setGuilds(data.guilds);
+        //         socket.emit("join", "I have joined");
+        //         console.log("connect-data", data);
+        //     });
+        //     socket.on("message", data => {
+        //         addMessage(data.message);
+        //     });
+        //     socket.on("disconnect", () => {
+        //         console.log("disconnected");
+        //     });
+        //     socket.on("connect_error", data => {
+        //         console.error("connect_error", data);
+        //     });
+        // }
     }, [socket]);
 
     return (

@@ -1,7 +1,8 @@
 import { useQuery } from "react-query";
+import { request } from "../../src/request";
 
 export const getGuilds = async () => {
-    const data = await fetch(
+    const data = await request(
         `${process.env.NEXT_PUBLIC_API_URL}/users/@me/guilds`,
         {
             credentials: "include",

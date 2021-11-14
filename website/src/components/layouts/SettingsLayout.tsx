@@ -10,7 +10,7 @@ import {
     Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { useGuildsStore } from "../../stores/useGuildsStore";
+import { useQueryClient } from "react-query";
 
 const Container = styled.div`
     width: 100%;
@@ -23,7 +23,8 @@ const ListItemButton = styled(MuiListItemButton)`
 `;
 
 export const SettingsLayout: React.FC = ({ children }) => {
-    const guilds = useGuildsStore(state => state.guilds);
+    const queryClient = useQueryClient();
+    const guilds: any = queryClient.getQueryData("guilds");
     const router = useRouter();
 
     return (
@@ -59,8 +60,8 @@ export const SettingsLayout: React.FC = ({ children }) => {
                                 primary={
                                     <Typography variant="button">
                                         {
-                                            guilds.find(
-                                                g =>
+                                            guilds?.guilds.find(
+                                                (g: any) =>
                                                     g.id ===
                                                     router.query.server_id
                                             )?.name
@@ -143,8 +144,8 @@ export const SettingsLayout: React.FC = ({ children }) => {
                                 onClick={() => {
                                     router.replace(
                                         `/channels/${router.query.server_id}/${
-                                            guilds.find(
-                                                g =>
+                                            guilds?.guilds.find(
+                                                (g: any) =>
                                                     g.id ===
                                                     router.query.server_id
                                             )?.first_channel

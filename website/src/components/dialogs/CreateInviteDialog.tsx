@@ -14,8 +14,8 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { useCreateInvite } from "../../hooks/requests/useCreateInvite";
-import { useGuildsStore } from "../../stores/useGuildsStore";
+import { useCreateInvite } from "../../../hooks/requests/useCreateInvite";
+import { useGuildsStore } from "../../../stores/useGuildsStore";
 import { CopyButton } from "../Form/CopyButton";
 
 export interface CreateInviteDialogProps {

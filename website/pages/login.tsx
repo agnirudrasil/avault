@@ -2,16 +2,17 @@ import { NextPage } from "next";
 import { Field } from "formik";
 import { Link, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { CustomTextField } from "../src/CustomTextField";
-import { AuthLayout } from "../src/layouts/AuthLayout";
+import { CustomTextField } from "../src/components/CustomTextField";
+import { AuthLayout } from "../src/components/layouts/AuthLayout";
 import { useLogin } from "../hooks/requests/useLogin";
 import Router from "next/router";
+import { setAccessToken } from "../src/access-token";
 
 const LoginPage: NextPage = () => {
     const { mutateAsync } = useLogin();
     return (
         <AuthLayout
-            initialValues={{ email: "", password: "" }}
+            initialValues={{ username: "", password: "" }}
             onSubmit={async (
                 values,
                 { setSubmitting, setErrors, setStatus }
@@ -31,6 +32,7 @@ const LoginPage: NextPage = () => {
                     setSubmitting(false);
                     return;
                 }
+                setAccessToken(data.access_token);
                 Router.replace("/channels/@me");
                 setSubmitting(false);
             }}
@@ -56,7 +58,7 @@ const LoginPage: NextPage = () => {
                     )}
                     <Field
                         component={CustomTextField}
-                        name="email"
+                        name="username"
                         type="email"
                         label="Email"
                         required
