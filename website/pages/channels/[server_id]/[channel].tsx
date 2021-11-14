@@ -1,34 +1,33 @@
-import { LinearProgress } from "@mui/material";
 import { NextPage } from "next";
-import { useGetGuild } from "../../../hooks/requests/useGetGuild";
-import { ServerLayout } from "../../../src/components/layouts/ServerLayout";
+import { ChannelsIndexPage } from "../../../src/routes/ChannelIndex";
+import SettingIndexPage from "../../../src/routes/SettingsIndex";
+import { SettingsRoles } from "../../../src/routes/SettingsRoles";
+import { useRoutesStore } from "../../../stores/useRoutesStore";
 
 interface Props {
     serverId: string;
     channelId: string;
 }
 
-const ChannelMessagePage: NextPage<Props> = ({ serverId }) => {
-    const { data, status } = useGetGuild(serverId);
+const ChannelsPage: NextPage<Props> = ({ serverId }) => {
+    const route = useRoutesStore(state => state.route);
 
-    return status === "loading" || !data ? (
-        <div>
-            <LinearProgress />
-        </div>
-    ) : (
-        <ServerLayout
-            members={data.guild.members}
-            channels={data.guild.channels}
-            name={data.guild.name}
-        ></ServerLayout>
-    );
+    switch (route) {
+        case "/settings":
+            return <SettingIndexPage />;
+        case "/settings/roles":
+            return <SettingsRoles />;
+        case "/":
+        default:
+            return <ChannelsIndexPage serverId={serverId} />;
+    }
 };
 
-ChannelMessagePage.getInitialProps = async ctx => {
+ChannelsPage.getInitialProps = async ctx => {
     return {
         serverId: ctx.query.server_id as string,
         channelId: ctx.query.channel as string,
     };
 };
 
-export default ChannelMessagePage;
+export default ChannelsPage;

@@ -95,14 +95,10 @@ def get_messages(channel_id: int,
 
 @router.post('/{channel_id}/messages')
 def post_message(channel_id: int,
-                 message: MessageCreate,
+                 body: MessageCreate,
                  current_user: User = Depends(deps.get_current_user),
                  db: Session = Depends(lambda: deps.get_db())) -> dict:
-    message = Message()
-    message.channel_id = channel_id
-    message.author_id = current_user()
-    message.content = message.content.strip()
-    message.timestamp = datetime.now()
+    message = Message(body.content.strip(), channel_id, current_user.id)
     db.add(message)
     db.commit()
     return {"message": message.serialize()}
@@ -138,17 +134,19 @@ def delete_message(channel_id: int,
 
 @router.patch('/{channel_id}/messages/{message_id}')
 def edit_message(channel_id: int,
-                 message_id: int, message: MessageCreate,
+                 message_id: int,
+                 message: MessageCreate,
                  current_user: User = Depends(deps.get_current_user),
                  db: Session = Depends(deps.get_db)) -> dict:
-    message = db.query(Message).filter_by(
+    prev_message: Message = db.query(Message).filter_by(
         id=message_id).filter_by(channel_id=channel_id).first()
-    if message:
-        if message.author_id == current_user.id:
-            message.content = message.content.strip()
-            db.add(message)
-            db.commit()
-            return {"message": message.serialize()}
+    if prev_message:
+        if prev_message.author_id == current_user.id:
+            if message.content.strip():
+                prev_message.content = message.content.strip()
+                prev_message.edited_timestamp = datetime.now()
+                db.commit()
+            return {"message": prev_message.serialize()}
         return {"message": "Not authorized"}, 403
     return "", 404
 

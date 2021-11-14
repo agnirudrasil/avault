@@ -11,4 +11,7 @@ export const getGuilds = async () => {
     return data.json();
 };
 
-export const useGetGuilds = () => useQuery("guilds", getGuilds);
+export const useGetGuilds = () =>
+    useQuery("guilds", getGuilds, {
+        cacheTime: Infinity,
+    });

@@ -13,4 +13,6 @@ export const getGuild = async ({ queryKey }: any) => {
 };
 
 export const useGetGuild = (guildId: string) =>
-    useQuery(["guild", guildId], getGuild);
+    useQuery(["guild", guildId], getGuild, {
+        cacheTime: Infinity,
+    });

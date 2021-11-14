@@ -2,6 +2,7 @@ from avault.api import deps
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from pydantic import BaseModel, ValidationError
 from typing import Optional
+from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
 from avault.models.guilds import Guild, GuildMembers
 from avault.models.roles import Role
@@ -21,8 +22,8 @@ class RoleCreate(BaseModel):
 
 class RoleUpdate(BaseModel):
     name: Optional[str]
-    permissions: Optional[int]
     color: Optional[int]
+    permissions: Optional[int]
     mentionable: Optional[bool]
 
 
@@ -88,7 +89,7 @@ def add_role(guild_id: int,
     return {'success': False, 'error': 'Guild not found'}, 404
 
 
-@ router.delete('/{guild_id}/members/{user_id}/roles/{role_id}')
+@router.delete('/{guild_id}/members/{user_id}/roles/{role_id}')
 def delete_user_role(guild_id: int,
                      user_id: int,
                      role_id: int,
@@ -106,15 +107,29 @@ def delete_user_role(guild_id: int,
         return {'success': False, 'error': 'User not found'}, 404
 
 
-@ router.get('/{guild_id}/roles')
+@router.get('/{guild_id}/roles')
 def get_roles(guild_id: int,
               current_user: User = Depends(deps.get_current_user),
               db: Session = Depends(deps.get_db)):
     guild = db.query(Guild).filter_by(id=guild_id).first()
     if guild and guild.is_member(db, current_user.id):
-        roles = db.query(Role).filter_by(guild_id=guild_id).all()
+        roles = db.query(Role).filter_by(guild_id=guild_id).order_by(
+            desc(Role.position)).order_by(asc(Role.id)).all()
         return {'roles': [role.serialize() for role in roles]}
     return {'roles': None}, 404
+
+
+@router.get('/{guild_id}/roles/{role_id}')
+def get_roles(guild_id: int,
+              role_id: int,
+              current_user: User = Depends(deps.get_current_user),
+              db: Session = Depends(deps.get_db)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild and guild.is_member(db, current_user.id):
+        role = db.query(Role).filter_by(
+            guild_id=guild_id).filter_by(id=role_id).first()
+        return {'role': role.serialize()}
+    return {'role': None}, 404
 
 
 @router.post('/{guild_id}/roles')
@@ -125,7 +140,7 @@ def create_role(guild_id: int,
     guild = db.query(Guild).filter_by(id=guild_id).first()
     if guild and guild.is_member(db, current_user.id):
         role = Role(guild_id, data.name, data.color, 1, data.permissions,
-                    data.permissions, data.mentionable, guild_id)
+                    data.mentionable)
         db.add(role)
         db.commit()
         return {'role': role.serialize()}, 201
@@ -169,7 +184,7 @@ def update_role(guild_id: int, role_id: int,
     if data.color:
         role.color = data.color
     if data.permissions:
-        role.permissions = data.permissions
+        role.permissions = int(data.permissions)
     if data.mentionable:
         role.mentionable = data.mentionable
     db.commit()

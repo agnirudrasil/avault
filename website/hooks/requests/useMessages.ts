@@ -15,6 +15,7 @@ export const messages = async ({ queryKey }: { queryKey: string[] }) => {
 
 export const useMessages = (channelId: string) =>
     useQuery(["messages", channelId], messages, {
+        cacheTime: Infinity,
         onSuccess: data => {
             useMessagesStore.getState().setMessages(data.messages);
         },

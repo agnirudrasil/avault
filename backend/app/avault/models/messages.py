@@ -60,7 +60,7 @@ class Message(Base):
 
     def serialize(self):
         return {
-            'id': self.id,
+            'id': str(self.id),
             'channel_id': str(self.channel_id) if self.channel_id else None,
             'guild_id': str(self.guild_id) if self.guild_id else None,
             'author_id': str(self.author_id) if self.author_id else None,
@@ -99,14 +99,15 @@ class Message(Base):
                  content,
                  channel_id,
                  author_id,
-                 tts,
-                 embeds,
-                 attachments):
+                 tts=False,
+                 embeds=None,
+                 attachments=None):
         self.id = next(snowflake_id)
         self.content = content
         self.channel_id = channel_id
         self.author_id = author_id
         self.tts = tts
+        self.timestamp = datetime.utcnow()
         self.mentions_everyone = self.mention_everyone(content)
         self.mention = self.mentions(content)
         self.mention_role = self.mention_roles(content)

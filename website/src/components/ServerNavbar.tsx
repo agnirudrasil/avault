@@ -24,6 +24,7 @@ import { useLeaveServer } from "../../hooks/requests/useLeaveServer";
 import { useCreateChannel } from "../../hooks/useCreateChannel";
 import { useCreateInvite } from "../../hooks/useCreateInvite";
 import { useGuildsStore } from "../../stores/useGuildsStore";
+import { useRoutesStore } from "../../stores/useRoutesStore";
 
 const MyMenuItems: React.FC<{ lable: string; onClick?: () => any }> = ({
     lable,
@@ -44,6 +45,7 @@ const MyMenu: React.FC<{
 }> = ({ handleClose, anchorEl }) => {
     const { createChannel } = useCreateChannel();
     const router = useRouter();
+    const routeSetter = useRoutesStore(state => state.setRoute);
 
     const createChannelHandler = (type: any) => {
         createChannel({ guild_id: router.query.server_id as string, type });
@@ -78,9 +80,7 @@ const MyMenu: React.FC<{
             </MyMenuItems>
             <MyMenuItems
                 onClick={() => {
-                    router.replace(
-                        `/channels/${router.query.server_id}/settings`
-                    );
+                    routeSetter(`/settings`);
                 }}
                 lable="Server Settings"
             >

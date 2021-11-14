@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { useQueryClient } from "react-query";
+import { useRoutesStore } from "../../../stores/useRoutesStore";
 
 const Container = styled.div`
     width: 100%;
@@ -26,6 +27,7 @@ export const SettingsLayout: React.FC = ({ children }) => {
     const queryClient = useQueryClient();
     const guilds: any = queryClient.getQueryData("guilds");
     const router = useRouter();
+    const { setRoute, route } = useRoutesStore();
 
     return (
         <Container>
@@ -70,10 +72,18 @@ export const SettingsLayout: React.FC = ({ children }) => {
                                 }
                             />
                         </ListItem>
-                        <ListItemButton sx={{ width: "100%" }}>
+                        <ListItemButton
+                            selected={route === "/settings"}
+                            onClick={() => setRoute("/settings")}
+                            sx={{ width: "100%" }}
+                        >
                             <ListItemText primary="Overview" />
                         </ListItemButton>
-                        <ListItemButton sx={{ width: "100%" }}>
+                        <ListItemButton
+                            selected={route === "/settings/roles"}
+                            onClick={() => setRoute("/settings/roles")}
+                            sx={{ width: "100%" }}
+                        >
                             <ListItemText primary="Roles" />
                         </ListItemButton>
                         <ListItemButton sx={{ width: "100%" }}>
@@ -141,17 +151,7 @@ export const SettingsLayout: React.FC = ({ children }) => {
                     >
                         <div style={{ position: "fixed" }}>
                             <IconButton
-                                onClick={() => {
-                                    router.replace(
-                                        `/channels/${router.query.server_id}/${
-                                            guilds?.guilds.find(
-                                                (g: any) =>
-                                                    g.id ===
-                                                    router.query.server_id
-                                            )?.first_channel
-                                        }`
-                                    );
-                                }}
+                                onClick={() => setRoute("/")}
                                 sx={{ border: "2px solid #ccc" }}
                             >
                                 <Close />

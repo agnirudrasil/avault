@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Formik, Form, Field } from "formik";
 import { MessageField } from "./CustomTextField";
 import { useQueryClient } from "react-query";
+import { useMessageCreate } from "../../hooks/requests/useMessageCreate";
 
 export const MessageBox: React.FC = () => {
     const router = useRouter();
@@ -13,6 +14,7 @@ export const MessageBox: React.FC = () => {
         queryClient.getQueryData(["guild", router.query.server_id]) as any
     ).guild.channels;
     const [currentChannel, setCurrentChannel] = useState<any>("");
+    const { mutate } = useMessageCreate(router.query.channel as string);
 
     useEffect(() => {
         setCurrentChannel(
@@ -28,6 +30,7 @@ export const MessageBox: React.FC = () => {
             onSubmit={({ content }, { setSubmitting, setValues }) => {
                 content = content.trim();
                 if (!content) return;
+                mutate(content);
                 setValues({ content: "" });
                 setSubmitting(false);
             }}
