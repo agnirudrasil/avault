@@ -120,7 +120,14 @@ export const SettingsLayout: React.FC = ({ children }) => {
                     </List>
                 </div>
             </div>
-            <div style={{ display: "flex", flex: "1 1 800px" }}>
+            <div
+                style={{
+                    display: "flex",
+                    flex: "1 1 800px",
+                    overflowY: "auto",
+                    maxHeight: "100vh",
+                }}
+            >
                 <div
                     style={{
                         height: "100%",
@@ -136,6 +143,7 @@ export const SettingsLayout: React.FC = ({ children }) => {
                             maxWidth: "740px",
                             minWidth: "460px",
                             minHeight: "100px",
+                            display: "flex",
                         }}
                     >
                         {children}

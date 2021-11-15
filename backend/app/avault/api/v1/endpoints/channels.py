@@ -208,30 +208,6 @@ class ChannelValidate(BaseModel):
             raise ValueError("Topic must be less than 1024 characters")
         return v or ""
 
-    @validator("owner_id")
-    def validate_owner_id(cls, field):
-        if field is not None:
-            user = User.query.filter_by(id=int(field)).first()
-            if user is None:
-                raise ValueError("Invalid owner id")
-        return field
-
-    @validator("parent_id")
-    def validate_parent_id(cls, field):
-        if field is not None:
-            channel = Channel.query.filter_by(id=int(field)).first()
-            if channel is None:
-                raise ValueError("Invalid parent id")
-        return field
-
-    @validator("guild_id")
-    def validate_guild_id(cls, field):
-        if field is not None:
-            guild = Guild.query.filter_by(id=int(field)).first()
-            if guild is None:
-                raise ValueError("Invalid guild id")
-        return field
-
     @ validator("type")
     def validate_type(cls, field):
         if field not in ChannelType.__members__:
@@ -239,7 +215,7 @@ class ChannelValidate(BaseModel):
         return field
 
 
-@router.post("/create")
+@router.post("/")
 def create(data: ChannelValidate, db: Session = Depends(deps.get_db)):
     try:
         user = db.query(User).filter_by(id=data.owner_id).first()

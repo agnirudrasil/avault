@@ -18,7 +18,6 @@ interface MyAppProps extends AppProps {
 const MyApp = (props: MyAppProps) => {
     const { Component, emotionCache = clientSideCache, pageProps } = props;
     const [queryClient] = useState(() => new QueryClient());
-    console.log("I am built");
     return (
         <QueryClientProvider client={queryClient}>
             <CacheProvider value={emotionCache}>

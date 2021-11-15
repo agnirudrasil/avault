@@ -1,4 +1,4 @@
-import { Add } from "@mui/icons-material";
+import { Add, Clear, DragIndicator, Search } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import {
     Alert,
@@ -6,9 +6,8 @@ import {
     Box,
     Button,
     Divider,
-    FormControlLabel,
     IconButton,
-    Input,
+    InputAdornment,
     LinearProgress,
     List,
     ListItem,
@@ -16,7 +15,6 @@ import {
     ListItemSecondaryAction,
     ListItemText,
     ListSubheader,
-    Portal,
     Slide,
     Snackbar,
     Tab,
@@ -26,12 +24,20 @@ import {
 } from "@mui/material";
 import produce from "immer";
 import { useRouter } from "next/router";
-import { SyntheticEvent, useEffect, useState } from "react";
+import { SyntheticEvent, useState } from "react";
+import {
+    DragDropContext,
+    Draggable,
+    Droppable,
+    DropResult,
+} from "react-beautiful-dnd";
 import { useQueryClient } from "react-query";
 import { useCreateRoles } from "../../hooks/requests/useCreateRole";
+import { useDeleteRole } from "../../hooks/requests/useDeleteRole";
 import { useEditRole } from "../../hooks/requests/useEditRole";
 import { useGetRole } from "../../hooks/requests/useGetRole";
 import { useGetRoles } from "../../hooks/requests/useGetRoles";
+import { useUnsaved } from "../../hooks/useUnsaved";
 import { ColorPicker } from "../components/ColorPicker";
 import { Android12Switch } from "../components/Form/AndroidSwitch";
 import { SettingsLayout } from "../components/layouts/SettingsLayout";
@@ -51,8 +57,11 @@ export const SettingsRoles = () => {
     const [selected, setSelected] = useState<string>(
         router.query.server_id as string
     );
+    const { handleReset, ogData, setOgdata, unsaved } = useUnsaved(
+        data && data.roles
+    );
 
-    if (isLoading || !data) {
+    if (isLoading || !data || !ogData) {
         return (
             <div>
                 <LinearProgress />
@@ -60,13 +69,24 @@ export const SettingsRoles = () => {
         );
     }
 
+    const onDragEnd = (result: DropResult) => {
+        if (!result.destination) return;
+        const dragCard = ogData[result.source.index];
+        setOgdata((data: any) =>
+            produce(data, (draft: any) => {
+                draft.splice(result.source.index, 1);
+                draft.splice(result.destination!.index, 0, dragCard);
+            })
+        );
+    };
+
     const createRole = async () => {
         const [{ role }] = await mutateAsync(router.query.server_id as string);
         queryClient.setQueryData(
             ["roles", router.query.server_id as string],
             existingRoles =>
                 produce(existingRoles, (draft: any) => {
-                    draft.roles.splice(1, 0, role);
+                    draft.roles.splice(draft.roles.length - 1, 0, role);
                 })
         );
         setSelected(role.id);
@@ -74,71 +94,184 @@ export const SettingsRoles = () => {
 
     return (
         <SettingsLayout>
+            <Snackbar
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                open={unsaved}
+                TransitionComponent={TransitionComponent}
+            >
+                <Alert
+                    severity="warning"
+                    action={
+                        <div>
+                            <Button
+                                size="small"
+                                variant="text"
+                                onClick={handleReset}
+                            >
+                                Reset
+                            </Button>
+                            <LoadingButton
+                                // loading={isUpdating}
+                                variant="contained"
+                                size="small"
+                                onClick={() => {
+                                    // saveFn(ogData);
+                                }}
+                            >
+                                Save
+                            </LoadingButton>
+                        </div>
+                    }
+                >
+                    You have unsaved changes!
+                </Alert>
+            </Snackbar>
             <div
                 style={{
                     minWidth: "740px",
                     width: "100%",
                     display: "flex",
+                    height: "100%",
                     justifyContent: "flex-start",
                     alignItems: "flex-start",
                 }}
             >
-                <List
-                    sx={{
-                        padding: "60px 10px 0 10px",
-                        minHeight: "100vh",
-                        borderRight: "2px solid #ccc",
-                        width: "max-content",
-                        minWidth: "218px",
-                    }}
-                    subheader={
-                        <ListSubheader>
-                            <div
-                                style={{
-                                    width: "100%",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                }}
-                            >
-                                <Typography variant="button">ROLES</Typography>
-                                <IconButton
-                                    onClick={createRole}
-                                    disabled={isCreating}
-                                    size="small"
+                <DragDropContext onDragEnd={onDragEnd}>
+                    <List
+                        sx={{
+                            padding: "60px 10px 0 10px",
+                            minHeight: "100vh",
+                            borderRight: "2px solid #ccc",
+                            width: "max-content",
+                            minWidth: "218px",
+                            height: "100%",
+                            overflowY: "auto",
+                            position: "static",
+                            top: 0,
+                        }}
+                        subheader={
+                            <ListSubheader>
+                                <div
+                                    style={{
+                                        width: "100%",
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                    }}
                                 >
-                                    <Add />
-                                </IconButton>
-                            </div>
-                        </ListSubheader>
-                    }
-                    dense
-                >
-                    {data.roles.map((role: any) => (
+                                    <Typography variant="button">
+                                        ROLES
+                                    </Typography>
+                                    <IconButton
+                                        onClick={createRole}
+                                        disabled={isCreating}
+                                        size="small"
+                                    >
+                                        <Add />
+                                    </IconButton>
+                                </div>
+                            </ListSubheader>
+                        }
+                        dense
+                    >
+                        <Droppable droppableId="droppable">
+                            {provided => (
+                                <div
+                                    {...provided.droppableProps}
+                                    ref={provided.innerRef}
+                                >
+                                    {ogData
+                                        .filter(
+                                            (i: any) =>
+                                                i.id !== router.query.server_id
+                                        )
+                                        .map((role: any, index: number) => (
+                                            <Draggable
+                                                draggableId={role.id}
+                                                index={index}
+                                                key={role.id}
+                                                isDragDisabled={
+                                                    role.id ===
+                                                    router.query.server_id
+                                                }
+                                            >
+                                                {provided => (
+                                                    <ListItemButton
+                                                        disableRipple
+                                                        ref={provided.innerRef}
+                                                        {...provided.dragHandleProps}
+                                                        {...provided.draggableProps}
+                                                        disableTouchRipple
+                                                        selected={
+                                                            selected === role.id
+                                                        }
+                                                        onClick={() =>
+                                                            setSelected(role.id)
+                                                        }
+                                                        sx={{
+                                                            borderRadius:
+                                                                "10px",
+                                                            gap: "0.5rem",
+                                                        }}
+                                                    >
+                                                        <Avatar
+                                                            sx={{
+                                                                background:
+                                                                    "#" +
+                                                                    role.color.toString(
+                                                                        16
+                                                                    ),
+                                                                width: "10px",
+                                                                height: "10px",
+                                                            }}
+                                                        >
+                                                            <></>
+                                                        </Avatar>
+                                                        <ListItemText
+                                                            sx={{
+                                                                color:
+                                                                    "#" +
+                                                                    role.color.toString(
+                                                                        16
+                                                                    ),
+                                                            }}
+                                                            primary={role.name}
+                                                        />
+                                                    </ListItemButton>
+                                                )}
+                                            </Draggable>
+                                        ))}
+                                    {provided.placeholder}
+                                </div>
+                            )}
+                        </Droppable>
                         <ListItemButton
-                            selected={selected === role.id}
-                            onClick={() => setSelected(role.id)}
-                            sx={{ borderRadius: "10px", gap: "0.5rem" }}
+                            disableRipple
+                            disableTouchRipple
+                            selected={selected === router.query.server_id}
+                            onClick={() =>
+                                setSelected(router.query.server_id as string)
+                            }
+                            sx={{
+                                borderRadius: "10px",
+                                gap: "0.5rem",
+                            }}
                         >
                             <Avatar
                                 sx={{
-                                    background: "#" + role.color.toString(16),
+                                    background: "#ccc",
                                     width: "10px",
                                     height: "10px",
                                 }}
                             >
                                 <></>
                             </Avatar>
-                            <ListItemText
-                                sx={{
-                                    color: "#" + role.color.toString(16),
-                                }}
-                                primary={role.name}
-                            />
+                            <ListItemText primary="@everyone" />
                         </ListItemButton>
-                    ))}
-                </List>
+                    </List>
+                </DragDropContext>
                 <RolesDisplay
+                    setSelected={setSelected}
                     key={selected}
                     roleId={selected}
                     guildId={router.query.server_id as string}
@@ -152,30 +285,23 @@ const TransitionComponent = (props: any) => {
     return <Slide {...props} direction="up" unmountOnExit />;
 };
 
-export const RolesDisplay: React.FC<{ roleId: string; guildId: string }> = ({
-    roleId,
-    guildId,
-}) => {
+export const RolesDisplay: React.FC<{
+    roleId: string;
+    guildId: string;
+    setSelected: (id: string) => any;
+}> = ({ roleId, guildId, setSelected }) => {
     const { data, isLoading } = useGetRole(guildId, roleId);
     const queryClient = useQueryClient();
+    const [permsQuery, setPermsQuery] = useState<string>("");
     const { mutateAsync, isLoading: isUpdating } = useEditRole(guildId, roleId);
+    const { mutateAsync: deleteRole, isLoading: deleteing } = useDeleteRole(
+        guildId,
+        roleId
+    );
     const [value, setValue] = useState(guildId === roleId ? 1 : 0);
-    const [ogData, setOgdata] = useState<any>({});
-    const [unsaved, setUnsaved] = useState(false);
-
-    useEffect(() => {
-        if (JSON.stringify(ogData) === JSON.stringify(data?.role)) {
-            setUnsaved(false);
-        } else {
-            if (!unsaved) {
-                setUnsaved(true);
-            }
-        }
-    }, [ogData, data]);
-
-    useEffect(() => {
-        setOgdata(data && data.role);
-    }, [data]);
+    const { ogData, setOgdata, handleReset, unsaved } = useUnsaved(
+        data && data?.role
+    );
 
     const saveFn = async (data: Object) => {
         await mutateAsync(data);
@@ -193,6 +319,19 @@ export const RolesDisplay: React.FC<{ roleId: string; guildId: string }> = ({
                 });
             })
         );
+    };
+
+    const handleDelete = async () => {
+        await deleteRole();
+        queryClient.setQueryData(["roles", guildId], existingRoles =>
+            produce(existingRoles, (draft: any) => {
+                draft.roles = draft.roles.filter(
+                    (role: any) => role.id !== roleId
+                );
+            })
+        );
+        queryClient.invalidateQueries(["roles", guildId, roleId]);
+        setSelected(guildId);
     };
 
     const handleChange = (_: SyntheticEvent, newValue: number) => {
@@ -221,7 +360,7 @@ export const RolesDisplay: React.FC<{ roleId: string; guildId: string }> = ({
                             <Button
                                 size="small"
                                 variant="text"
-                                onClick={() => setOgdata(data)}
+                                onClick={handleReset}
                             >
                                 Reset
                             </Button>
@@ -300,51 +439,88 @@ export const RolesDisplay: React.FC<{ roleId: string; guildId: string }> = ({
                                         })
                                     );
                                 }}
-                                checked={data.role.mentionable}
+                                checked={ogData.mentionable}
                             />
                         </ListItemSecondaryAction>
                     </ListItem>
+                    <Divider />
+                    <br />
+                    <LoadingButton
+                        disableElevation
+                        fullWidth
+                        loading={deleteing}
+                        variant="contained"
+                        color="error"
+                        onClick={handleDelete}
+                    >
+                        Delete Role
+                    </LoadingButton>
                 </List>
             </TabPanel>
             <TabPanel value={value} index={1}>
+                <TextField
+                    fullWidth
+                    placeholder="Search Permissions"
+                    value={permsQuery}
+                    onChange={e => {
+                        setPermsQuery(e.target.value.toLowerCase());
+                    }}
+                    InputProps={{
+                        endAdornment: !permsQuery ? (
+                            <InputAdornment position="end">
+                                <Search />
+                            </InputAdornment>
+                        ) : (
+                            <InputAdornment position="end">
+                                <IconButton onClick={() => setPermsQuery("")}>
+                                    <Clear />
+                                </IconButton>
+                            </InputAdornment>
+                        ),
+                    }}
+                />
                 <List sx={{ width: "100%" }} disablePadding>
-                    {permissions.map(permission => (
-                        <ListItem disableGutters sx={{ width: "100%" }}>
-                            <ListItemText
-                                primary={permission.title}
-                                secondary={permission.description}
-                            />
-                            <ListItemSecondaryAction>
-                                <Android12Switch
-                                    checked={Boolean(
-                                        BigInt(ogData.permissions || "0") &
-                                            permission.bit
-                                    )}
-                                    onChange={e => {
-                                        setOgdata((prev: any) =>
-                                            produce(prev, (draft: any) => {
-                                                if (e.target.checked) {
-                                                    draft.permissions = (
-                                                        BigInt(
-                                                            draft.permissions ||
-                                                                "0"
-                                                        ) | permission.bit
-                                                    ).toString();
-                                                } else {
-                                                    draft.permissions = (
-                                                        BigInt(
-                                                            draft.permissions ||
-                                                                "0"
-                                                        ) & ~permission.bit
-                                                    ).toString();
-                                                }
-                                            })
-                                        );
-                                    }}
+                    {permissions
+                        .filter(permission =>
+                            permission.title.toLowerCase().match(permsQuery)
+                        )
+                        .map(permission => (
+                            <ListItem disableGutters sx={{ width: "100%" }}>
+                                <ListItemText
+                                    primary={permission.title}
+                                    secondary={permission.description}
                                 />
-                            </ListItemSecondaryAction>
-                        </ListItem>
-                    ))}
+                                <ListItemSecondaryAction>
+                                    <Android12Switch
+                                        checked={Boolean(
+                                            BigInt(ogData.permissions || "0") &
+                                                permission.bit
+                                        )}
+                                        onChange={e => {
+                                            setOgdata((prev: any) =>
+                                                produce(prev, (draft: any) => {
+                                                    if (e.target.checked) {
+                                                        draft.permissions = (
+                                                            BigInt(
+                                                                draft.permissions ||
+                                                                    "0"
+                                                            ) | permission.bit
+                                                        ).toString();
+                                                    } else {
+                                                        draft.permissions = (
+                                                            BigInt(
+                                                                draft.permissions ||
+                                                                    "0"
+                                                            ) & ~permission.bit
+                                                        ).toString();
+                                                    }
+                                                })
+                                            );
+                                        }}
+                                    />
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                        ))}
                 </List>
             </TabPanel>
             <TabPanel value={value} index={2}></TabPanel>

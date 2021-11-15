@@ -158,21 +158,14 @@ def update_role_postions(guild_id: int,
         role = db.query(Role).filter_by(
             id=id).filter_by(guild_id=guild_id).first()
         if role:
-            original_postion = role.position
-            role.position = position
-            db.query(Role).\
-                filter_by(
-                    Role.position.between(
-                        max(original_postion - 1, 1), position),
-                Role.id.not_(id)).\
-                update({Role.position: Role.position + 1})
+
             db.commit()
             return '', 204
         return {'success': False, 'error': 'Role not found'}, 404
     return {'success': False, 'error': 'No position provided'}, 404
 
 
-@router.patch('/{guild_id}/roles/{role_id}')
+@ router.patch('/{guild_id}/roles/{role_id}')
 def update_role(guild_id: int, role_id: int,
                 data: RoleUpdate,
                 current_user: User = Depends(deps.get_current_user),
@@ -191,7 +184,7 @@ def update_role(guild_id: int, role_id: int,
     return {'role': role.serialize()}, 201
 
 
-@router.delete('/{guild_id}/roles/{role_id}')
+@ router.delete('/{guild_id}/roles/{role_id}')
 def delete_role(guild_id: int, role_id: int,
                 db: Session = Depends(deps.get_db),
                 current_user: User = Depends(deps.get_current_user)):

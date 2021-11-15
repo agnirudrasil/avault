@@ -3,6 +3,7 @@ import Document, { Html, Head, Main, NextScript } from "next/document";
 import createEmotionServer from "@emotion/server/create-instance";
 import theme from "../src/theme";
 import { createEmotionCache } from "../src/createEmotionCache";
+import { resetServerContext } from "react-beautiful-dnd";
 
 export default class MyDocument extends Document {
     render() {
@@ -67,6 +68,7 @@ MyDocument.getInitialProps = async ctx => {
         });
 
     const initialProps = await Document.getInitialProps(ctx);
+    resetServerContext();
     // This is important. It prevents emotion to render invalid HTML.
     // See https://github.com/mui-org/material-ui/issues/26561#issuecomment-855286153
     const emotionStyles = extractCriticalToChunks(initialProps.html);
