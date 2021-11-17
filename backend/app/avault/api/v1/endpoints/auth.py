@@ -16,20 +16,24 @@ router = APIRouter()
 
 
 @router.post('/register')
-def register(email: EmailStr = Form(''),
-             username: str = Form('', min_length=3, max_length=80),
-             password: str = Form('', min_length=6, max_lenght=25,
-                                  regex='^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'),
-             db: Session = Depends(deps.get_db)):
+def register(
+        response: Response,
+        email: EmailStr = Form(''),
+        username: str = Form('', min_length=3, max_length=80),
+        password: str = Form('', min_length=6, max_lenght=25,
+                             regex='^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'),
+        db: Session = Depends(deps.get_db)):
     email = email.lower().strip()
     username = username.lower().strip()
-    user = models.User.query.filter_by(email=email.lower()).first()
+    user = db.query(models.User).filter_by(email=email.lower()).first()
     if (user):
-        return {'error': 'User already exists'}, 409
+        response.status_code = 409
+        return {'error': 'User already exists'}
     user = models.User(username, password, email, db)
     db.add(user)
     db.commit()
-    return {'success': True}, 201
+    response.status_code = 201
+    return {'success': True}
 
 
 @router.post("/access-token", response_model=schemas.Token)

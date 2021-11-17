@@ -16,6 +16,7 @@ class User(Base):
     password = Column(Text, nullable=False)
     tag = Column(String(5), nullable=False)
     email = Column(String(120), unique=True, nullable=False)
+    channels = relationship('Channel', back_populates='user')
     guilds: List[Guild] = relationship(
         "GuildMembers", back_populates="member")
     __table_args__ = (UniqueConstraint('username', 'tag'),)

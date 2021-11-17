@@ -1,6 +1,7 @@
 from avault.api import deps
-from fastapi import APIRouter, Depends, File, Form, UploadFile
-from pydantic import BaseModel, ValidationError
+from avault.schemas.channel import ChannelValidate
+from fastapi import APIRouter, Depends, File, Form, Response, UploadFile
+from pydantic import BaseModel
 from typing import Optional
 from sqlalchemy import asc, desc
 from sqlalchemy.orm import Session
@@ -30,6 +31,10 @@ class RoleUpdate(BaseModel):
 class RolePositionUpdate(BaseModel):
     id: int
     positon: int
+
+
+class GuildEdit(BaseModel):
+    name: str
 
 
 @router.post('/')
@@ -68,6 +73,34 @@ def get_guild(guild_id: int,
     if guild and guild.is_member(db, current_user.id):
         return {'guild': guild.serialize()}
     return {'guild': None}, 404
+
+
+@router.patch('/{guild_id}')
+def edit_guild(guild_id: int, body: GuildEdit,
+               response: Response,
+               db: Session = Depends(deps.get_db),
+               user: User = Depends(deps.get_current_user)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild and guild.is_member(db, user.id):
+        guild.name = body.name
+        db.commit()
+        return guild.serialize()
+    response.status_code = 404
+    return {'error': 'Guild not found'}
+
+
+@router.delete('/{guild_id}')
+def delete_guild(guild_id: int,
+                 response: Response,
+                 db: Session = Depends(deps.get_db),
+                 user: User = Depends(deps.get_current_user)):
+    guild: Guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild and guild.is_owner(db, user):
+        db.delete(guild)
+        db.commit()
+        return {"success": True}
+    response.status_code = 404
+    return {"error": "Guild not found"}
 
 
 @router.put('/{guild_id}/members/{user_id}/roles/{role_id}', status_code=204)
@@ -187,7 +220,7 @@ def update_role(guild_id: int, role_id: int,
     return {'role': role.serialize()}, 201
 
 
-@ router.delete('/{guild_id}/roles/{role_id}')
+@router.delete('/{guild_id}/roles/{role_id}')
 def delete_role(guild_id: int, role_id: int,
                 db: Session = Depends(deps.get_db),
                 current_user: User = Depends(deps.get_current_user)):
@@ -197,3 +230,77 @@ def delete_role(guild_id: int, role_id: int,
         db.commit()
         return '', 204
     return {'success': False, 'error': 'Role not found'}, 404
+
+
+@router.get('/{guild_id}/channels')
+def get_guild_channels(guild_id: int, response: Response,
+                       db: Session = Depends(deps.get_db),
+                       user: User = Depends(deps.get_current_user)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild and guild.is_member(db, user.id):
+        return {[channel.serialize() for channel in guild.channels]}
+    response.status_code = 404
+    return {'channels': None}
+
+
+@router.post("/{guild_id}/channels")
+def create(guild_id: int, data: ChannelValidate,
+           current_user: User = Depends(deps.get_current_user),
+           db: Session = Depends(deps.get_db)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild and guild.is_member(db, current_user.id):
+        channel = Channel(data.type, guild_id, data.name,
+                          data.topic, data.nsfw,
+                          data.position, parent_id=data.parent_id)
+        db.add(channel)
+        db.commit()
+        return {**channel.serialize()}, 201
+
+# TODO change channel postions
+
+
+@router.get('/{guild_id}/members/{user_id}')
+def get_guild_member(guild_id: int, user_id: int, response: Response,
+                     db: Session = Depends(deps.get_db)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild:
+        member = db.query(GuildMembers).filter_by(
+            guild_id=guild_id).filter_by(user_id=user_id).first()
+        if member:
+            return {'member': member.serialize()}
+        response.status_code = 404
+        return {'member': None}
+    response.status_code = 404
+    return {'member': None}
+
+
+@router.get('/{guild_id}/members')
+def get_guild_members(guild_id: int, response: Response,
+                      db: Session = Depends(deps.get_db)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild:
+        return {[member.serialize() for member in guild.members]}
+    response.status_code = 404
+    return {'members': None}
+
+
+@router.put('/{guild_id}/members/{user_id}')
+def add_guild_member(guild_id: int, user_id: int,
+                     db: Session = Depends(deps.get_db)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild:
+        member = db.query(GuildMembers).filter_by(
+            guild_id=guild_id).filter_by(user_id=user_id).first()
+        if member:
+            return {'member': member.serialize()}
+        member = GuildMembers()
+        guild.members.append(member)
+        db.add(member)
+        db.commit()
+
+        return {'member': member.serialize()}
+
+
+@router.patch('/{guild_id}/members/{user_id}')
+def update_guild_member(guild_id: int, user_id: int):
+    pass

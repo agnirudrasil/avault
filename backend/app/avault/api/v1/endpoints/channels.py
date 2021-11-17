@@ -262,23 +262,6 @@ def edit_channel(channel_id: int,
     return {"message": "Channel not found"}
 
 
-@router.post("/")
-def create(data: ChannelValidate,
-           current_user: User = Depends(deps.get_current_user),
-           db: Session = Depends(deps.get_db)):
-    try:
-        user = db.query(User).filter_by(id=data.owner_id).first()
-        channel = Channel(data.type, data.guild_id, data.name,
-                          data.topic, data.nsfw, data.owner_id, data.parent_id)
-        if data.owner_id and user:
-            channel.members.append(user)
-        db.add(channel)
-        db.commit()
-        return {"success": True, "channel": channel.serialize()}, 200
-    except ValidationError as e:
-        return {"success": False, "error": e.json()}, 400
-
-
 @router.delete("/{channel_id}")
 def delete(channel_id: int,
            db: Session = Depends(deps.get_db),

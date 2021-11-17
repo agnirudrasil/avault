@@ -1,4 +1,5 @@
 
+from avault.models.user import User
 from sqlalchemy.orm import Session
 from avault.db.base_class import Base
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -46,8 +47,8 @@ class Guild(Base):
     members = relationship('GuildMembers', back_populates="guild")
     channels = relationship('Channel', order_by="asc(Channel.position)")
 
-    def is_owner(self, member: GuildMembers):
-        return member.user_id == self.owner_id
+    def is_owner(self, db: Session, user: User):
+        return user.id == self.owner_id
 
     def is_member(self, db: Session, user_id):
         return db.query(GuildMembers).filter_by(user_id=user_id, guild_id=self.id).first() is not None

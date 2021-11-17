@@ -12,9 +12,7 @@ class ThreadCreate(BaseModel):
 class ChannelValidate(BaseModel):
     name: str
     type: str
-    guild_id: Optional[str]
     parent_id: Optional[int]
-    owner_id: Optional[int]
     nsfw: Optional[bool]
     topic: Optional[str]
     privateChannel: bool
