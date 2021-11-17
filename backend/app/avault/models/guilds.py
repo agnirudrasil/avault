@@ -12,10 +12,11 @@ class GuildMembers(Base):
     __tablename__ = "guild_members"
     id = Column(BigInteger, primary_key=True)
     guild_id = Column(BigInteger, ForeignKey(
-        "guilds.id"), nullable=False)
+        "guilds.id", ondelete="CASCADE"), nullable=False)
     user_id = Column(BigInteger, ForeignKey(
-        "users.id"), nullable=False)
+        "users.id", ondelete="CASCADE"), nullable=False)
     nickname = Column(String(80), nullable=True)
+    permissions = Column(BigInteger, nullable=False, default=0)
     member = relationship('User', back_populates="guilds")
     guild = relationship('Guild', back_populates="members")
     __table_args__ = (UniqueConstraint(

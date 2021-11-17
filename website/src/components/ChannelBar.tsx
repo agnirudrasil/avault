@@ -1,4 +1,5 @@
 import { List } from "@mui/material";
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { CreateChannelDialogProvider } from "../../contexts/CreateChannelContext";
 import { CreateInviteDialogProvider } from "../../contexts/CreateInviteContext";
 import { ServerNavbar } from "./ServerNavbar";
@@ -19,18 +20,27 @@ export const ChannelBar: React.FC<{ name?: string }> = ({ children, name }) => {
                     dense
                 >
                     {name ? <ServerNavbar name={name} /> : "Channels"}
-                    <List
-                        sx={{
-                            maxHeight: "100%",
-                            overflowY: "auto",
-                            gap: "0.5rem",
-                            display: "flex",
-                            flexDirection: "column",
-                        }}
-                        dense
-                    >
-                        {children}
-                    </List>
+                    <DragDropContext onDragEnd={() => {}}>
+                        <Droppable droppableId="droppable">
+                            {provided => (
+                                <List
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}
+                                    sx={{
+                                        maxHeight: "100%",
+                                        overflowY: "auto",
+                                        gap: "0.5rem",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                    }}
+                                    dense
+                                >
+                                    {children}
+                                    {provided.placeholder}
+                                </List>
+                            )}
+                        </Droppable>
+                    </DragDropContext>
                 </List>
             </CreateInviteDialogProvider>
         </CreateChannelDialogProvider>

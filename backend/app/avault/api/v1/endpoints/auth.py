@@ -32,7 +32,7 @@ def register(email: EmailStr = Form(''),
     return {'success': True}, 201
 
 
-@router.post("/login", response_model=schemas.Token)
+@router.post("/access-token", response_model=schemas.Token)
 def login_access_token(
     response: Response,
     db: Session = Depends(deps.get_db),

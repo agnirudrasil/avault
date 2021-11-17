@@ -1,10 +1,22 @@
 from avault.api import deps
 from avault.models.user import User
+from avault.crud import user
 from avault.models.guilds import GuildMembers
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 router = APIRouter()
+
+
+@router.get("/@me")
+def get_me(db: Session = Depends(deps.get_db),
+           user: User = Depends(deps.get_current_user)):
+    return user.serialize()
+
+
+@router.get('/{user_id}')
+def get_user(user_id: int, db: Session = Depends(deps.get_db)):
+    return user.get(db, user_id).serialize()
 
 
 @router.get('/@me/guilds')

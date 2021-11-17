@@ -25,7 +25,7 @@ export const ChannelLayout: React.FC<{ channels: any[] }> = ({ channels }) => {
     const heirarchy = useMemo(() => createHeirarchy(channels), [channels]);
     return (
         <>
-            {Object.keys(heirarchy).map(key =>
+            {Object.keys(heirarchy).map((key, index) =>
                 heirarchy[key].children.length === 0 ? (
                     heirarchy[key].self.type ===
                     "guild_category".toUpperCase() ? (
@@ -33,12 +33,14 @@ export const ChannelLayout: React.FC<{ channels: any[] }> = ({ channels }) => {
                             name={heirarchy[key].self.name}
                             key={key}
                             id={key}
+                            index={index}
                         />
                     ) : (
                         <TextChannel
                             name={heirarchy[key].self.name}
                             key={key}
                             id={key}
+                            index={index}
                         />
                     )
                 ) : (
@@ -46,12 +48,14 @@ export const ChannelLayout: React.FC<{ channels: any[] }> = ({ channels }) => {
                         key={key}
                         id={key}
                         name={heirarchy[key].self.name}
+                        index={index}
                     >
-                        {heirarchy[key].children.map(channel => (
+                        {heirarchy[key].children.map((channel, index) => (
                             <TextChannel
                                 name={channel.name}
                                 key={channel.id}
                                 id={channel.id}
+                                index={index}
                             />
                         ))}
                     </CategoryChannel>

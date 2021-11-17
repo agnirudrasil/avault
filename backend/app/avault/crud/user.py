@@ -1,4 +1,6 @@
 from typing import Any, Dict, Optional, Union
+from avault.models.guilds import GuildMembers
+from avault.models.roles import Role
 
 from sqlalchemy.orm import Session
 
@@ -22,6 +24,31 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.commit()
         db.refresh(db_obj)
         return db_obj
+
+    def get_permissions(self,
+                        db: Session, *,
+                        user_id: int,
+                        guild_id: int,
+                        channel_id: Optional[int] = None) -> Optional[Union[int, str]]:
+        guild_member: GuildMembers = db.query(GuildMembers).filter_by(
+            user_id=user_id, guild_id=guild_id).first()
+        if not guild_member:
+            return None
+        if guild_member.guild.is_owner(user_id):
+            return 'ALL'
+
+        role_everyone: Role = db.query(Role).filter_by(id=guild_id).first()
+        permissions = role_everyone.permissions
+
+        roles = guild_member.roles
+
+        for role in roles:
+            permissions |= role.permissions
+
+        if permissions & 0x8:
+            return 'ALL'
+
+        return permissions
 
     def update(
         self, db: Session, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]

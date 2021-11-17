@@ -5,9 +5,9 @@ from sqlalchemy.orm import relationship, backref
 
 role_members = Table('role_members', Base.metadata,
                      Column('member_id', BigInteger,
-                            ForeignKey('guild_members.id'), primary_key=True),
+                            ForeignKey('guild_members.id', ondelete="CASCADE"), primary_key=True),
                      Column('role_id', BigInteger,
-                            ForeignKey('roles.id'), primary_key=True)
+                            ForeignKey('roles.id', ondelete="CASCADE"), primary_key=True)
                      )
 
 
@@ -16,7 +16,7 @@ class Role(Base):
 
     id = Column(BigInteger, primary_key=True)
     guild_id = Column(BigInteger, ForeignKey(
-        'guilds.id'), nullable=False)
+        'guilds.id', ondelete="CASCADE"), nullable=False)
     name = Column(String(64), nullable=False)
     color = Column(Integer, nullable=False)
     position = Column(Integer, nullable=False)

@@ -5,19 +5,25 @@ from avault.core.security import snowflake_id
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 from sqlalchemy.ext.hybrid import hybrid_property
 from avault.db.base_class import Base
-from sqlalchemy import Column, Integer, ForeignKey, String, DateTime, Boolean, func, BigInteger, Text
+from sqlalchemy import Column, Integer, ForeignKey, String, DateTime, Boolean, UniqueConstraint, func, BigInteger, Text
 from sqlalchemy.orm import relationship
 import re
 
 
 class Reactions(Base):
     __tablename__ = 'reactions'
-    id = Column(Integer, primary_key=True)
-    message_id = Column(Integer, ForeignKey('messages.id'))
-    user_id = Column(Integer, ForeignKey('users.id'))
+    id = Column(BigInteger, primary_key=True)
+    message_id = Column(BigInteger, ForeignKey(
+        'messages.id', ondelete="CASCADE"))
+    user_id = Column(BigInteger, ForeignKey(
+        'users.id', ondelete="CASCADE"))
     reaction = Column(String(1), nullable=False)
     message = relationship('Message', back_populates='reactions')
     user = relationship('User')
+    __table_args__ = (
+        UniqueConstraint('message_id', 'user_id',
+                         'reaction', name='_reaction_uc'),
+    )
 
     def serialize(self):
         return {
@@ -27,8 +33,10 @@ class Reactions(Base):
             'reaction': self.reaction
         }
 
-    def __init__(self, reaction):
-        self.reaction = reaction
+    def __init__(self, emoji: str, user_id: int):
+        self.id = next(snowflake_id)
+        self.reaction = emoji
+        self.user_id = user_id
 
     def __repr__(self):
         return '<Reactions {}>'.format(self.reaction)
@@ -38,13 +46,14 @@ class Message(Base):
     __tablename__ = 'messages'
     id = Column(BigInteger, primary_key=True)
     channel_id = Column(BigInteger, ForeignKey(
-        'channels.id'), nullable=False)
+        'channels.id', ondelete='CASCADE'), nullable=False)
     author_id = Column(BigInteger, ForeignKey(
-        'users.id'))
+        'users.id', ondelete="SET NULL"))
     content = Column(Text)
     timestamp: datetime = Column(
         DateTime, nullable=False, default=func.now())
-    replies_to = Column(BigInteger, ForeignKey('messages.id'))
+    replies_to = Column(BigInteger, ForeignKey(
+        'messages.id', ondelete="SET NULL"))
     edited_timestamp = Column(DateTime)
     tts = Column(Boolean, nullable=False, default=False)
     mention_everyone = Column(Boolean, nullable=False, default=False)

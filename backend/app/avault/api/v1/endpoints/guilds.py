@@ -70,7 +70,7 @@ def get_guild(guild_id: int,
     return {'guild': None}, 404
 
 
-@router.put('/{guild_id}/members/{user_id}/roles/{role_id}')
+@router.put('/{guild_id}/members/{user_id}/roles/{role_id}', status_code=204)
 def add_role(guild_id: int,
              user_id: int,
              role_id: int,
@@ -79,17 +79,17 @@ def add_role(guild_id: int,
     guild = db.query(Guild).filter_by(id=guild_id).first()
     if guild and guild.is_member(db, current_user.id):
         guild_member = db.query(GuildMembers).filter_by(
-            member_id=user_id, guild_id=guild_id).first()
+            user_id=user_id, guild_id=guild_id).first()
         if guild_member:
             guild_member.roles.append(
                 db.query(Role).filter_by(id=role_id).first())
             db.commit()
-            return '', 204
+            return ''
         return {'success': False, 'error': 'User not found'}, 404
     return {'success': False, 'error': 'Guild not found'}, 404
 
 
-@router.delete('/{guild_id}/members/{user_id}/roles/{role_id}')
+@router.delete('/{guild_id}/members/{user_id}/roles/{role_id}', status_code=204)
 def delete_user_role(guild_id: int,
                      user_id: int,
                      role_id: int,
@@ -98,12 +98,15 @@ def delete_user_role(guild_id: int,
     guild = db.query(Guild).filter_by(id=guild_id).first()
     if guild and guild.is_member(db, current_user.id):
         guild_member = db.query(GuildMembers).filter_by(
-            member_id=user_id, guild_id=guild_id).first()
+            user_id=user_id, guild_id=guild_id).first()
         if guild_member:
-            guild_member.roles.remove(
-                Role.query.filter_by(id=role_id).first())
-            db.commit()
-            return '', 204
+            try:
+                guild_member.roles.remove(
+                    db.query(Role).filter_by(id=role_id).first())
+                db.commit()
+            except ValueError:
+                pass
+            return ''
         return {'success': False, 'error': 'User not found'}, 404
 
 
@@ -165,7 +168,7 @@ def update_role_postions(guild_id: int,
     return {'success': False, 'error': 'No position provided'}, 404
 
 
-@ router.patch('/{guild_id}/roles/{role_id}')
+@router.patch('/{guild_id}/roles/{role_id}')
 def update_role(guild_id: int, role_id: int,
                 data: RoleUpdate,
                 current_user: User = Depends(deps.get_current_user),

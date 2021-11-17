@@ -13,9 +13,9 @@ class Invite(Base):
     __tablename__ = 'invites'
     id = Column(String(21), primary_key=True)
     channel_id = Column(BigInteger, ForeignKey(
-        'channels.id'), nullable=False)
+        'channels.id', ondelete="CASCADE"), nullable=False)
     user_id = Column(BigInteger, ForeignKey(
-        'users.id'), nullable=False)
+        'users.id', ondelete="SET NULL"), nullable=False)
     created_at = Column(DateTime, nullable=False, default=func.now())
     max_age = Column(Integer, nullable=False, default=0)
     max_uses = Column(Integer, default=0)
