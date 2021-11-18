@@ -47,6 +47,8 @@ class Message(Base):
     id = Column(BigInteger, primary_key=True)
     channel_id = Column(BigInteger, ForeignKey(
         'channels.id', ondelete='CASCADE'), nullable=False)
+    guild_id = Column(BigInteger, ForeignKey(
+        'guilds.id', ondelete='CASCADE'))
     author_id = Column(BigInteger, ForeignKey(
         'users.id', ondelete="SET NULL"))
     content = Column(Text)
@@ -88,7 +90,7 @@ class Message(Base):
             'reply': self.reply.serialize() if self.reply else None
         }
 
-    @hybrid_property
+    @ hybrid_property
     def guild_id(self):
         return self.channel.guild_id
 
@@ -114,6 +116,7 @@ class Message(Base):
         self.id = next(snowflake_id)
         self.content = content
         self.channel_id = channel_id
+        self.guild_id = self.channel.guild_id
         self.author_id = author_id
         self.tts = tts
         self.timestamp = datetime.utcnow()

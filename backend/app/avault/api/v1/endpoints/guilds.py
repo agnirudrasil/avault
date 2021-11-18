@@ -1,17 +1,28 @@
+from datetime import datetime, timedelta
 from avault.api import deps
 from avault.schemas.channel import ChannelValidate
 from fastapi import APIRouter, Depends, File, Form, Response, UploadFile
 from pydantic import BaseModel
 from typing import Optional
 from sqlalchemy import asc, desc
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from avault.models.guilds import Guild, GuildMembers
+from avault.models.guilds import Guild, GuildBans, GuildMembers
 from avault.models.roles import Role
 from avault.models.user import User
 from avault.models.channels import Channel, ChannelType
-
+from avault.models.messages import Message
 
 router = APIRouter()
+
+
+class CreateGuildBan(BaseModel):
+    reason: Optional[str] = None
+    delete_message_days: Optional[int] = 0
+
+
+class GuildMemberUpdate(BaseModel):
+    nick: str
 
 
 class RoleCreate(BaseModel):
@@ -244,9 +255,9 @@ def get_guild_channels(guild_id: int, response: Response,
 
 
 @router.post("/{guild_id}/channels")
-def create(guild_id: int, data: ChannelValidate,
-           current_user: User = Depends(deps.get_current_user),
-           db: Session = Depends(deps.get_db)):
+def create_guild_channel(guild_id: int, data: ChannelValidate,
+                         current_user: User = Depends(deps.get_current_user),
+                         db: Session = Depends(deps.get_db)):
     guild = db.query(Guild).filter_by(id=guild_id).first()
     if guild and guild.is_member(db, current_user.id):
         channel = Channel(data.type, guild_id, data.name,
@@ -302,5 +313,111 @@ def add_guild_member(guild_id: int, user_id: int,
 
 
 @router.patch('/{guild_id}/members/{user_id}')
-def update_guild_member(guild_id: int, user_id: int):
-    pass
+def update_guild_member(guild_id: int, user_id: int, data: GuildMemberUpdate,
+                        db: Session = Depends(deps.get_db),
+                        current_user: User = Depends(deps.get_current_user)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild:
+        member = db.query(GuildMembers).filter_by(
+            guild_id=guild_id).filter_by(user_id=user_id).first()
+        if member:
+            if data.nick:
+                member.nick = data.nick
+            db.commit()
+            return {'member': member.serialize()}
+        return {'member': None}
+    return {'member': None}
+
+
+@router.patch('/{guild_id}/members/@me')
+def update_guild_member_me(guild_id: int, data: GuildMemberUpdate,
+                           current_user: User = Depends(deps.get_current_user),
+                           db: Session = Depends(deps.get_db)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild:
+        member = db.query(GuildMembers).filter_by(
+            guild_id=guild_id).filter_by(user_id=current_user.id).first()
+        if member:
+            if data.nick:
+                member.nick = data.nick
+            db.commit()
+            return {'member': member.serialize()}
+        return {'member': None}
+    return {'member': None}
+
+
+@router.delete('/{guild_id}/members/{user_id}')
+def delete_guild_member(guild_id: int, user_id: int,
+                        db: Session = Depends(deps.get_db)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild:
+        member = db.query(GuildMembers).filter_by(
+            guild_id=guild_id).filter_by(user_id=user_id).first()
+        if member:
+            db.delete(member)
+            db.commit()
+            return '', 204
+        return {'member': None}
+    return {'member': None}
+
+
+@router.get('/{guild_id}/bans')
+def get_guild_bans(guild_id: int, response: Response,
+                   db: Session = Depends(deps.get_db)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild:
+        return {[ban.serialize() for ban in guild.bans]}
+    response.status_code = 404
+    return {'bans': None}
+
+
+@router.get('/{guild_id}/bans/{user_id}')
+def get_guild_ban(guild_id: int, user_id: int, response: Response,
+                  db: Session = Depends(deps.get_db)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild:
+        ban = db.query(GuildBans).filter_by(
+            guild_id=guild_id).filter_by(user_id=user_id).first()
+        if ban:
+            return {'ban': ban.serialize()}
+        response.status_code = 404
+        return {'ban': None}
+    response.status_code = 404
+    return {'ban': None}
+
+
+@router.put('/{guild_id}/bans/{user_id}')
+def add_guild_ban(guild_id: int, user_id: int, body: CreateGuildBan,
+                  current_user: User = Depends(deps.get_current_user),
+                  db: Session = Depends(deps.get_db)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild:
+        try:
+            ban = GuildBans()
+            guild.bans.append(ban)
+            db.query(GuildMembers).filter_by(
+                guild_id=guild_id).filter_by(user_id=user_id).delete()
+            filter_after = datetime.now() + timedelta(days=body.delete_message_days)
+            db.query(Message).filter_by(guild_id=guild_id).filter_by(
+                author_id=user_id).filter(Message.timestamp >= filter_after).delete()
+            db.add(ban)
+            db.commit()
+        except IntegrityError:
+            return {'ban': None}
+        return {'ban': ban.serialize()}
+    return {'ban': None}
+
+
+@router.delete('/{guild_id}/bans/{user_id}')
+def delete_guild_ban(guild_id: int, user_id: int,
+                     db: Session = Depends(deps.get_db)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild:
+        ban = db.query(GuildBans).filter_by(
+            guild_id=guild_id).filter_by(user_id=user_id).first()
+        if ban:
+            db.delete(ban)
+            db.commit()
+            return '', 204
+        return {'ban': None}
+    return {'ban': None}

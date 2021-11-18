@@ -1,5 +1,4 @@
 
-from avault.models.user import User
 from sqlalchemy.orm import Session
 from avault.db.base_class import Base
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -7,6 +6,28 @@ from avault.models.channels import ChannelType
 from avault.core.security import snowflake_id
 from sqlalchemy import Column, Text, String, ForeignKey, UniqueConstraint, BigInteger
 from sqlalchemy.orm import relationship
+
+
+class GuildBans(Base):
+    __tablename__ = 'guild_bans'
+    user_id = Column(BigInteger, ForeignKey(
+        'users.id', ondelete="CASCADE"), primary_key=True)
+    guild_id = Column(BigInteger, ForeignKey(
+        'guilds.id', ondelete="CASCADE"), primary_key=True)
+    reason = Column(Text)
+    __table_args__ = (UniqueConstraint('guild_id', 'user_id',
+                      name='guild_bans_guild_id_user_id_key'),)
+    user = relationship("User", backref='guild_bans')
+    guild = relationship('Guild', backref='bans')
+
+    def serialize(self):
+        return {
+            'user': self.user.serialize(),
+            'reason': self.reason
+        }
+
+    def __init__(self, reason=None):
+        self.reason = reason
 
 
 class GuildMembers(Base):
@@ -47,7 +68,7 @@ class Guild(Base):
     members = relationship('GuildMembers', back_populates="guild")
     channels = relationship('Channel', order_by="asc(Channel.position)")
 
-    def is_owner(self, db: Session, user: User):
+    def is_owner(self, db: Session, user):
         return user.id == self.owner_id
 
     def is_member(self, db: Session, user_id):
