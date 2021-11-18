@@ -1,6 +1,4 @@
 import enum
-from lockfile import locked
-
 from sqlalchemy import func
 
 from avault.core.security import snowflake_id
@@ -166,7 +164,7 @@ class Channel(Base):
         self.nsfw = bool(nsfw)
         self.owner_id = owner_id
         if parent_id:
-            if type.lower() in valid_channel_types:
+            if type in valid_channel_types:
                 self.parent_id = parent_id
             else:
                 self.parent_id = None
