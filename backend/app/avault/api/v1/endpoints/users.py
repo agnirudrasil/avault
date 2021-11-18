@@ -2,7 +2,7 @@ from avault.api import deps
 from avault.models.user import User
 from avault.crud import user
 from avault.models.guilds import GuildMembers
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 router = APIRouter()
@@ -20,7 +20,7 @@ def get_user(user_id: int, db: Session = Depends(deps.get_db)):
 
 
 @router.get('/@me/guilds')
-def get_guilds(db: Session = Depends(deps.get_db),
+def get_guilds(response: Response, db: Session = Depends(deps.get_db),
                current_user: User = Depends(deps.get_current_user)):
     user = db.query(User).filter_by(id=current_user.id).first()
     if user:
@@ -28,16 +28,18 @@ def get_guilds(db: Session = Depends(deps.get_db),
         if guilds:
             return {'guilds': [guild.guild.preview() for guild in guilds]}
         return {'guilds': []}
-    return {'guilds': []}, 401
+    response.status_code = 401
+    return {'guilds': []}
 
 
-@router.delete('/@me/guilds/{guild_id}')
-def leave_guild(guild_id: int, current_user: User = Depends(deps.get_current_user),
+@router.delete('/@me/guilds/{guild_id}', status_code=204)
+def leave_guild(guild_id: int, response: Response, current_user: User = Depends(deps.get_current_user),
                 db: Session = Depends(deps.get_db)):
     guild_memeber = db.query(GuildMembers).filter_by(
         user_id=current_user.id, guild_id=guild_id).first()
     if guild_memeber:
         db.session.delete(guild_memeber)
         db.session.commit()
-        return '', 204
-    return {'success': False}, 404
+        return
+    response.status_code = 404
+    return {'success': False}
