@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     POSTGRES_SERVER: str = "localhost:5432"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_DB: str = "api"
+    POSTGRES_DB: str = "avault"
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)

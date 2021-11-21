@@ -4,9 +4,8 @@ from api.schemas.channel import ChannelEdit, ChannelValidate, ThreadCreate
 from api.schemas.invite import ChannelInvite
 from api.schemas.overwrite import Overwrite as OverwriteSchema
 from fastapi import APIRouter, Depends, Response
-from itsdangerous import json
 from sqlalchemy.orm import Session
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 from api.models.invites import Invite
 from api.models.user import User
 from api.api import deps

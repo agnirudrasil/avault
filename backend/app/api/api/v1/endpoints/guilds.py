@@ -256,13 +256,13 @@ def get_guild_channels(guild_id: int, response: Response,
 
 @router.post("/{guild_id}/channels")
 def create_guild_channel(guild_id: int, data: ChannelValidate,
-                         current_user: User = Depends(deps.get_current_user),
+                         #  current_user: User = Depends(deps.get_current_user),
                          db: Session = Depends(deps.get_db)):
     guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild and guild.is_member(db, current_user.id):
+    if guild:
         channel = Channel(data.type, guild_id, data.name,
                           data.topic, data.nsfw,
-                          data.position, parent_id=data.parent_id)
+                          parent_id=data.parent_id)
         db.add(channel)
         db.commit()
         return {**channel.serialize()}, 201

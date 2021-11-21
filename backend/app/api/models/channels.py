@@ -1,4 +1,5 @@
 import enum
+from html5lib import serialize
 from sqlalchemy import func
 
 from api.core.security import snowflake_id
@@ -123,7 +124,7 @@ class Channel(Base):
     parent_id = Column(BigInteger, ForeignKey(
         'channels.id', ondelete="SET NULL"), nullable=True)
     members = relationship(
-        'User', secondary=channel_members, backref='channels')
+        'User', secondary=channel_members, backref='channels_members')
     overwrites = relationship('Overwrite', back_populates='channel')
     pinned_messages = relationship('PinnedMessages', back_populates='channel')
     thread_metadata = relationship('ThreadMetadata', back_populates='channel')
@@ -144,14 +145,20 @@ class Channel(Base):
                              ChannelType.group_dm,
                              ChannelType.guild_public_thread,
                              ChannelType.guild_private_thread]:
-            data['permission_overwrites'] = self.overwrites.serialize()
+            data['overwrites'] = [overwrite.serialize()
+                                  for overwrite in self.overwrites]
         if self.members:
             data['recipients'] = [m.serialize() for m in self.members]
         if self.thread_metadata:
             data['thread_metadata'] = self.thread_metadata.serialize()
         return data
 
-    def __init__(self, type, guild_id, name, topic="", nsfw=False, owner_id=None, parent_id=None):
+    def __init__(self, type,
+                 guild_id,
+                 name, topic="",
+                 nsfw=False,
+                 owner_id=None,
+                 parent_id=None):
         self.id = next(snowflake_id)
         self.type = type
         self.guild_id = guild_id

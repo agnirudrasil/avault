@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "api"
+name = "avault"
 version = "0.1.0"
 description = "Instant Messaging Website"
 authors = ["Agnirudra Sil <agnirudra.sil@gmail.com>"]
