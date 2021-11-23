@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, Depends
 
-from api.api.v1.endpoints import auth, channels, users, guilds, invites
+from api.api.v1.endpoints import auth, channels, users, guilds, invites, default
 
 api_router = APIRouter()
 
@@ -46,9 +46,12 @@ def join_guild(code: str,
     return "", 404
 
 
+api_router.include_router(default.router, tags=["default"])
 api_router.include_router(auth.router, prefix='/auth', tags=["login"])
 api_router.include_router(
     channels.router, prefix="/channels", tags=["channels"])
 api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(guilds.router, prefix="/guilds", tags=["guilds"])
 api_router.include_router(invites.router, prefix='/invites', tags=["invites"])
+api_router.include_router(
+    invites.router, prefix='/webhooks', tags=["webhooks"])

@@ -51,6 +51,8 @@ class Message(Base):
         'guilds.id', ondelete='CASCADE'))
     author_id = Column(BigInteger, ForeignKey(
         'users.id', ondelete="SET NULL"))
+    webhook_id = Column(BigInteger, ForeignKey(
+        'webhooks.id', ondelete='SET NULL'))
     content = Column(Text)
     timestamp: datetime = Column(
         DateTime, nullable=False, default=func.now())
@@ -67,9 +69,15 @@ class Message(Base):
     reactions = relationship('Reactions', back_populates='message')
     channel: Channel = relationship('Channel')
     author = relationship('User')
+    webhook = relationship('Webhook')
     reply = relationship('Message', remote_side=[id])
 
     def serialize(self):
+        author = None
+        if self.webhook_id:
+            author = self.webhook.get_author()
+        else:
+            author = self.author.serialize()
         return {
             'id': str(self.id),
             'channel_id': str(self.channel_id) if self.channel_id else None,
@@ -86,11 +94,11 @@ class Message(Base):
             'embeds': self.embeds,
             'attachments': self.attachments,
             'reactions': [reaction.serialize() for reaction in self.reactions],
-            'author': self.author.serialize() if self.author else None,
+            'author': author,
             'reply': self.reply.serialize() if self.reply else None
         }
 
-    @ hybrid_property
+    @hybrid_property
     def guild_id(self):
         return self.channel.guild_id
 

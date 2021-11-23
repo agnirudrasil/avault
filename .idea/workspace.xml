@@ -5,11 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/avault.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/avault.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/pyproject.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/8042574a09e0_.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/default.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/api/models/permissions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sql/permissions.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/website/hooks/requests/useGetPermissions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/env.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/alembic/env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/1f1d30d17df4_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/c3481a3298d1_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/db/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/db/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/guilds.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/guilds.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/roles.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/roles.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useLogin.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useLogin.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/routes/SettingsRoles.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/routes/SettingsRoles.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from api.models.guilds import Guild, GuildBans, GuildMembers
 from api.models.roles import Role
 from api.models.user import User
-from api.models.channels import Channel, ChannelType
+from api.models.channels import Channel, ChannelType, Overwrite
 from api.models.messages import Message
 
 router = APIRouter()
@@ -60,7 +60,7 @@ def create(name: str = Form(..., min_length=5, max_length=80),
         if icon:
             pass
         guild_member = GuildMembers()
-        role = Role(guild.id, '@everyone', 0, 0, 0x0, True, guild.id)
+        role = Role(guild.id, '@everyone', 0, 0, 1071698660929, True, guild.id)
         category = Channel(ChannelType.guild_category,
                            guild.id, 'TEXT CHANNELS')
         general = Channel(ChannelType.guild_text,
@@ -186,7 +186,9 @@ def create_role(guild_id: int,
                 db: Session = Depends(deps.get_db)):
     guild = db.query(Guild).filter_by(id=guild_id).first()
     if guild and guild.is_member(db, current_user.id):
-        role = Role(guild_id, data.name, data.color, 1, data.permissions,
+        everyone_role = db.query(Role).filter_by(id=guild.id).first()
+        role = Role(guild_id, data.name, data.color, 1,
+                    data.permissions or everyone_role.permissions,
                     data.mentionable)
         db.add(role)
         db.commit()
@@ -263,6 +265,9 @@ def create_guild_channel(guild_id: int, data: ChannelValidate,
         channel = Channel(data.type, guild_id, data.name,
                           data.topic, data.nsfw,
                           parent_id=data.parent_id)
+        if data.privateChannel:
+            overwrite = Overwrite(guild.id, 0, deny=1024, allow=0)
+            channel.overwrites.append(overwrite)
         db.add(channel)
         db.commit()
         return {**channel.serialize()}, 201
@@ -421,3 +426,14 @@ def delete_guild_ban(guild_id: int, user_id: int,
             return '', 204
         return {'ban': None}
     return {'ban': None}
+
+
+@router.get('/{guild_id}/webhooks')
+def get_guild_webhooks(guild_id: int, response: Response,
+                       db: Session = Depends(deps.get_db),
+                       current_user: User = Depends(deps.get_current_user)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild:
+        return {[webhook.serialize() for webhook in guild.webhooks]}
+    response.status_code = 404
+    return {'webhooks': None}

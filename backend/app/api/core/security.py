@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import secrets
 from typing import Any, Union
 from fastapi import Response
 
@@ -57,6 +58,10 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
+
+
+def generate_token(len: int):
+    return secrets.token_urlsafe(len)
 
 
 snowflake_id = snowflake.generator()

@@ -5,3 +5,5 @@ from api.models.channels import Channel, Overwrite, PinnedMessages
 from api.models.messages import Message, Reactions
 from api.models.roles import Role
 from api.models.invites import Invite
+from api.models.permissions import Permission
+from api.models.webhooks import Webhook

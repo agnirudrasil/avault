@@ -1,6 +1,7 @@
 from datetime import datetime
-from typing import List
-from api.schemas.channel import ChannelEdit, ChannelValidate, ThreadCreate
+from typing import Any, List, Optional
+from api.models.webhooks import Webhook
+from api.schemas.channel import ChannelEdit, ThreadCreate
 from api.schemas.invite import ChannelInvite
 from api.schemas.overwrite import Overwrite as OverwriteSchema
 from fastapi import APIRouter, Depends, Response
@@ -18,6 +19,11 @@ router = APIRouter()
 
 class MessageCreate(BaseModel):
     content: str
+
+
+class WebhookCreate(BaseModel):
+    name: str
+    avatar: Optional[Any] = None
 
 
 @router.get('/{channel_id}/messages')
@@ -449,5 +455,36 @@ def get_active_threads(channel_id: int,
     if channel:
         return {
             [thread.serialize() for thread in channel]
+        }
+    return Response(status_code=404)
+
+
+@router.get('/{channel_id}/{webhooks}')
+def get_webhooks(channel_id: int,
+                 db: Session = Depends(deps.get_db),
+                 current_user: User = Depends(deps.get_current_user)):
+    channel: Channel = db.query(Channel).filter_by(
+        id=channel_id).first()
+    if channel:
+        return {
+            [webhook.serialize() for webhook in channel.webhooks]
+        }
+    return Response(status_code=404)
+
+
+@router.post('/{channel_id}/{webhooks}')
+def create_webhook(channel_id: int,
+                   data: WebhookCreate,
+                   db: Session = Depends(deps.get_db),
+                   current_user: User = Depends(deps.get_current_user)):
+    channel: Channel = db.query(Channel).filter_by(
+        id=channel_id).first()
+    if channel:
+        webhook = Webhook(1, channel_id, current_user.id,
+                          data.name, data.avatar, guild_id=channel.guild_id)
+        channel.webhooks.append(webhook)
+        db.commit()
+        return {
+            **webhook.serialize()
         }
     return Response(status_code=404)

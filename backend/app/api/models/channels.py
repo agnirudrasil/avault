@@ -69,37 +69,30 @@ class ThreadMetadata(Base):
 class Overwrite(Base):
     __tablename__ = 'overwrites'
     id = Column(BigInteger, primary_key=True)
-    member_id = Column(BigInteger,  ForeignKey(
-        'guild_members.id', ondelete="CASCADE"))
-    role_id = Column(BigInteger, ForeignKey(
-        'roles.id', ondelete="CASCADE"))
+    type = Column(Integer, nullable=False)
     allow = Column(BigInteger, nullable=False)
     deny = Column(BigInteger, nullable=False)
     channel_id = Column(BigInteger, ForeignKey('channels.id', ondelete="CASCADE",),
-                        nullable=False)
+                        nullable=False, primary_key=True)
     channel = relationship('Channel', back_populates='overwrites')
-    role = relationship('Role')
-    member = relationship('GuildMembers')
 
     def serialize(self):
-        type = 0 if self.role_id else 1
         return {
-            'id': self.role_id or self.member_id,
-            'type': type,
+            'id': self.id,
+            'type': self.type,
             'allow': self.allow,
             'deny': self.deny,
             'channel_id': self.channel_id,
         }
 
     def __init__(self,
-                 member_id=None,
-                 role_id=None,
+                 id,
+                 type,
                  allow=None,
                  deny=None,
                  channel_id=None):
-        self.id = next(snowflake_id)
-        self.member_id = member_id
-        self.role_id = role_id
+        self.id = id
+        self.type = type
         self.allow = allow
         self.deny = deny
         self.channel_id = channel_id

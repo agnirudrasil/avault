@@ -1,19 +1,24 @@
 from api.core.security import snowflake_id
 from api.db.base_class import Base
-from sqlalchemy import Column, BigInteger, Table, ForeignKey, Boolean,  String, Integer
+from sqlalchemy import Column, BigInteger, ForeignKeyConstraint, PrimaryKeyConstraint, Table, ForeignKey, Boolean,  String, Integer
 from sqlalchemy.orm import relationship, backref
 
 role_members = Table('role_members', Base.metadata,
-                     Column('member_id', BigInteger,
-                            ForeignKey('guild_members.id', ondelete="CASCADE"), primary_key=True),
-                     Column('role_id', BigInteger,
-                            ForeignKey('roles.id', ondelete="CASCADE"), primary_key=True)
-                     )
+                     Column('user_id', BigInteger),
+                     Column('guild_id', BigInteger, nullable=False),
+                     Column('role_id', BigInteger),
+                     ForeignKeyConstraint(['user_id', 'guild_id'],
+                                          ['guild_members.user_id',
+                                           'guild_members.guild_id'],
+                                          'guild_members_role_fkey', ondelete='CASCADE'),
+                     ForeignKeyConstraint(['role_id'],
+                                          ['roles.id'],
+                                          'role_members_role_id_fkey', ondelete='CASCADE'),
+                     PrimaryKeyConstraint('user_id', 'guild_id', 'role_id'))
 
 
 class Role(Base):
     __tablename__ = 'roles'
-
     id = Column(BigInteger, primary_key=True)
     guild_id = Column(BigInteger, ForeignKey(
         'guilds.id', ondelete="CASCADE"), nullable=False)

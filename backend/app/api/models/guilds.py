@@ -1,5 +1,5 @@
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, backref
 from api.db.base_class import Base
 from sqlalchemy.ext.hybrid import hybrid_property
 from api.models.channels import ChannelType
@@ -32,17 +32,18 @@ class GuildBans(Base):
 
 class GuildMembers(Base):
     __tablename__ = "guild_members"
-    id = Column(BigInteger, primary_key=True)
     guild_id = Column(BigInteger, ForeignKey(
-        "guilds.id", ondelete="CASCADE"), nullable=False)
+        "guilds.id", ondelete="CASCADE"), nullable=False, primary_key=True)
     user_id = Column(BigInteger, ForeignKey(
-        "users.id", ondelete="CASCADE"), nullable=False)
+        "users.id", ondelete="CASCADE"), nullable=False, primary_key=True)
     nickname = Column(String(80), nullable=True)
     permissions = Column(BigInteger, nullable=False, default=0)
     member = relationship('User', back_populates="guilds")
     guild = relationship('Guild', back_populates="members")
-    __table_args__ = (UniqueConstraint(
-        'guild_id', 'user_id', name='_guild_member_uc'),)
+
+    @hybrid_property
+    def is_owner(self):
+        return self.guild.owner_id == self.user_id
 
     def serialize(self):
         return {
@@ -52,9 +53,10 @@ class GuildMembers(Base):
             'roles': self.roles
         }
 
-    def __init__(self, nickname=None):
+    def __init__(self, nickname=None, permissions=1071698660929):
         self.id = next(snowflake_id)
         self.nickname = nickname
+        self.permissions = permissions
 
 
 class Guild(Base):
