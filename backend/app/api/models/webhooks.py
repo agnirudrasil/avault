@@ -16,8 +16,8 @@ class Webhook(Base):
     name = Column(String(100), nullable=False)
     avatar = Column(String(2048))
     token = Column(Text, nullable=True)
-    channel = relationship('Channel', back_populates='webhooks')
-    guild = relationship('Guild', back_populates='webhooks')
+    channel = relationship('Channel', backref='webhooks')
+    guild = relationship('Guild', backref='webhooks')
 
     def get_author(self):
         return {

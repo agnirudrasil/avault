@@ -7,6 +7,7 @@ import { CssBaseline } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { useState } from "react";
 import { WebsocketProvider } from "../contexts/WebsocketProvider";
+import "emoji-mart/css/emoji-mart.css";
 
 const clientSideCache = createEmotionCache();
 
@@ -18,6 +19,7 @@ interface MyAppProps extends AppProps {
 const MyApp = (props: MyAppProps) => {
     const { Component, emotionCache = clientSideCache, pageProps } = props;
     const [queryClient] = useState(() => new QueryClient());
+
     return (
         <QueryClientProvider client={queryClient}>
             <CacheProvider value={emotionCache}>

@@ -37,6 +37,13 @@ class User(Base):
             'id': str(self.id),
             'username': self.username,
             'tag': self.tag,
+        }
+
+    def json(self):
+        return {
+            'id': str(self.id),
+            'username': self.username,
+            'tag': self.tag,
             'email': self.email,
         }
 

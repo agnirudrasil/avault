@@ -1,11 +1,12 @@
 from api.core.emitter import Emitter
 from api.core import redis
+from api.core.rabbitmq import consume
+from async_timeout import asyncio
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from api.api.v1.api import api_router
 from api.core.config import settings
-from starlette.websockets import WebSocketDisconnect
 
 app = FastAPI(
     title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
@@ -26,7 +27,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 emitter = Emitter(redis)
 
 
-@app.get('/')
-async def root():
-    await emitter.emit("root")
-    return "emitted"
+@app.on_event('startup')
+async def pubsub():
+    loop = asyncio.get_event_loop()
+    asyncio.ensure_future(consume(loop))

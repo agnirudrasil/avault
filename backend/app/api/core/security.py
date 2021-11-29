@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import secrets
 from typing import Any, Union
+from api import schemas
 from fastapi import Response
 
 from jose import jwt
@@ -62,6 +63,13 @@ def get_password_hash(password: str) -> str:
 
 def generate_token(len: int):
     return secrets.token_urlsafe(len)
+
+
+def verify_jwt(token: str) -> schemas.TokenPayload:
+    payload = jwt.decode(
+        token, settings.SECRET_KEY, algorithms=[ALGORITHM]
+    )
+    return schemas.TokenPayload(**payload)
 
 
 snowflake_id = snowflake.generator()

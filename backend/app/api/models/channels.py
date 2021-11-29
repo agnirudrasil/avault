@@ -146,6 +146,9 @@ class Channel(Base):
             data['thread_metadata'] = self.thread_metadata.serialize()
         return data
 
+    def is_member(self, user):
+        return user in self.members
+
     def __init__(self, type,
                  guild_id,
                  name, topic="",

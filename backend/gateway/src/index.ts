@@ -1,30 +1,43 @@
-import { Server } from "socket.io";
-import { createAdapter } from "@socket.io/redis-adapter";
 import Redis from "ioredis";
 import parser from "socket.io-msgpack-parser";
+import { connect } from "amqplib";
+import { Server } from "socket.io";
+import { createAdapter } from "@socket.io/redis-adapter";
 import { ClientToServerEvents, ServerToClientEvents } from "./types/events";
-import jwt from "jsonwebtoken";
+import { sendMessage } from "./utils/sendMessage";
 
-const TOKEN = "qLuRm_BFVNJ1AZZWDUd8xCiso2wzTYJz82qCKDgiAlU";
-
-const io = new Server<ClientToServerEvents, ServerToClientEvents>({ parser });
-
-const pubClient = new Redis();
-const subClient = pubClient.duplicate();
-
-io.adapter(createAdapter(pubClient, subClient));
-io.on("connection", socket => {
-    socket.on("IDENTIFY", identify => {
-        try {
-            const payload = jwt.verify(identify.token, TOKEN);
-            socket.join(payload.sub as string);
-        } catch (e) {
-            socket.disconnect(true);
-        }
+(async () => {
+    const io = new Server<ClientToServerEvents, ServerToClientEvents>({
+        parser,
     });
-});
 
-io.listen(8080, {
-    path: "/",
-    cookie: true,
-});
+    const pubClient = new Redis();
+    const subClient = pubClient.duplicate();
+
+    const connection = await connect("amqp://guest:guest@localhost");
+    const channel = await connection.createChannel();
+    const queue = "gateway_api_talks";
+
+    channel.assertQueue(queue, {
+        durable: true,
+    });
+
+    io.adapter(createAdapter(pubClient, subClient));
+    io.on("connection", socket => {
+        socket.on("IDENTIFY", async identify => {
+            await sendMessage(
+                queue,
+                channel,
+                JSON.stringify({
+                    event: "IDENTIFY",
+                    token: identify.token,
+                })
+            );
+        });
+    });
+
+    io.listen(8080, {
+        path: "/",
+        cookie: true,
+    });
+})();

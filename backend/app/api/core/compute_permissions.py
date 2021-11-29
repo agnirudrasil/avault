@@ -1,6 +1,7 @@
 from typing import Optional
 from api.core import redis
-from api.models import Channel, GuildMembers, Overwrite
+from api.models.channels import Channel, Overwrite
+from api.models.guilds import GuildMembers
 from sqlalchemy.orm import Session
 
 
