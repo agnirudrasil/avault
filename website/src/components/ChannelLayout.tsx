@@ -5,16 +5,16 @@ import { TextChannel } from "./channels/TextChannel";
 const createHeirarchy = (channels: any[]) => {
     const heirarchy: Record<string, { self: any; children: any[] }> = {};
     for (const channel of channels) {
-        if (channel.parent_id) {
+        if (channel?.parent_id) {
             if (!heirarchy[channel.parent_id]) {
                 heirarchy[channel.parent_id] = { self: {}, children: [] };
             }
             heirarchy[channel.parent_id].children.push(channel);
         } else {
-            if (heirarchy[channel.id]) {
-                heirarchy[channel.id].self = channel;
+            if (heirarchy[channel?.id]) {
+                heirarchy[channel?.id].self = channel;
             } else {
-                heirarchy[channel.id] = { self: channel, children: [] };
+                heirarchy[channel?.id] = { self: channel, children: [] };
             }
         }
     }

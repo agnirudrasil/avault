@@ -1,0 +1,7 @@
+img.emoji {
+    height: 22px;
+    width: 22px;
+    vertical-align: middle;
+    display: inline-block;
+    object-fit: contain;
+}

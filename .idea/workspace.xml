@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/backend/avault/server/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/avault/server/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/conjecture.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/voice/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/voice/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/voice/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/voice/yarn.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/.prettierrc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/components/message/MessageInput.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/components/message/MessageInput.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/components/message/MessagesContainer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/components/message/MessagesContainer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/gateway/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/gateway/src/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/website/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/_app.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/MarkdownEditor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/MarkdownEditor.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/types/mentions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/types/mentions.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/website/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -29,7 +29,8 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../alfred-discord-bot" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/backend/venv/bin/python" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">

@@ -186,13 +186,6 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
                     variant="contained"
                     loading={isLoading}
                     onClick={() => {
-                        console.log({
-                            guild_id,
-                            parent_id,
-                            name,
-                            type,
-                            privateChannel,
-                        });
                         mutate(
                             {
                                 guild_id,

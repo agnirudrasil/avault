@@ -13,6 +13,16 @@
             "database": "avault",
             "username": "root",
             "password": "argha@1234"
+        },
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "avault",
+            "database": "avault",
+            "username": "postgres",
+            "password": "postgres"
         }
     ],
     "python.analysis.extraPaths": [

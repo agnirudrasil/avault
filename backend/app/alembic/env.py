@@ -20,7 +20,7 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
-from avault.db.base import Base  # noqa
+from api.db.base import Base  # noqa
 
 target_metadata = Base.metadata
 

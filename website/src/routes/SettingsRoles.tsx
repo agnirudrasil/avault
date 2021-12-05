@@ -1,4 +1,4 @@
-import { Add, Clear, DragIndicator, Search } from "@mui/icons-material";
+import { Add, Clear, Search } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import {
     Alert,
@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import produce from "immer";
 import { useRouter } from "next/router";
-import { SyntheticEvent, useState } from "react";
+import { SyntheticEvent, useEffect, useState } from "react";
 import {
     DragDropContext,
     Draggable,
@@ -35,13 +35,14 @@ import { useQueryClient } from "react-query";
 import { useCreateRoles } from "../../hooks/requests/useCreateRole";
 import { useDeleteRole } from "../../hooks/requests/useDeleteRole";
 import { useEditRole } from "../../hooks/requests/useEditRole";
+import { useGetPermissions } from "../../hooks/requests/useGetPermissions";
 import { useGetRole } from "../../hooks/requests/useGetRole";
 import { useGetRoles } from "../../hooks/requests/useGetRoles";
 import { useUnsaved } from "../../hooks/useUnsaved";
 import { ColorPicker } from "../components/ColorPicker";
 import { Android12Switch } from "../components/Form/AndroidSwitch";
 import { SettingsLayout } from "../components/layouts/SettingsLayout";
-import { permissions } from "../permissions";
+// import { permissions } from "../permissions";
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -292,6 +293,7 @@ export const RolesDisplay: React.FC<{
 }> = ({ roleId, guildId, setSelected }) => {
     const { data, isLoading } = useGetRole(guildId, roleId);
     const queryClient = useQueryClient();
+    const { data: permissions } = useGetPermissions();
     const [permsQuery, setPermsQuery] = useState<string>("");
     const { mutateAsync, isLoading: isUpdating } = useEditRole(guildId, roleId);
     const { mutateAsync: deleteRole, isLoading: deleteing } = useDeleteRole(
@@ -337,6 +339,10 @@ export const RolesDisplay: React.FC<{
     const handleChange = (_: SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
+
+    useEffect(() => {
+        console.log(permissions);
+    }, [permissions]);
 
     if (isLoading || !data || !ogData) {
         return (
@@ -481,10 +487,10 @@ export const RolesDisplay: React.FC<{
                 />
                 <List sx={{ width: "100%" }} disablePadding>
                     {permissions
-                        .filter(permission =>
+                        ?.filter((permission: any) =>
                             permission.title.toLowerCase().match(permsQuery)
                         )
-                        .map(permission => (
+                        .map((permission: any) => (
                             <ListItem disableGutters sx={{ width: "100%" }}>
                                 <ListItemText
                                     primary={permission.title}
@@ -494,7 +500,7 @@ export const RolesDisplay: React.FC<{
                                     <Android12Switch
                                         checked={Boolean(
                                             BigInt(ogData.permissions || "0") &
-                                                permission.bit
+                                                BigInt(permission.value)
                                         )}
                                         onChange={e => {
                                             setOgdata((prev: any) =>
@@ -504,14 +510,20 @@ export const RolesDisplay: React.FC<{
                                                             BigInt(
                                                                 draft.permissions ||
                                                                     "0"
-                                                            ) | permission.bit
+                                                            ) |
+                                                            BigInt(
+                                                                permission.value
+                                                            )
                                                         ).toString();
                                                     } else {
                                                         draft.permissions = (
                                                             BigInt(
                                                                 draft.permissions ||
                                                                     "0"
-                                                            ) & ~permission.bit
+                                                            ) &
+                                                            ~BigInt(
+                                                                permission.value
+                                                            )
                                                         ).toString();
                                                     }
                                                 })
