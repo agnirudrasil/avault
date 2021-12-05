@@ -1,5 +1,5 @@
 export type MentionTypes = "role" | "user" | "channel" | "emoji" | "@everyone";
-export type MentionIcons = "@" | "#";
+export type MentionIcons = "@" | "#" | "";
 
 export interface Mention {
     type: MentionTypes;
@@ -11,4 +11,6 @@ export const MentionIcon: Record<MentionTypes, MentionIcons> = {
     channel: "#",
     role: "@",
     user: "@",
+    "@everyone": "",
+    emoji: "",
 };

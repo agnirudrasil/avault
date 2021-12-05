@@ -2,6 +2,7 @@ import { BaseEditor } from "slate";
 import { ReactEditor } from "slate-react";
 import { HistoryEditor } from "slate-history";
 import { MentionTypes } from "./types/mentions";
+import { EmojiData } from "emoji-mart";
 
 type CustomElement = ParagraphElement | EmojiElement | MentionsElement;
 
@@ -15,12 +16,14 @@ type MentionsElement = {
     mentionType: MentionTypes;
     name: string;
     id: string;
+    emjoi?: EmojiData;
     children: CustomText[];
 };
 
 type EmojiElement = {
     type: "emoji";
     id: string;
+    emoji: EmojiData;
     name: string;
     children: CustomText[];
 };

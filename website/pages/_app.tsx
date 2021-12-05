@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { useState } from "react";
 import { WebsocketProvider } from "../contexts/WebsocketProvider";
 import "emoji-mart/css/emoji-mart.css";
+import "../styles/styles.css";
 
 const clientSideCache = createEmotionCache();
 

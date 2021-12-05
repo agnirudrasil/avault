@@ -82,8 +82,12 @@ def get_dm_channels(db: Session = Depends(deps.get_db),
 
 
 @router.get('/{user_id}')
-def get_user(user_id: int, db: Session = Depends(deps.get_db)):
-    return user.get(db, user_id).serialize()
+def get_user(user_id: int, response: Response, db: Session = Depends(deps.get_db)):
+    myuser = user.get(db, user_id)
+    if myuser:
+        return myuser.serialize()
+    response.status_code = 404
+    return {"message": "User not found"}
 
 
 @router.get('/@me/guilds')

@@ -15,14 +15,12 @@ import {
     BaseRange,
     Range,
     Editor,
-    Node,
 } from "slate";
 import { withHistory } from "slate-history";
 import styled from "@emotion/styled";
 import {
     IconButton,
     List,
-    ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemText,
@@ -30,14 +28,10 @@ import {
     Portal,
     Typography,
 } from "@mui/material";
-import {
-    AddCircle,
-    EmojiEmotions,
-    GifRounded,
-    SearchRounded,
-} from "@mui/icons-material";
-import { Emoji, emojiIndex, Picker } from "emoji-mart";
+import { AddCircle, EmojiEmotions, GifRounded } from "@mui/icons-material";
+import { Emoji, EmojiData, emojiIndex, Picker } from "emoji-mart";
 import Prism from "prismjs";
+import isKeyHotkey from "is-hotkey";
 import { Mention, MentionIcon, MentionTypes } from "../../types/mentions";
 
 const Container = styled.div`
@@ -66,6 +60,19 @@ const MentionsSpan = styled.span`
     }
 `;
 
+const customEmojis = [
+    {
+        name: "Octocat",
+        short_names: ["octocat"],
+        text: "",
+        emoticons: [],
+        keywords: ["github"],
+        imageUrl:
+            "https://github.githubassets.com/images/icons/emoji/octocat.png",
+        customCategory: "GitHub",
+    },
+];
+
 const withMentions = (editor: Editor) => {
     const { isInline, isVoid } = editor;
 
@@ -91,14 +98,13 @@ const withEmoji = (editor: Editor) => {
     return editor;
 };
 
-const insertEmoji = (editor: Editor, format: string) => {
+const insertEmoji = (editor: Editor, emoji: EmojiData) => {
     const text = { text: "" };
-    const pattern = /<:(.*):(.*)>/;
-    const match = format.match(pattern) || ["", "", ""];
     const image = {
         type: "emoji" as "emoji",
-        id: match[2],
-        name: match[1],
+        id: emoji.id,
+        name: emoji.name,
+        emoji,
         children: [text],
     };
     Transforms.insertNodes(editor, image);
@@ -131,21 +137,39 @@ const Element: React.FC<RenderElementProps> = props => {
             return (
                 <span {...attributes}>
                     <InlineChromiumBugfix />
-                    <span
-                        style={{
-                            display: "inline-block",
-                            objectFit: "contain",
-                            verticalAlign: "middle",
-                        }}
-                        dangerouslySetInnerHTML={{
-                            __html: Emoji({
-                                html: true,
-                                set: "twitter",
-                                emoji: element.id,
-                                size: 22,
-                            }) as unknown as string,
-                        }}
-                    />
+                    {cover.emoji.custom ? (
+                        <span
+                            style={{
+                                display: "inline-block",
+                                objectFit: "contain",
+                                verticalAlign: "middle",
+                            }}
+                        >
+                            <img
+                                className="emoji"
+                                alt={`:${element.emoji.name}:`}
+                                src={element.emoji.imageUrl}
+                            />
+                        </span>
+                    ) : (
+                        <span
+                            style={{
+                                display: "inline-block",
+                                objectFit: "cover",
+                                verticalAlign: "middle",
+                            }}
+                            className="emoji"
+                            dangerouslySetInnerHTML={{
+                                __html: Emoji({
+                                    html: true,
+                                    set: "twitter",
+                                    emoji: element.emoji,
+                                    size: 22,
+                                }) as unknown as string,
+                            }}
+                        />
+                    )}
+                    {children}
                     <InlineChromiumBugfix />
                 </span>
             );
@@ -164,7 +188,7 @@ const insertMention = (editor: Editor, mention: Mention) => {
     };
 
     if (mention.type === "emoji") {
-        insertEmoji(editor, `<:${mention.name}:${mention.id}>`);
+        insertEmoji(editor, mention.emoji);
         return;
     }
 
@@ -188,7 +212,11 @@ export const MarkdownEditor = () => {
 
     const chars =
         search.type === "emoji"
-            ? (emojiIndex.search(search.query) || []).slice(0, Math.min(10))
+            ? (
+                  emojiIndex.search(search.query, {
+                      custom: customEmojis,
+                  }) || []
+              ).slice(0, Math.min(10))
             : CHARACTERS.filter(c =>
                   c.toLowerCase().startsWith(search.query.toLowerCase())
               ).slice(0, 10);
@@ -215,9 +243,15 @@ export const MarkdownEditor = () => {
             Transforms.select(editor, target);
             insertMention(editor, {
                 name:
-                    search.type === "emoji" ? chars[index]?.name : chars[index],
-                id: search.type === "emoji" ? chars[index]?.id : chars[index],
+                    search.type === "emoji"
+                        ? (chars[index] as any)?.name
+                        : chars[index],
+                id:
+                    search.type === "emoji"
+                        ? (chars[index] as any)?.id
+                        : chars[index],
                 type: search.type,
+                emoji: search.type === "emoji" && chars[index],
             });
         }
         setTarget(undefined);
@@ -225,6 +259,23 @@ export const MarkdownEditor = () => {
 
     const onKeyDown = useCallback(
         event => {
+            // const { selection } = editor;
+
+            // if (selection && Range.isCollapsed(selection)) {
+            //     const { nativeEvent } = event;
+            //     if (isKeyHotkey("left", nativeEvent)) {
+            //         event.preventDefault();
+            //         Transforms.move(editor, {
+            //             unit: "offset",
+            //             reverse: true,
+            //         });
+            //     }
+            //     if (isKeyHotkey("right", nativeEvent)) {
+            //         event.preventDefault();
+            //         Transforms.move(editor, { unit: "offset" });
+            //     }
+            // }
+
             if (target) {
                 switch (event.key) {
                     case "ArrowDown":
@@ -247,13 +298,14 @@ export const MarkdownEditor = () => {
                             insertMention(editor, {
                                 name:
                                     search.type === "emoji"
-                                        ? chars[index]?.name
+                                        ? (chars[index] as any)?.name
                                         : chars[index],
                                 id:
                                     search.type === "emoji"
-                                        ? chars[index]?.id
+                                        ? (chars[index] as any)?.id
                                         : chars[index],
                                 type: search.type,
+                                emoji: search.type === "emoji" && chars[index],
                             });
                         }
                         setTarget(undefined);
@@ -407,17 +459,36 @@ export const MarkdownEditor = () => {
                                     }}
                                     dense
                                 >
-                                    {chars.map((emoji, i) => (
+                                    {chars.map((emoji: any, i) => (
                                         <ListItemButton
                                             onClick={() => handleSelect(i)}
                                             selected={i == index}
                                         >
                                             <ListItemIcon>
-                                                <Emoji
-                                                    emoji={emoji.id || ""}
-                                                    size={24}
-                                                    set="twitter"
-                                                />
+                                                {emoji.custom ? (
+                                                    <span
+                                                        style={{
+                                                            display:
+                                                                "inline-block",
+                                                            objectFit:
+                                                                "contain",
+                                                            verticalAlign:
+                                                                "middle",
+                                                        }}
+                                                    >
+                                                        <img
+                                                            className="emoji"
+                                                            alt={`:${emoji.name}:`}
+                                                            src={emoji.imageUrl}
+                                                        />
+                                                    </span>
+                                                ) : (
+                                                    <Emoji
+                                                        set="twitter"
+                                                        emoji={emoji}
+                                                        size={22}
+                                                    />
+                                                )}
                                             </ListItemIcon>
                                             <ListItemText
                                                 primary={
@@ -431,7 +502,7 @@ export const MarkdownEditor = () => {
                                 </List>
                             ) : (
                                 <List dense>
-                                    {chars.map((char, i) => (
+                                    {chars.map((char: any, i) => (
                                         <ListItemButton
                                             onClick={() => handleSelect(i)}
                                             key={char}
@@ -474,8 +545,10 @@ export const MarkdownEditor = () => {
                     set="twitter"
                     title=""
                     emojiTooltip
+                    custom={customEmojis}
                     onSelect={emoji => {
-                        insertEmoji(editor, `<:${emoji.name}:${emoji.id}>`);
+                        console.log(emoji);
+                        insertEmoji(editor, emoji);
                         setAnchorEl(null);
                     }}
                 />

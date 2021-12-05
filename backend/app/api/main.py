@@ -7,6 +7,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from api.api.v1.api import api_router
 from api.core.config import settings
+from api.core import http_session
 
 app = FastAPI(
     title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
@@ -31,3 +32,8 @@ emitter = Emitter(redis)
 async def pubsub():
     loop = asyncio.get_event_loop()
     asyncio.ensure_future(consume(loop))
+
+
+@app.on_event('shutdown')
+async def shutdown():
+    await http_session.close()

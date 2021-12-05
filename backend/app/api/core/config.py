@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     SERVER_NAME: str = "localhost:5000"
     SERVER_HOST: AnyHttpUrl = "http://localhost:5000"
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ['http://localhost:3000']
+    TENOR_API_KEY: str = ""
+    TENOR_BASE_URL: str = "https://g.tenor.com/v1/"
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
@@ -50,6 +52,7 @@ class Settings(BaseSettings):
         )
 
     class Config:
+        env_file = ".env"
         case_sensitive = True
 
 

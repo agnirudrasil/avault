@@ -31,6 +31,8 @@ import { sendMessage } from "./utils/sendMessage";
                 JSON.stringify({
                     event: "IDENTIFY",
                     token: identify.token,
+                    id: socket.id,
+                    
                 })
             );
         });
