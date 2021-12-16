@@ -14,7 +14,7 @@ import { sendMessage } from "./utils/sendMessage";
     const pubClient = new Redis();
     const subClient = pubClient.duplicate();
 
-    const connection = await connect("amqp://guest:guest@localhost");
+    const connection = await connect("amqp://guest:guest@127.0.0.1/");
     const channel = await connection.createChannel();
     const queue = "gateway_api_talks";
 
@@ -32,7 +32,6 @@ import { sendMessage } from "./utils/sendMessage";
                     event: "IDENTIFY",
                     token: identify.token,
                     id: socket.id,
-                    
                 })
             );
         });

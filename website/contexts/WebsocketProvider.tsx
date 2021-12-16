@@ -1,7 +1,8 @@
 import { createContext, useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
-import { getAccessToken } from "../src/access-token";
+import { asyncGetAccessToken } from "../src/access-token";
 import parser from "socket.io-msgpack-parser";
+import { useGuildsStore } from "../stores/useGuildsStore";
 
 export const WebsocketContext = createContext<{ socket: Socket | null }>({
     socket: null as any,
@@ -9,6 +10,7 @@ export const WebsocketContext = createContext<{ socket: Socket | null }>({
 
 export const WebsocketProvider: React.FC = ({ children }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
+    const setGuilds = useGuildsStore(state => state.setGuilds);
 
     useEffect(() => {
         const socket = io("http://localhost:8080" || "", {
@@ -24,11 +26,17 @@ export const WebsocketProvider: React.FC = ({ children }) => {
 
     useEffect(() => {
         if (socket) {
-            socket.on("connect", () => {
+            socket.on("connect", async () => {
+                const token = await asyncGetAccessToken();
+                console.log(token);
                 socket.emit("IDENTIFY", {
-                    token: getAccessToken(),
+                    token,
                     capabilities: 125,
                 });
+            });
+            socket.once("READY", (data: any) => {
+                console.log(data);
+                setGuilds(data.guilds);
             });
             socket.on("disconnect", () => {
                 console.log("disconnected");

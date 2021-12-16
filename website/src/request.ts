@@ -1,7 +1,7 @@
 import jwtDecode from "jwt-decode";
 import { getAccessToken, setAccessToken } from "./access-token";
 
-const refetchToken = async (): Promise<void> => {
+export const refetchToken = async (): Promise<string | undefined> => {
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
         {
@@ -12,6 +12,7 @@ const refetchToken = async (): Promise<void> => {
     try {
         const data = await res.json();
         setAccessToken(data.access_token);
+        return data.access_token;
     } catch (e) {}
 };
 

@@ -6,4 +6,4 @@ redis = aioredis.from_url('redis://localhost')
 emitter = Emitter(redis)
 
 
-http_session = aiohttp.ClientSession()
+http_session = aiohttp.ClientSession(trust_env=True)
