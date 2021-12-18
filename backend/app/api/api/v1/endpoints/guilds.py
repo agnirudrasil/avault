@@ -22,7 +22,7 @@ class CreateGuildBan(BaseModel):
 
 
 class GuildMemberUpdate(BaseModel):
-    nick: str
+    nick: Optional[str] = ""
 
 
 class RoleCreate(BaseModel):
@@ -335,7 +335,7 @@ def update_guild_member(guild_id: int, user_id: int, data: GuildMemberUpdate,
 
 
 @router.patch('/{guild_id}/members/@me')
-def update_guild_member_me(guild_id: int, data: GuildMemberUpdate,
+def update_guild_member_me(guild_id: int, body: GuildMemberUpdate,
                            current_user: User = Depends(deps.get_current_user),
                            db: Session = Depends(deps.get_db)):
     guild = db.query(Guild).filter_by(id=guild_id).first()
@@ -343,8 +343,7 @@ def update_guild_member_me(guild_id: int, data: GuildMemberUpdate,
         member = db.query(GuildMembers).filter_by(
             guild_id=guild_id).filter_by(user_id=current_user.id).first()
         if member:
-            if data.nick:
-                member.nick = data.nick
+            member.nick = body.nick
             db.commit()
             return {'member': member.serialize()}
         return {'member': None}

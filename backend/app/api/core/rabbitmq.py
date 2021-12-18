@@ -28,7 +28,7 @@ async def handle_message(messsage):
                 guild_data = []
                 for guild in guilds:
                     await emitter.in_room(id).sockets_join(str(guild.guild.id))
-                    guild_data.append(guild.guild.serialize())
+                    guild_data.append(guild.guild.preview())
 
                 await emitter.in_room(id).emit(
                     "READY", {"guilds": guild_data, "user": user.serialize()}

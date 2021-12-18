@@ -25,6 +25,7 @@ import { useCreateChannel } from "../../hooks/useCreateChannel";
 import { useCreateInvite } from "../../hooks/useCreateInvite";
 import { useGuildsStore } from "../../stores/useGuildsStore";
 import { useRoutesStore } from "../../stores/useRoutesStore";
+import { EditServerProfileDialog } from "./dialogs/EditServerProfileDialog";
 
 const MyMenuItems: React.FC<{ lable: string; onClick?: () => any }> = ({
     lable,
@@ -45,6 +46,7 @@ const MyMenu: React.FC<{
 }> = ({ handleClose, anchorEl }) => {
     const { createChannel } = useCreateChannel();
     const router = useRouter();
+    const [open, setOpen] = useState<boolean>(false);
     const routeSetter = useRoutesStore(state => state.setRoute);
 
     const createChannelHandler = (type: any) => {
@@ -75,6 +77,10 @@ const MyMenu: React.FC<{
             transformOrigin={{ horizontal: "right", vertical: "top" }}
             anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         >
+            <EditServerProfileDialog
+                open={open}
+                onClose={() => setOpen(false)}
+            />
             <MyMenuItems onClick={() => createInvite()} lable="Invite People">
                 <PersonAdd />
             </MyMenuItems>
@@ -99,7 +105,10 @@ const MyMenu: React.FC<{
                 <CreateNewFolder />
             </MyMenuItems>
             <Divider />
-            <MyMenuItems lable="Edit Server Profile">
+            <MyMenuItems
+                onClick={() => setOpen(true)}
+                lable="Edit Server Profile"
+            >
                 <Edit />
             </MyMenuItems>
             <MyMenuItems lable="Hide Muted Channels">
@@ -123,6 +132,7 @@ const MyMenu: React.FC<{
 
 export const ServerNavbar: React.FC<{ name: string }> = ({ name }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
     return (
         <div
             style={{

@@ -98,7 +98,9 @@ export const ServerLayout: React.FC<{
                                 <DefaultProfilePic tag={member.user.tag} />
                             </Avatar>
                         </ListItemAvatar>
-                        <ListItemText primary={member.user.username} />
+                        <ListItemText
+                            primary={member.nickname || member.user.username}
+                        />
                     </ListItemButton>
                 ))}
             </MembersBar>

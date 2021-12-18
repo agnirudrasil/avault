@@ -10,7 +10,7 @@ import {
     Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { useQueryClient } from "react-query";
+import { useGuildsStore } from "../../../stores/useGuildsStore";
 import { useRoutesStore } from "../../../stores/useRoutesStore";
 
 const Container = styled.div`
@@ -24,8 +24,7 @@ const ListItemButton = styled(MuiListItemButton)`
 `;
 
 export const SettingsLayout: React.FC = ({ children }) => {
-    const queryClient = useQueryClient();
-    const guilds: any = queryClient.getQueryData("guilds");
+    const guilds = useGuildsStore(state => state.guilds);
     const router = useRouter();
     const { setRoute, route } = useRoutesStore();
 
@@ -62,7 +61,7 @@ export const SettingsLayout: React.FC = ({ children }) => {
                                 primary={
                                     <Typography variant="button">
                                         {
-                                            guilds?.guilds.find(
+                                            guilds.find(
                                                 (g: any) =>
                                                     g.id ===
                                                     router.query.server_id
@@ -86,20 +85,26 @@ export const SettingsLayout: React.FC = ({ children }) => {
                         >
                             <ListItemText primary="Roles" />
                         </ListItemButton>
-                        <ListItemButton sx={{ width: "100%" }}>
+                        <ListItemButton
+                            selected={route === "/settings/emojis"}
+                            onClick={() => setRoute("/settings/emojis")}
+                            sx={{ width: "100%" }}
+                        >
                             <ListItemText primary="Emoji" />
                         </ListItemButton>
-                        <ListItemButton sx={{ width: "100%" }}>
+                        <ListItemButton
+                            selected={route === "/settings/moderation"}
+                            onClick={() => setRoute("/settings/moderation")}
+                            sx={{ width: "100%" }}
+                        >
                             <ListItemText primary="Moderation" />
                         </ListItemButton>
-                        <ListItemButton sx={{ width: "100%" }}>
+                        <ListItemButton
+                            selected={route === "/settings/inetegrations"}
+                            onClick={() => setRoute("/settings/integrations")}
+                            sx={{ width: "100%" }}
+                        >
                             <ListItemText primary="Integrations" />
-                        </ListItemButton>
-                        <ListItemButton sx={{ width: "100%" }}>
-                            <ListItemText primary="Widget" />
-                        </ListItemButton>
-                        <ListItemButton sx={{ width: "100%" }}>
-                            <ListItemText primary="Server Template" />
                         </ListItemButton>
                         <Divider sx={{ margin: "1rem 0" }} />
                         <ListItem>
@@ -111,10 +116,18 @@ export const SettingsLayout: React.FC = ({ children }) => {
                                 }
                             />
                         </ListItem>
-                        <ListItemButton sx={{ width: "100%" }}>
+                        <ListItemButton
+                            selected={route === "/settings/members"}
+                            onClick={() => setRoute("/settings/members")}
+                            sx={{ width: "100%" }}
+                        >
                             <ListItemText primary="Member" />
                         </ListItemButton>
-                        <ListItemButton sx={{ width: "100%" }}>
+                        <ListItemButton
+                            selected={route === "/settings/invites"}
+                            onClick={() => setRoute("/settings/invites")}
+                            sx={{ width: "100%" }}
+                        >
                             <ListItemText primary="Invites" />
                         </ListItemButton>
                     </List>
@@ -124,8 +137,8 @@ export const SettingsLayout: React.FC = ({ children }) => {
                 style={{
                     display: "flex",
                     flex: "1 1 800px",
-                    overflowY: "auto",
                     maxHeight: "100vh",
+                    overflow: "auto",
                 }}
             >
                 <div
@@ -135,15 +148,18 @@ export const SettingsLayout: React.FC = ({ children }) => {
                         display: "flex",
                         flexDirection: "row",
                         alignItems: "flex-start",
+                        maxHeight: "100vh",
                     }}
                 >
                     <main
                         style={{
                             flex: "1 1 auto",
                             maxWidth: "740px",
+                            overflow: "hidden",
                             minWidth: "460px",
                             minHeight: "100px",
                             display: "flex",
+                            maxHeight: "100vh",
                         }}
                     >
                         {children}

@@ -135,6 +135,7 @@ export const SettingsRoles = () => {
                     height: "100%",
                     justifyContent: "flex-start",
                     alignItems: "flex-start",
+                    maxHeight: "100vh",
                 }}
             >
                 <DragDropContext onDragEnd={onDragEnd}>
@@ -145,10 +146,8 @@ export const SettingsRoles = () => {
                             borderRight: "2px solid #ccc",
                             width: "max-content",
                             minWidth: "218px",
-                            height: "100%",
+                            maxHeight: "100vh",
                             overflowY: "auto",
-                            position: "static",
-                            top: 0,
                         }}
                         subheader={
                             <ListSubheader>
@@ -181,67 +180,76 @@ export const SettingsRoles = () => {
                                     {...provided.droppableProps}
                                     ref={provided.innerRef}
                                 >
-                                    {ogData
-                                        .filter(
-                                            (i: any) =>
-                                                i.id !== router.query.server_id
-                                        )
-                                        .map((role: any, index: number) => (
-                                            <Draggable
-                                                draggableId={role.id}
-                                                index={index}
-                                                key={role.id}
-                                                isDragDisabled={
-                                                    role.id ===
+                                    {Array.isArray(ogData) &&
+                                        ogData
+                                            ?.filter(
+                                                (i: any) =>
+                                                    i.id !==
                                                     router.query.server_id
-                                                }
-                                            >
-                                                {provided => (
-                                                    <ListItemButton
-                                                        disableRipple
-                                                        ref={provided.innerRef}
-                                                        {...provided.dragHandleProps}
-                                                        {...provided.draggableProps}
-                                                        disableTouchRipple
-                                                        selected={
-                                                            selected === role.id
-                                                        }
-                                                        onClick={() =>
-                                                            setSelected(role.id)
-                                                        }
-                                                        sx={{
-                                                            borderRadius:
-                                                                "10px",
-                                                            gap: "0.5rem",
-                                                        }}
-                                                    >
-                                                        <Avatar
+                                            )
+                                            .map((role: any, index: number) => (
+                                                <Draggable
+                                                    draggableId={role.id}
+                                                    index={index}
+                                                    key={role.id}
+                                                    isDragDisabled={
+                                                        role.id ===
+                                                        router.query.server_id
+                                                    }
+                                                >
+                                                    {provided => (
+                                                        <ListItemButton
+                                                            disableRipple
+                                                            ref={
+                                                                provided.innerRef
+                                                            }
+                                                            {...provided.dragHandleProps}
+                                                            {...provided.draggableProps}
+                                                            disableTouchRipple
+                                                            selected={
+                                                                selected ===
+                                                                role.id
+                                                            }
+                                                            onClick={() =>
+                                                                setSelected(
+                                                                    role.id
+                                                                )
+                                                            }
                                                             sx={{
-                                                                background:
-                                                                    "#" +
-                                                                    role.color.toString(
-                                                                        16
-                                                                    ),
-                                                                width: "10px",
-                                                                height: "10px",
+                                                                borderRadius:
+                                                                    "10px",
+                                                                gap: "0.5rem",
                                                             }}
                                                         >
-                                                            <></>
-                                                        </Avatar>
-                                                        <ListItemText
-                                                            sx={{
-                                                                color:
-                                                                    "#" +
-                                                                    role.color.toString(
-                                                                        16
-                                                                    ),
-                                                            }}
-                                                            primary={role.name}
-                                                        />
-                                                    </ListItemButton>
-                                                )}
-                                            </Draggable>
-                                        ))}
+                                                            <Avatar
+                                                                sx={{
+                                                                    background:
+                                                                        "#" +
+                                                                        role.color.toString(
+                                                                            16
+                                                                        ),
+                                                                    width: "10px",
+                                                                    height: "10px",
+                                                                }}
+                                                            >
+                                                                <></>
+                                                            </Avatar>
+                                                            <ListItemText
+                                                                sx={{
+                                                                    color:
+                                                                        "#" +
+                                                                        role.color.toString(
+                                                                            16
+                                                                        ),
+                                                                }}
+                                                                primary={
+                                                                    role.name
+                                                                }
+                                                            />
+                                                        </ListItemButton>
+                                                    )}
+                                                </Draggable>
+                                            ))}
                                     {provided.placeholder}
                                 </div>
                             )}
@@ -353,7 +361,14 @@ export const RolesDisplay: React.FC<{
     }
 
     return (
-        <div style={{ width: "100%", padding: "60px 0 0 30px" }}>
+        <div
+            style={{
+                width: "100%",
+                padding: "60px 0 0 30px",
+                maxHeight: "100vh",
+                overflow: "auto",
+            }}
+        >
             <Snackbar
                 anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
                 open={unsaved}

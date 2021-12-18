@@ -109,8 +109,8 @@ def leave_guild(guild_id: int, response: Response, current_user: User = Depends(
     guild_memeber = db.query(GuildMembers).filter_by(
         user_id=current_user.id, guild_id=guild_id).first()
     if guild_memeber:
-        db.session.delete(guild_memeber)
-        db.session.commit()
+        db.delete(guild_memeber)
+        db.commit()
         return
     response.status_code = 404
     return {'success': False}
