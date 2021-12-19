@@ -1,17 +1,20 @@
-from datetime import datetime, timedelta
-from api.api import deps
-from api.schemas.channel import ChannelValidate
-from fastapi import APIRouter, Depends, File, Form, Response, UploadFile
-from pydantic import BaseModel
+# from datetime import datetime, timedelta
 from typing import Optional
+
+from fastapi import APIRouter, Depends, File, Form, Response, UploadFile, BackgroundTasks
+from pydantic import BaseModel
 from sqlalchemy import asc, desc
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+
+from api.api import deps
+from api.core.events import Events, websocket_emitter
+from api.core.permissions import Permissions
+from api.models.channels import Channel, ChannelType, Overwrite
 from api.models.guilds import Guild, GuildBans, GuildMembers
 from api.models.roles import Role
 from api.models.user import User
-from api.models.channels import Channel, ChannelType, Overwrite
-from api.models.messages import Message
+from api.schemas.channel import ChannelValidate
 
 router = APIRouter()
 
@@ -41,7 +44,7 @@ class RoleUpdate(BaseModel):
 
 class RolePositionUpdate(BaseModel):
     id: int
-    positon: int
+    position: int
 
 
 class GuildEdit(BaseModel):
@@ -49,31 +52,30 @@ class GuildEdit(BaseModel):
 
 
 @router.post('/')
-def create(name: str = Form(..., min_length=5, max_length=80),
-           icon: Optional[UploadFile] = File(...),
-           current_user: User = Depends(deps.get_current_user),
-           db: Session = Depends(deps.get_db)):
-    user_id = current_user.id
-    user = db.query(User).filter_by(id=user_id).first()
-    if user:
-        guild = Guild(name, user_id)
-        if icon:
-            pass
-        guild_member = GuildMembers()
-        role = Role(guild.id, '@everyone', 0, 0, 1071698660929, True, guild.id)
-        category = Channel(ChannelType.guild_category,
-                           guild.id, 'TEXT CHANNELS')
-        general = Channel(ChannelType.guild_text,
-                          guild.id, 'general', parent_id=category.id)
-        guild.channels.append(category)
-        guild.channels.append(general)
-        guild_member.member = user
-        guild.members.append(guild_member)
-        db.add(guild)
-        db.add(role)
-        db.commit()
-        return {'success': True, 'guild': guild.preview()}
-    return {'success': False, 'error': 'User not found'}, 401
+def create_guild(
+        background_task: BackgroundTasks,
+        name: str = Form(..., min_length=5, max_length=80),
+        icon: Optional[UploadFile] = File(...),
+        current_user: User = Depends(deps.get_current_user),
+        db: Session = Depends(deps.get_db)):
+    guild = Guild(name, current_user.id)
+    if icon:
+        pass
+    guild_member = GuildMembers(is_owner=True)
+    role = Role(guild.id, '@everyone', 0, 0, 1071698660929, True, guild.id)
+    category = Channel(ChannelType.guild_category,
+                       guild.id, 'TEXT CHANNELS')
+    general = Channel(ChannelType.guild_text,
+                      guild.id, 'general', parent_id=category.id)
+    guild.channels.append(category)
+    guild.channels.append(general)
+    guild_member.member = current_user
+    guild.members.append(guild_member)
+    db.add(guild)
+    db.add(role)
+    db.commit()
+    background_task.add_task(websocket_emitter, None, None, Events.GUILD_CREATE, guild.preview(), current_user.id)
+    return guild.preview()
 
 
 @router.get('/{guild_id}')
@@ -82,76 +84,87 @@ def get_guild(guild_id: int,
               db: Session = Depends(deps.get_db)):
     guild: Guild = db.query(Guild).filter_by(id=guild_id).first()
     if guild and guild.is_member(db, current_user.id):
-        return {'guild': guild.serialize()}
-    return {'guild': None}, 404
+        return guild.serialize()
+    return Response(status_code=404)
+
+
+@router.get('/{guild_id}/preview')
+def get_guild(guild_id: int,
+              current_user: User = Depends(deps.get_current_user),
+              db: Session = Depends(deps.get_db)):
+    guild: Guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild and guild.is_member(db, current_user.id):
+        return guild.preview()
+    return Response(status_code=404)
 
 
 @router.patch('/{guild_id}')
-def edit_guild(guild_id: int, body: GuildEdit,
-               response: Response,
+def edit_guild(body: GuildEdit,
+               background_task: BackgroundTasks,
                db: Session = Depends(deps.get_db),
-               user: User = Depends(deps.get_current_user)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild and guild.is_member(db, user.id):
-        guild.name = body.name
-        db.commit()
-        return guild.serialize()
-    response.status_code = 404
-    return {'error': 'Guild not found'}
+               dependencies: tuple[Guild, User] = Depends(deps.GuildPerms(Permissions.MANAGE_GUILD))
+               ):
+    guild, user = dependencies
+    guild.name = body.name
+    db.commit()
+    background_task.add_task(websocket_emitter, None, guild.id, Events.GUILD_UPDATE, guild.preview())
+    return guild.serialize()
 
 
-@router.delete('/{guild_id}')
+@router.delete('/{guild_id}', status_code=204)
 def delete_guild(guild_id: int,
+                 background_task: BackgroundTasks,
                  response: Response,
                  db: Session = Depends(deps.get_db),
                  user: User = Depends(deps.get_current_user)):
     guild: Guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild and guild.is_owner(db, user):
+    if guild and guild.is_owner(user.id):
         db.delete(guild)
         db.commit()
-        return {"success": True}
+        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_DELETE, guild.preview())
+        return
     response.status_code = 404
     return {"error": "Guild not found"}
 
 
-@router.put('/{guild_id}/members/{user_id}/roles/{role_id}', status_code=204)
+@router.put('/{guild_id}/members/{user_id}/roles/{role_id}', status_code=204,
+            dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
 def add_role(guild_id: int,
              user_id: int,
              role_id: int,
-             current_user: User = Depends(deps.get_current_user),
+             background_task: BackgroundTasks,
              db: Session = Depends(deps.get_db)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild and guild.is_member(db, current_user.id):
-        guild_member = db.query(GuildMembers).filter_by(
-            user_id=user_id, guild_id=guild_id).first()
-        if guild_member:
-            guild_member.roles.append(
-                db.query(Role).filter_by(id=role_id).first())
-            db.commit()
-            return ''
-        return {'success': False, 'error': 'User not found'}, 404
-    return {'success': False, 'error': 'Guild not found'}, 404
+    guild_member = db.query(GuildMembers).filter_by(
+        user_id=user_id).filter_by(guild_id=guild_id).first()
+    if guild_member:
+        role = db.query(Role).filter_by(id=role_id).first()
+        guild_member.roles.append(Role)
+        db.commit()
+        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_ROLE_CREATE,
+                                 {'role': role.serialize(), 'guild_id': guild_id})
+        return ''
 
 
-@router.delete('/{guild_id}/members/{user_id}/roles/{role_id}', status_code=204)
+@router.delete('/{guild_id}/members/{user_id}/roles/{role_id}', status_code=204,
+               dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
 def delete_user_role(guild_id: int,
+                     background_task: BackgroundTasks,
                      user_id: int,
                      role_id: int,
-                     current_user: User = Depends(deps.get_current_user),
                      db: Session = Depends(deps.get_db)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild and guild.is_member(db, current_user.id):
-        guild_member = db.query(GuildMembers).filter_by(
-            user_id=user_id, guild_id=guild_id).first()
-        if guild_member:
-            try:
-                guild_member.roles.remove(
-                    db.query(Role).filter_by(id=role_id).first())
-                db.commit()
-            except ValueError:
-                pass
-            return ''
-        return {'success': False, 'error': 'User not found'}, 404
+    guild_member = db.query(GuildMembers).filter_by(
+        user_id=user_id, guild_id=guild_id).first()
+    if guild_member:
+        try:
+            role = db.query(Role).filter_by(id=role_id).first()
+            guild_member.roles.remove(role)
+            db.commit()
+            background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_MEMBER_UPDATE,
+                                     guild_member.serialize())
+        except ValueError:
+            pass
+        return ''
+    return Response(status_code=404)
 
 
 @router.get('/{guild_id}/roles')
@@ -162,8 +175,8 @@ def get_roles(guild_id: int,
     if guild and guild.is_member(db, current_user.id):
         roles = db.query(Role).filter_by(guild_id=guild_id).order_by(
             desc(Role.position)).order_by(asc(Role.id)).all()
-        return {'roles': [role.serialize() for role in roles]}
-    return {'roles': None}, 404
+        return {[role.serialize() for role in roles]}
+    return Response(status_code=404)
 
 
 @router.get('/{guild_id}/roles/{role_id}')
@@ -175,49 +188,46 @@ def get_roles(guild_id: int,
     if guild and guild.is_member(db, current_user.id):
         role = db.query(Role).filter_by(
             guild_id=guild_id).filter_by(id=role_id).first()
-        return {'role': role.serialize()}
-    return {'role': None}, 404
+        return role.serialize()
+    return Response(status_code=404)
 
 
-@router.post('/{guild_id}/roles')
+@router.post('/{guild_id}/roles', dependencies=[Depends(deps.get_current_user)])
 def create_role(guild_id: int,
                 data: RoleCreate,
-                current_user: User = Depends(deps.get_current_user),
+                background_task: BackgroundTasks,
                 db: Session = Depends(deps.get_db)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild and guild.is_member(db, current_user.id):
-        everyone_role = db.query(Role).filter_by(id=guild.id).first()
-        role = Role(guild_id, data.name, data.color, 1,
-                    data.permissions or everyone_role.permissions,
-                    data.mentionable)
-        db.add(role)
-        db.commit()
-        return {'role': role.serialize()}, 201
-    return {'role': None}, 404
+    everyone_role = db.query(Role).filter_by(id=guild_id).first()
+    role = Role(guild_id, data.name, data.color, 1,
+                data.permissions or everyone_role.permissions,
+                data.mentionable)
+    db.add(role)
+    db.commit()
+    background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_ROLE_CREATE, role.serialize())
+    return role.serialize()
 
 
-@router.patch('/{guild_id}/roles')
-def update_role_postions(guild_id: int,
-                         data: RolePositionUpdate,
-                         current_user: User = Depends(deps.get_current_user),
-                         db: Session = Depends(deps.get_db)):
-    id = data.id
-    position = data.positon
+# TODO: Add code to update role order
+@router.patch('/{guild_id}/roles', dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
+def update_role_positions(guild_id: int,
+                          data: RolePositionUpdate,
+                          db: Session = Depends(deps.get_db)):
+    role_id = data.id
+    position = data.position
     if position:
         role = db.query(Role).filter_by(
-            id=id).filter_by(guild_id=guild_id).first()
+            id=role_id).filter_by(guild_id=guild_id).first()
         if role:
-
             db.commit()
             return '', 204
         return {'success': False, 'error': 'Role not found'}, 404
     return {'success': False, 'error': 'No position provided'}, 404
 
 
-@router.patch('/{guild_id}/roles/{role_id}')
+@router.patch('/{guild_id}/roles/{role_id}', dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
 def update_role(guild_id: int, role_id: int,
                 data: RoleUpdate,
-                current_user: User = Depends(deps.get_current_user),
+                background_task: BackgroundTasks,
                 db: Session = Depends(deps.get_db)):
     role = db.query(Role).filter_by(
         id=role_id).filter_by(guild_id=guild_id).first()
@@ -230,19 +240,23 @@ def update_role(guild_id: int, role_id: int,
     if data.mentionable:
         role.mentionable = data.mentionable
     db.commit()
+    background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_ROLE_UPDATE,
+                             {'role': role.serialize(), 'guild_id': guild_id})
     return {'role': role.serialize()}, 201
 
 
-@router.delete('/{guild_id}/roles/{role_id}')
+@router.delete('/{guild_id}/roles/{role_id}', dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
 def delete_role(guild_id: int, role_id: int,
-                db: Session = Depends(deps.get_db),
-                current_user: User = Depends(deps.get_current_user)):
+                background_task: BackgroundTasks,
+                db: Session = Depends(deps.get_db)):
     role = db.query(Role).filter_by(id=role_id, guild_id=guild_id).first()
     if role:
         db.delete(role)
         db.commit()
-        return '', 204
-    return {'success': False, 'error': 'Role not found'}, 404
+        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_ROLE_DELETE,
+                                 {'role': role.serialize(), 'guild_id': guild_id})
+        return ''
+    return Response(status_code=404)
 
 
 @router.get('/{guild_id}/channels')
@@ -253,186 +267,196 @@ def get_guild_channels(guild_id: int, response: Response,
     if guild and guild.is_member(db, user.id):
         return {[channel.serialize() for channel in guild.channels]}
     response.status_code = 404
-    return {'channels': None}
+    return []
 
 
-@router.post("/{guild_id}/channels")
-def create_guild_channel(guild_id: int, data: ChannelValidate,
-                         #  current_user: User = Depends(deps.get_current_user),
+@router.post("/{guild_id}/channels", status_code=201,
+             dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_CHANNELS))])
+def create_guild_channel(guild_id: int, background_task: BackgroundTasks,
+                         data: ChannelValidate,
                          db: Session = Depends(deps.get_db)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild:
-        channel = Channel(data.type, guild_id, data.name,
-                          data.topic, data.nsfw,
-                          parent_id=data.parent_id)
-        if data.privateChannel:
-            overwrite = Overwrite(guild.id, 0, deny=1024, allow=0)
-            channel.overwrites.append(overwrite)
-        db.add(channel)
-        db.commit()
-        return {**channel.serialize()}, 201
+    channel = Channel(data.type, guild_id, data.name,
+                      data.topic, data.nsfw,
+                      parent_id=data.parent_id)
+    overwrite = Overwrite(guild_id, 0, deny=1024 if data.privateChannel else 0, allow=0)
+    channel.overwrites.append(overwrite)
+    db.add(channel)
+    db.commit()
+    background_task.add_task(websocket_emitter, channel.id, guild_id, Events.CHANNEL_CREATE, channel.serialize())
+    return channel.serialize()
 
-# TODO change channel postions
+
+# TODO change channel positions
 
 
 @router.get('/{guild_id}/members/{user_id}')
 def get_guild_member(guild_id: int, user_id: int, response: Response,
+                     user: User = Depends(deps.get_current_user),
                      db: Session = Depends(deps.get_db)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild:
+    guild: Guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild and guild.is_member(db, user.id):
         member = db.query(GuildMembers).filter_by(
             guild_id=guild_id).filter_by(user_id=user_id).first()
         if member:
-            return {'member': member.serialize()}
+            return member.serialize()
         response.status_code = 404
-        return {'member': None}
+        return
     response.status_code = 404
-    return {'member': None}
+    return
 
 
 @router.get('/{guild_id}/members')
 def get_guild_members(guild_id: int, response: Response,
+                      limit: int = 1,
+                      after: Optional[int] = None,
+                      user: User = Depends(deps.get_current_user),
                       db: Session = Depends(deps.get_db)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild:
-        return {[member.serialize() for member in guild.members]}
+    guild: Guild = db.query(Guild).filter_by(id=guild_id).first()
+    limit = max(limit, 1)
+    limit = min(1000, limit)
+    if guild and guild.is_member(db, user.id):
+        if after:
+            members = db.query(GuildMembers).filter_by(guild_id=guild_id).filter(User.id > after).limit(limit).all()
+            return {[member.serialize() for member in members]}
+        members = db.query(GuildMembers).filter_by(guild_id=guild_id).limit(limit).all()
+        return {[member.serialize() for member in members]}
     response.status_code = 404
-    return {'members': None}
+    return
 
 
 @router.put('/{guild_id}/members/{user_id}')
 def add_guild_member(guild_id: int, user_id: int,
+                     background_task: BackgroundTasks,
                      db: Session = Depends(deps.get_db)):
     guild = db.query(Guild).filter_by(id=guild_id).first()
     if guild:
         member = db.query(GuildMembers).filter_by(
             guild_id=guild_id).filter_by(user_id=user_id).first()
         if member:
-            return {'member': member.serialize()}
+            return member.serialize()
         member = GuildMembers()
         guild.members.append(member)
         db.add(member)
         db.commit()
+        background_task.add_task(websocket_emitter, member.id, guild_id, Events.GUILD_MEMBER_ADD, member.serialize())
+        return member.serialize()
 
-        return {'member': member.serialize()}
 
-
-@router.patch('/{guild_id}/members/{user_id}')
+@router.patch('/{guild_id}/members/{user_id}', dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_NICKNAMES))])
 def update_guild_member(guild_id: int, user_id: int, data: GuildMemberUpdate,
-                        db: Session = Depends(deps.get_db),
-                        current_user: User = Depends(deps.get_current_user)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild:
-        member = db.query(GuildMembers).filter_by(
-            guild_id=guild_id).filter_by(user_id=user_id).first()
-        if member:
-            if data.nick:
-                member.nick = data.nick
-            db.commit()
-            return {'member': member.serialize()}
-        return {'member': None}
-    return {'member': None}
+                        background_task: BackgroundTasks,
+                        db: Session = Depends(deps.get_db)):
+    member = db.query(GuildMembers).filter_by(
+        guild_id=guild_id).filter_by(user_id=user_id).first()
+    if member:
+        if data.nick:
+            member.nick = data.nick
+        db.commit()
+        background_task.add_task(websocket_emitter, member.id, guild_id, Events.GUILD_MEMBER_UPDATE, member.serialize())
+        return member.serialize()
+    return Response(status_code=404)
 
 
 @router.patch('/{guild_id}/members/@me')
-def update_guild_member_me(guild_id: int, body: GuildMemberUpdate,
+def update_guild_member_me(guild_id: int, body: GuildMemberUpdate, background_task: BackgroundTasks,
                            current_user: User = Depends(deps.get_current_user),
                            db: Session = Depends(deps.get_db)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild:
+    guild: Guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild and guild.is_member(db, current_user.id):
         member = db.query(GuildMembers).filter_by(
             guild_id=guild_id).filter_by(user_id=current_user.id).first()
         if member:
             member.nick = body.nick
             db.commit()
-            return {'member': member.serialize()}
-        return {'member': None}
-    return {'member': None}
+            background_task.add_task(websocket_emitter, member.id, guild_id, Events.GUILD_MEMBER_UPDATE,
+                                     member.serialize())
+            return member.serialize()
+        return Response(status_code=404)
+    return Response(status_code=404)
 
 
-@router.delete('/{guild_id}/members/{user_id}')
-def delete_guild_member(guild_id: int, user_id: int,
+@router.delete('/{guild_id}/members/{user_id}', status_code=204,
+               dependencies=[Depends(deps.GuildPerms(Permissions.KICK_MEMBERS))])
+def delete_guild_member(guild_id: int, user_id: int, background_task: BackgroundTasks,
                         db: Session = Depends(deps.get_db)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild:
-        member = db.query(GuildMembers).filter_by(
-            guild_id=guild_id).filter_by(user_id=user_id).first()
-        if member:
-            db.delete(member)
-            db.commit()
-            return '', 204
-        return {'member': None}
-    return {'member': None}
+    member = db.query(GuildMembers).filter_by(
+        guild_id=guild_id).filter_by(user_id=user_id).first()
+    if member:
+        db.delete(member)
+        db.commit()
+        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_MEMBER_REMOVE, member.serialize())
+        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_DELETE, {'guild_id': guild_id},
+                                 user_id)
+        return ''
+
+    return Response(status_code=404)
 
 
 @router.get('/{guild_id}/bans')
-def get_guild_bans(guild_id: int, response: Response,
-                   db: Session = Depends(deps.get_db)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild:
-        return {[ban.serialize() for ban in guild.bans]}
-    response.status_code = 404
-    return {'bans': None}
+def get_guild_bans(dependencies: tuple[Guild, User] = Depends((deps.GuildPerms(Permissions.BAN_MEMBERS)))):
+    guild, _ = dependencies
+    return {[ban.serialize() for ban in guild.bans]}
 
 
-@router.get('/{guild_id}/bans/{user_id}')
-def get_guild_ban(guild_id: int, user_id: int, response: Response,
+@router.get('/{guild_id}/bans/{user_id}', dependencies=[Depends(deps.GuildPerms(Permissions.BAN_MEMBERS))])
+def get_guild_ban(guild_id: int, user_id: int,
                   db: Session = Depends(deps.get_db)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild:
-        ban = db.query(GuildBans).filter_by(
-            guild_id=guild_id).filter_by(user_id=user_id).first()
-        if ban:
-            return {'ban': ban.serialize()}
-        response.status_code = 404
-        return {'ban': None}
-    response.status_code = 404
-    return {'ban': None}
+    ban = db.query(GuildBans).filter_by(
+        guild_id=guild_id).filter_by(user_id=user_id).first()
+    if ban:
+        return ban.serialize()
+    return Response(status_code=404)
 
 
 @router.put('/{guild_id}/bans/{user_id}')
-def add_guild_ban(guild_id: int, user_id: int, body: CreateGuildBan,
-                  current_user: User = Depends(deps.get_current_user),
+def add_guild_ban(guild_id: int, user_id: int, body: CreateGuildBan, background_task: BackgroundTasks,
+                  dependencies: tuple[Guild, User] = Depends(deps.GuildPerms(Permissions.BAN_MEMBERS)),
                   db: Session = Depends(deps.get_db)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild:
-        try:
-            ban = GuildBans()
-            guild.bans.append(ban)
-            db.query(GuildMembers).filter_by(
-                guild_id=guild_id).filter_by(user_id=user_id).delete()
-            filter_after = datetime.now() + timedelta(days=body.delete_message_days)
-            db.query(Message).filter_by(guild_id=guild_id).filter_by(
-                author_id=user_id).filter(Message.timestamp >= filter_after).delete()
-            db.add(ban)
-            db.commit()
-        except IntegrityError:
-            return {'ban': None}
-        return {'ban': ban.serialize()}
-    return {'ban': None}
+    guild, user = dependencies
+    try:
+        ban = GuildBans(body.reason)
+        guild.bans.append(ban)
+        member = db.query(GuildMembers).filter_by(
+            guild_id=guild_id).filter_by(user_id=user_id)
+        if member:
+            db.delete(member)
+            background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_MEMBER_REMOVE,
+                                     member.serialize())
+            background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_DELETE, {'guild_id': guild_id},
+                                     user_id)
+        # TODO : delete previous messages
+        # filter_after = datetime.now() + timedelta(days=body.delete_message_days)
+        # messages = db.query(Message).filter_by(guild_id=guild_id).filter_by(
+        #     author_id=user_id).filter(Message.timestamp >= filter_after).order_by(Message.channel_id).all()
+        # if messages:
+        #     prev_channel = 0
+        #     for index, message in enumerate(messages):
+        #
+        #     db.delete(messages)
+        #     background_task.add_task(websocket_emitter, user_id, guild_id, Events.MESSAGE_DELETE_BULK,
+        #                              {'ids': [message.id for message in messages]})
+        db.add(ban)
+        db.commit()
+        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_BAN_ADD, ban.serialize())
+        return ban.serialize()
+    except IntegrityError:
+        return
 
 
-@router.delete('/{guild_id}/bans/{user_id}')
-def delete_guild_ban(guild_id: int, user_id: int,
+@router.delete('/{guild_id}/bans/{user_id}', dependencies=[Depends(deps.GuildPerms(Permissions.BAN_MEMBERS))])
+def delete_guild_ban(guild_id: int, user_id: int, background_task: BackgroundTasks,
                      db: Session = Depends(deps.get_db)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild:
-        ban = db.query(GuildBans).filter_by(
-            guild_id=guild_id).filter_by(user_id=user_id).first()
-        if ban:
-            db.delete(ban)
-            db.commit()
-            return '', 204
-        return {'ban': None}
-    return {'ban': None}
+    guild_ban = db.query(GuildBans).filter_by(
+        guild_id=guild_id).filter_by(user_id=user_id).first()
+    if guild_ban:
+        db.delete(guild_ban)
+        db.commit()
+        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_BAN_REMOVE, guild_ban.serialize())
+        return Response(status_code=204)
+    return Response(status_code=404)
 
 
 @router.get('/{guild_id}/webhooks')
-def get_guild_webhooks(guild_id: int, response: Response,
-                       db: Session = Depends(deps.get_db),
-                       current_user: User = Depends(deps.get_current_user)):
-    guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild:
-        return {[webhook.serialize() for webhook in guild.webhooks]}
-    response.status_code = 404
-    return {'webhooks': None}
+def get_guild_webhooks(dependencies: tuple[Guild, User] = Depends(deps.GuildPerms(Permissions.MANAGE_WEBHOOKS))):
+    guild, _ = dependencies
+    return {[webhook.serialize() for webhook in guild.webhooks]}

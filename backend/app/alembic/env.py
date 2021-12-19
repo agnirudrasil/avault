@@ -1,10 +1,10 @@
 from __future__ import with_statement
 
 import os
+from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
-from logging.config import fileConfig
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -23,6 +23,7 @@ fileConfig(config.config_file_name)
 from api.db.base import Base  # noqa
 
 target_metadata = Base.metadata
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

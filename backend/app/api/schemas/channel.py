@@ -1,6 +1,8 @@
 from typing import Literal, Optional
-from api.models.channels import ChannelType
+
 from pydantic import BaseModel, validator
+
+from api.models.channels import ChannelType
 
 
 class ThreadCreate(BaseModel):
@@ -17,6 +19,7 @@ class ChannelValidate(BaseModel):
     topic: Optional[str]
     privateChannel: bool
 
+    @classmethod
     @validator('name')
     def name_validate(cls, v: str, values):
         v = v.strip()
@@ -28,10 +31,12 @@ class ChannelValidate(BaseModel):
             raise ValueError("Name must be at least 1 characters")
         return v
 
+    @classmethod
     @validator('nsfw')
     def nsfw_validate(cls, v: Optional[bool]):
         return bool(v)
 
+    @classmethod
     @validator('topic')
     def topic_validate(cls, v: str):
         v = v.strip()
@@ -39,7 +44,7 @@ class ChannelValidate(BaseModel):
             raise ValueError("Topic must be less than 1024 characters")
         return v or ""
 
-    @ validator("type")
+    @validator("type")
     def validate_type(cls, field):
         if field not in ChannelType.__members__:
             raise ValueError("Invalid channel type")

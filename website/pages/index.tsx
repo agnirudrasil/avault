@@ -1,7 +1,7 @@
-import { NextPage } from "next";
+import {NextPage} from "next";
 
 const IndexPage: NextPage = () => {
-    return <div>Hello Next.js</div>;
+    return <div>Hello Next.js is awesome!</div>;
 };
 
 export default IndexPage;

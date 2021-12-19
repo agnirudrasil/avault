@@ -41,6 +41,9 @@ class Role(Base):
             'mentionable': self.mentionable
         }
 
+    def ids(self):
+        return str(self.id)
+
     def __init__(self,
                  guild_id,
                  name,

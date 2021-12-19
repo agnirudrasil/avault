@@ -1,10 +1,11 @@
-from sqlalchemy.orm import Session, backref
-from api.db.base_class import Base
+from sqlalchemy import Column, Text, String, ForeignKey, UniqueConstraint, BigInteger, Boolean
 from sqlalchemy.ext.hybrid import hybrid_property
-from api.models.channels import ChannelType
-from api.core.security import snowflake_id
-from sqlalchemy import Column, Text, String, ForeignKey, UniqueConstraint, BigInteger
+from sqlalchemy.orm import Session
 from sqlalchemy.orm import relationship
+
+from api.core.security import snowflake_id
+from api.db.base_class import Base
+from api.models.channels import ChannelType
 
 
 class GuildBans(Base):
@@ -23,47 +24,10 @@ class GuildBans(Base):
     guild = relationship("Guild", backref="bans")
 
     def serialize(self):
-        return {"user": self.user.serialize(), "reason": self.reason}
+        return {"user": self.user.serialize(), "reason": self.reason, 'guild_id': str(self.guild_id)}
 
     def __init__(self, reason=None):
         self.reason = reason
-
-
-class GuildMembers(Base):
-    __tablename__ = "guild_members"
-    guild_id = Column(
-        BigInteger,
-        ForeignKey("guilds.id", ondelete="CASCADE"),
-        nullable=False,
-        primary_key=True,
-    )
-    user_id = Column(
-        BigInteger,
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        primary_key=True,
-    )
-    nickname = Column(String(80), nullable=True)
-    permissions = Column(BigInteger, nullable=False, default=0)
-    member = relationship("User", backref="guilds")
-    guild = relationship("Guild", backref="members")
-
-    @hybrid_property
-    def is_owner(self):
-        return self.guild.owner_id == self.user_id
-
-    def serialize(self):
-        return {
-            "guild_id": self.guild_id,
-            "user": self.member.serialize(),
-            "nickname": self.nickname,
-            "roles": self.roles,
-        }
-
-    def __init__(self, nickname=None, permissions=1071698660929):
-        self.id = next(snowflake_id)
-        self.nickname = nickname
-        self.permissions = permissions
 
 
 class Guild(Base):
@@ -76,13 +40,13 @@ class Guild(Base):
     owner = relationship("User", backref="owner")
     channels = relationship("Channel", order_by="asc(Channel.position)")
 
-    def is_owner(self, db: Session, user):
-        return user.id == self.owner_id
+    def is_owner(self, user):
+        return user == self.owner_id
 
     def is_member(self, db: Session, user_id):
         return (
-            db.query(GuildMembers).filter_by(user_id=user_id, guild_id=self.id).first()
-            is not None
+                db.query(GuildMembers).filter_by(user_id=user_id).filter_by(guild_id=self.id).first()
+                is not None
         )
 
     @hybrid_property
@@ -97,6 +61,7 @@ class Guild(Base):
             "name": self.name,
             "icon": self.icon,
             "first_channel": self.first_channel,
+            'roles': [role.serialize() for role in self.roles],
         }
 
     def serialize(self):
@@ -114,3 +79,38 @@ class Guild(Base):
         self.name = name
         self.owner_id = owner_id
         self.icon = icon
+
+
+class GuildMembers(Base):
+    __tablename__ = "guild_members"
+    guild_id = Column(
+        BigInteger,
+        ForeignKey("guilds.id", ondelete="CASCADE"),
+        nullable=False,
+        primary_key=True,
+    )
+    user_id = Column(
+        BigInteger,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        primary_key=True,
+    )
+    is_owner = Column(Boolean, nullable=False, default=False)
+    nickname = Column(String(80), nullable=True)
+    permissions = Column(BigInteger, nullable=False, default=0)
+    member = relationship("User", backref="guilds")
+    guild: Guild = relationship("Guild", backref="members")
+
+    def serialize(self):
+        return {
+            "guild_id": str(self.guild_id),
+            "user": self.member.serialize(),
+            "nickname": self.nickname,
+            "roles": [role.ids() for role in self.roles],
+        }
+
+    def __init__(self, nickname=None, permissions=1071698660929, is_owner: bool = False):
+        self.id = next(snowflake_id)
+        self.nickname = nickname
+        self.is_owner = is_owner
+        self.permissions = permissions

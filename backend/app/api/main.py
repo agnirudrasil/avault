@@ -1,4 +1,5 @@
 from api.core.emitter import Emitter
+from api.schemas.message import Embeds
 from api.core import redis
 from api.core.rabbitmq import consume
 from async_timeout import asyncio

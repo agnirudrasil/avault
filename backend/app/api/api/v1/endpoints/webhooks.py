@@ -7,7 +7,6 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, Response
 
-
 router = APIRouter()
 
 
@@ -17,10 +16,9 @@ class PatchWebhook(BaseModel):
     channel_id: int
 
 
-@router.get("/{webhook_id}")
+@router.get("/{webhook_id}", dependencies=[Depends(deps.get_current_user)])
 def get_webhook(webhook_id: int,
                 response: Response,
-                current_user: User = Depends(deps.get_current_user),
                 db: Session = Depends(deps.get_db)):
     webhook = db.query(Webhook).filter_by(id=webhook_id).first()
     if webhook:
@@ -46,11 +44,10 @@ def get_webhook(webhook_id: int, token: str,
     return {"detail": "Webhook not found"}
 
 
-@router.patch("/{webhook_id}")
+@router.patch("/{webhook_id}", dependencies=[Depends(deps.get_current_user)])
 def update_webhook(webhook_id: int,
                    body: PatchWebhook,
                    response: Response,
-                   current_user: User = Depends(deps.get_current_user),
                    db: Session = Depends(deps.get_db)):
     webhook = db.query(Webhook).filter_by(id=webhook_id).first()
     if webhook:
@@ -86,10 +83,9 @@ def update_webhook(webhook_id: int, token: str,
     return {"detail": "Webhook not found"}
 
 
-@ router.delete("/{webhook_id}", status_code=204)
+@router.delete("/{webhook_id}", status_code=204, dependencies=[Depends(deps.get_current_user)])
 def delete_webhook(webhook_id: int,
                    response: Response,
-                   current_user: User = Depends(deps.get_current_user),
                    db: Session = Depends(deps.get_db)):
     webhook = db.query(Webhook).filter_by(id=webhook_id).first()
     if webhook:

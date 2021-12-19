@@ -2,27 +2,27 @@ import { useMemo } from "react";
 import { CategoryChannel } from "./channels/CategoryChannel";
 import { TextChannel } from "./channels/TextChannel";
 
-const createHeirarchy = (channels: any[]) => {
-    const heirarchy: Record<string, { self: any; children: any[] }> = {};
+const createHierarchy = (channels: any[]) => {
+    const hierarchy: Record<string, { self: any; children: any[] }> = {};
     for (const channel of channels) {
         if (channel?.parent_id) {
-            if (!heirarchy[channel.parent_id]) {
-                heirarchy[channel.parent_id] = { self: {}, children: [] };
+            if (!hierarchy[channel.parent_id]) {
+                hierarchy[channel.parent_id] = { self: {}, children: [] };
             }
-            heirarchy[channel.parent_id].children.push(channel);
+            hierarchy[channel.parent_id].children.push(channel);
         } else {
-            if (heirarchy[channel?.id]) {
-                heirarchy[channel?.id].self = channel;
+            if (hierarchy[channel?.id]) {
+                hierarchy[channel?.id].self = channel;
             } else {
-                heirarchy[channel?.id] = { self: channel, children: [] };
+                hierarchy[channel?.id] = { self: channel, children: [] };
             }
         }
     }
-    return heirarchy;
+    return hierarchy;
 };
 
 export const ChannelLayout: React.FC<{ channels: any[] }> = ({ channels }) => {
-    const heirarchy = useMemo(() => createHeirarchy(channels), [channels]);
+    const heirarchy = useMemo(() => createHierarchy(channels), [channels]);
     return (
         <>
             {Object.keys(heirarchy).map((key, index) =>

@@ -1,22 +1,23 @@
 import Prism from "prismjs";
+
 (Prism.languages.markdown = Prism.languages.extend("markup", {})),
     Prism.languages.insertBefore("markdown", "prolog", {
-        blockquote: { pattern: /^>(?:[\t ]*>)*/m, alias: "punctuation" },
+        blockquote: {pattern: /^>(?:[\t ]*>)*/m, alias: "punctuation"},
         code: [
-            { pattern: /^(?: {4}|\t).+/m, alias: "keyword" },
-            { pattern: /``.+?``|`[^`\n]+`/, alias: "keyword" },
+            {pattern: /^(?: {4}|\t).+/m, alias: "keyword"},
+            {pattern: /``.+?``|`[^`\n]+`/, alias: "keyword"},
         ],
         title: [
             {
                 pattern: /\w+.*(?:\r?\n|\r)(?:==+|--+)/,
                 alias: "important",
-                inside: { punctuation: /==+$|--+$/ },
+                inside: {punctuation: /==+$|--+$/},
             },
             {
                 pattern: /(^\s*)#+.+/m,
                 lookbehind: !0,
                 alias: "important",
-                inside: { punctuation: /^#+|#+$/ },
+                inside: {punctuation: /^#+|#+$/},
             },
         ],
         hr: {
@@ -33,7 +34,7 @@ import Prism from "prismjs";
             pattern:
                 /!?\[[^\]]+\]:[\t ]+(?:\S+|<(?:\\.|[^>\\])+>)(?:[\t ]+(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\((?:\\.|[^)\\])*\)))?/,
             inside: {
-                variable: { pattern: /^(!?\[)[^\]]+/, lookbehind: !0 },
+                variable: {pattern: /^(!?\[)[^\]]+/, lookbehind: !0},
                 string: /(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\((?:\\.|[^)\\])*\))$/,
                 punctuation: /^[\[\]!:]|[<>]/,
             },
@@ -42,29 +43,29 @@ import Prism from "prismjs";
         strong: {
             pattern: /(^|[^\\])(\*\*|__)(?:(?:\r?\n|\r)(?!\r?\n|\r)|.)+?\2/,
             lookbehind: !0,
-            inside: { punctuation: /^\*\*|^__|\*\*$|__$/ },
+            inside: {punctuation: /^\*\*|^__|\*\*$|__$/},
         },
         del: {
             pattern: /(^|[^\\])(~~)(?:(?:\r?\n|\r)(?!\r?\n|\r)|.)+?\2/,
             lookbehind: !0,
-            inside: { punctuation: /^~~|~~$/ },
+            inside: {punctuation: /^~~|~~$/},
         },
         spoiler: {
             pattern: /(^|[^\\])(\|\|)(?:(?:\r?\n|\r)(?!\r?\n|\r)|.)+?\2/,
             lookbehind: !0,
-            inside: { punctuation: /^\|\||\|\|$/ },
+            inside: {punctuation: /^\|\||\|\|$/},
         },
         em: {
             pattern: /(^|[^\\])([*_])(?:(?:\r?\n|\r)(?!\r?\n|\r)|.)+?\2/,
             lookbehind: !0,
-            inside: { punctuation: /^[*_]|[*_]$/ },
+            inside: {punctuation: /^[*_]|[*_]$/},
         },
         url: {
             pattern:
                 /!?\[[^\]]+\](?:\([^\s)]+(?:[\t ]+"(?:\\.|[^"\\])*")?\)| ?\[[^\]\n]*\])/,
             inside: {
-                variable: { pattern: /(!?\[)[^\]]+(?=\]$)/, lookbehind: !0 },
-                string: { pattern: /"(?:\\.|[^"\\])*"(?=\)$)/ },
+                variable: {pattern: /(!?\[)[^\]]+(?=\]$)/, lookbehind: !0},
+                string: {pattern: /"(?:\\.|[^"\\])*"(?=\)$)/},
             },
         },
     }),

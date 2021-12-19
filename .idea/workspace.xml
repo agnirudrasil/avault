@@ -5,32 +5,138 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/b89b001de781_.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/api/core/events.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/env.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/alembic/env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/deps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/deps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/invites.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/invites.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/gateway/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/gateway/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/website/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/_app.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/MarkdownEditor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/MarkdownEditor.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/types/mentions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/types/mentions.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/website/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/guilds.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/guilds.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/schemas/channel.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/schemas/channel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sql/permissions.sql" beforeDir="false" afterPath="$PROJECT_DIR$/sql/permissions.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/createEmotionCache.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/createEmotionCache.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/prism.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/prism.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="DatabaseLocalColorSettings">
+    <colors>
+      <entry key="cb8f5213-727b-475f-b0c2-acb2bec5c4d0" value="Orange" />
+    </colors>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+        <option value="Jupyter Notebook" />
+      </list>
+    </option>
+  </component>
+  <component name="FormatOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectId" id="1wPPN64n9uYOHyoP8drDLeDb6zX" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="DatabaseDriversLRU" value="postgresql" />
+    <property name="RunOnceActivity.OpenDatabaseViewOnStart" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/backend/venv/bin/python" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="database.data.extractors.current.export.id" value="JSON-Groovy.json.groovy" />
+    <property name="database.data.extractors.current.id" value="JSON-Groovy.json.groovy" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/website/package.json" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_package_manager_path" value="yarn" />
+    <property name="run.code.analysis.last.selected.profile" value="aDefault" />
+    <property name="settings.editor.selected.configurable" value="com.maddyhome.idea.vim.ui.VimEmulationConfigurable" />
+    <property name="ts.external.directory.path" value="$PROJECT_DIR$/website/node_modules/typescript/lib" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="ReaderModeSettings">
+    <option name="showLigatures" value="true" />
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="yarn dev" />
+      <command value="yarn run dev" />
+    </option>
+  </component>
+  <component name="RunManager" selected="FastAPI.Backend">
+    <configuration name="Backend" type="Python.FastAPI">
+      <option name="file" value="$PROJECT_DIR$/backend/app/api/main.py" />
+      <module name="avault" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="$PROJECT_DIR$/backend/venv/bin/python" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration name="dev website" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/website/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="dev" type="js.build_tools.npm" temporary="true">
+      <package-json value="$PROJECT_DIR$/backend/gateway/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="FastAPI.Backend" />
+      <item itemvalue="npm.dev website" />
+      <item itemvalue="npm.dev" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="npm.dev" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -40,7 +146,48 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1628357209793</updated>
+      <workItem from="1640155434820" duration="244000" />
+      <workItem from="1640155935802" duration="137000" />
+      <workItem from="1640156082168" duration="1500000" />
+      <workItem from="1640159762816" duration="87000" />
+      <workItem from="1640195339407" duration="2187000" />
+      <workItem from="1640244498083" duration="2355000" />
+      <workItem from="1640258753215" duration="4072000" />
+      <workItem from="1640265027206" duration="856000" />
+      <workItem from="1640267566705" duration="116000" />
+      <workItem from="1640270368646" duration="3272000" />
+      <workItem from="1640282919308" duration="3110000" />
+      <workItem from="1640328991398" duration="359000" />
+      <workItem from="1640329365337" duration="2773000" />
+      <workItem from="1640344662572" duration="2398000" />
+      <workItem from="1640349958629" duration="1248000" />
+      <workItem from="1640363098784" duration="197000" />
+      <workItem from="1640363323110" duration="4974000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1640364901633" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>

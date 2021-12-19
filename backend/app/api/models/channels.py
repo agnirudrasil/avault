@@ -1,11 +1,11 @@
 import enum
-from html5lib import serialize
+
+from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Boolean, DateTime, Table, BigInteger
 from sqlalchemy import func
+from sqlalchemy.orm import relationship
 
 from api.core.security import snowflake_id
 from api.db.base_class import Base
-from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Boolean, DateTime, Table, BigInteger
-from sqlalchemy.orm import relationship
 
 
 class ChannelType(enum.Enum):
@@ -21,9 +21,9 @@ class ChannelType(enum.Enum):
 channel_members = Table('channel_members',
                         Base.metadata,
                         Column('channel_id', BigInteger, ForeignKey(
-                               'channels.id', ondelete="CASCADE"), primary_key=True),
+                            'channels.id', ondelete="CASCADE"), primary_key=True),
                         Column('user_id', BigInteger, ForeignKey(
-                               'users.id', ondelete="CASCADE"), primary_key=True))
+                            'users.id', ondelete="CASCADE"), primary_key=True))
 
 valid_channel_types = ['guild_text',
                        'guild_public_thread',
@@ -44,7 +44,7 @@ class PinnedMessages(Base):
 class ThreadMetadata(Base):
     __tablename__ = 'thread_metadata'
     channel_id = Column(BigInteger, ForeignKey("channels.id",
-                        ondelete="CASCADE"), primary_key=True)
+                                               ondelete="CASCADE"), primary_key=True)
     archived = Column(Boolean, default=False)
     archive_timestamp = Column(DateTime, default=func.now())
     auto_archive_duration = Column(Integer, default=0)
@@ -72,27 +72,26 @@ class Overwrite(Base):
     type = Column(Integer, nullable=False)
     allow = Column(BigInteger, nullable=False)
     deny = Column(BigInteger, nullable=False)
-    channel_id = Column(BigInteger, ForeignKey('channels.id', ondelete="CASCADE",),
+    channel_id = Column(BigInteger, ForeignKey('channels.id', ondelete="CASCADE", ),
                         nullable=False, primary_key=True)
     channel = relationship('Channel', back_populates='overwrites')
 
     def serialize(self):
         return {
-            'id': self.id,
+            'id': str(self.id),
             'type': self.type,
-            'allow': self.allow,
-            'deny': self.deny,
-            'channel_id': self.channel_id,
+            'allow': str(self.allow),
+            'deny': str(self.deny),
         }
 
     def __init__(self,
-                 id,
-                 type,
+                 overwrite_id,
+                 overwrite_type,
                  allow=None,
                  deny=None,
                  channel_id=None):
-        self.id = id
-        self.type = type
+        self.id = overwrite_id
+        self.type = overwrite_type
         self.allow = allow
         self.deny = deny
         self.channel_id = channel_id
@@ -130,6 +129,7 @@ class Channel(Base):
             'name': self.name,
             'topic': self.topic,
             'nsfw': self.nsfw,
+            'guild_id': str(self.guild_id),
             'last_message_timestamp': self.last_message_timestamp,
             'owner_id': str(self.owner_id) if self.owner_id else None,
             'parent_id': str(self.parent_id) if self.parent_id else None,
@@ -149,14 +149,14 @@ class Channel(Base):
     def is_member(self, user):
         return user in self.members
 
-    def __init__(self, type,
+    def __init__(self, channel_type,
                  guild_id,
                  name, topic="",
                  nsfw=False,
                  owner_id=None,
                  parent_id=None):
         self.id = next(snowflake_id)
-        self.type = type
+        self.type = channel_type
         self.guild_id = guild_id
         if guild_id is not None:
             self.position = func.position_insert(guild_id)
