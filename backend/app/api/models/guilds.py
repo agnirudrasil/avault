@@ -60,8 +60,6 @@ class Guild(Base):
             "id": str(self.id),
             "name": self.name,
             "icon": self.icon,
-            "first_channel": self.first_channel,
-            'roles': [role.serialize() for role in self.roles],
         }
 
     def serialize(self):
@@ -70,8 +68,10 @@ class Guild(Base):
             "name": self.name,
             "icon": self.icon,
             "owner": self.owner.serialize(),
+            "owner_id": str(self.owner_id),
             "members": [member.serialize() for member in self.members],
             "channels": [channel.serialize() for channel in self.channels],
+            'roles': [role.serialize() for role in self.roles],
         }
 
     def __init__(self, name, owner_id, icon=None):

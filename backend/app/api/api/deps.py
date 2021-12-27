@@ -1,12 +1,6 @@
 import functools
 import operator
-from typing import Generator, List, Union
-
-from fastapi import Depends, HTTPException, status, Request
-from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
-from pydantic import ValidationError
-from sqlalchemy.orm import Session
+from typing import Generator, List, Union, Optional
 
 from api import models, schemas, crud
 from api.core import security
@@ -14,6 +8,11 @@ from api.core.compute_permissions import compute_overwrites
 from api.core.config import settings
 from api.core.permissions import Permissions
 from api.db.session import SessionLocal
+from fastapi import Depends, HTTPException, status, Request, Cookie
+from fastapi.security import OAuth2PasswordBearer
+from jose import jwt
+from pydantic import ValidationError
+from sqlalchemy.orm import Session
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/auth/access-token"
@@ -26,6 +25,24 @@ def get_db() -> Generator[Session, None, None]:
         yield db
     finally:
         db.close()
+
+
+def get_current_user_refresh_token(jid: Optional[str] = Cookie(None), db: Session = Depends(get_db)) -> models.User:
+    try:
+        payload = jwt.decode(
+            jid, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
+        )
+        token_data = schemas.TokenPayload(**payload)
+    except (jwt.JWTError, ValidationError):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials",
+        )
+
+    user = crud.user.get(db, id=token_data.sub)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
 
 
 def get_current_user(
@@ -62,6 +79,7 @@ class ChannelPerms:
             guild_member: models.GuildMembers = db.query(models.GuildMembers).filter_by(
                 guild_id=channel.guild_id).filter_by(
                 user_id=current_user.id).first()
+
             if not guild_member:
                 return False
 
@@ -70,6 +88,7 @@ class ChannelPerms:
 
             if guild_member.permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR:
                 return True
+
             permissions = await compute_overwrites(guild_member.permissions, channel, guild_member, db)
 
             if not permissions & self.permission == self.permission:
@@ -131,7 +150,7 @@ class GuildPerms:
             current_user: models.User = Depends(get_current_user),
             db: Session = Depends(get_db),
     ) -> tuple[models.Guild, models.User]:
-        guild: models.Guild = db.query(models.Invite).filter_by(id=guild_id).first()
+        guild: models.Guild = db.query(models.Guild).filter_by(id=guild_id).first()
         if not guild:
             raise HTTPException(status_code=404, detail="Guild not found")
 

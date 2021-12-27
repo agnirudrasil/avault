@@ -1,20 +1,20 @@
-import { Paper, IconButton, Divider } from "@mui/material";
-import { AddCircle, EmojiEmotions, Send } from "@mui/icons-material";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { Formik, Form, Field } from "formik";
-import { MessageField } from "./CustomTextField";
-import { useQueryClient } from "react-query";
-import { useMessageCreate } from "../../hooks/requests/useMessageCreate";
+import React, {useEffect, useState} from "react";
+import {Divider, IconButton, Paper} from "@mui/material";
+import {AddCircle, EmojiEmotions, Send} from "@mui/icons-material";
+import {useRouter} from "next/router";
+import {Field, Form, Formik} from "formik";
+import {MessageField} from "./CustomTextField";
+import {useQueryClient} from "react-query";
+import {useMessageCreate} from "../../hooks/requests/useMessageCreate";
 
 export const MessageBox: React.FC = () => {
     const router = useRouter();
     const queryClient = useQueryClient();
     const channels = (
         queryClient.getQueryData(["guild", router.query.server_id]) as any
-    ).guild.channels;
+    ).channels;
     const [currentChannel, setCurrentChannel] = useState<any>("");
-    const { mutate } = useMessageCreate(router.query.channel as string);
+    const {mutate} = useMessageCreate(router.query.channel as string);
 
     useEffect(() => {
         setCurrentChannel(
@@ -27,22 +27,22 @@ export const MessageBox: React.FC = () => {
             initialValues={{
                 content: "",
             }}
-            onSubmit={({ content }, { setSubmitting, setValues }) => {
+            onSubmit={({content}, {setSubmitting, setValues}) => {
                 content = content.trim();
                 if (!content) return;
                 mutate(content);
-                setValues({ content: "" });
+                setValues({content: ""});
                 setSubmitting(false);
             }}
         >
-            {({ submitForm }) => (
+            {({submitForm}) => (
                 <Form
-                    onKeyDown={e => {
-                        if (e.key === "Enter" && e.shiftKey === false) {
-                            submitForm();
+                    onKeyDown={async e => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            await submitForm();
                         }
                     }}
-                    style={{ width: "100%" }}
+                    style={{width: "100%"}}
                 >
                     <Paper
                         component="div"
@@ -57,8 +57,8 @@ export const MessageBox: React.FC = () => {
                             bottom: "0",
                         }}
                     >
-                        <IconButton sx={{ p: "10px" }} aria-label="menu">
-                            <AddCircle />
+                        <IconButton sx={{p: "10px"}} aria-label="menu">
+                            <AddCircle/>
                         </IconButton>
                         <Field
                             component={MessageField}
@@ -68,22 +68,22 @@ export const MessageBox: React.FC = () => {
                         />
                         <IconButton
                             type="submit"
-                            sx={{ p: "10px" }}
+                            sx={{p: "10px"}}
                             aria-label="search"
                         >
-                            <EmojiEmotions />
+                            <EmojiEmotions/>
                         </IconButton>
                         <Divider
-                            sx={{ height: 28, m: 0.5 }}
+                            sx={{height: 28, m: 0.5}}
                             orientation="vertical"
                         />
                         <IconButton
                             color="primary"
-                            sx={{ p: "10px" }}
+                            sx={{p: "10px"}}
                             aria-label="directions"
                             type="submit"
                         >
-                            <Send />
+                            <Send/>
                         </IconButton>
                     </Paper>
                 </Form>

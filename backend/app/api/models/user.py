@@ -1,11 +1,9 @@
 import random
-from typing import List
 
 from sqlalchemy import BigInteger, Column, String, Text, UniqueConstraint
-from sqlalchemy.orm import relationship
-from api.db.base_class import Base
-from .guilds import Guild, GuildMembers
+
 from api.core.security import get_password_hash, verify_password, snowflake_id
+from api.db.base_class import Base
 
 
 class User(Base):
@@ -15,7 +13,6 @@ class User(Base):
     password = Column(Text, nullable=False)
     tag = Column(String(5), nullable=False)
     email = Column(String(120), unique=True, nullable=False)
-    channels = relationship("Channel", backref="channel_members")
     __table_args__ = (UniqueConstraint("username", "tag"),)
 
     def generate_tag(self, username, db):

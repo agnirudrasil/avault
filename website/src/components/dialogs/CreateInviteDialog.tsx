@@ -1,22 +1,22 @@
-import { LoadingButton } from "@mui/lab";
+import {LoadingButton} from "@mui/lab";
 import {
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    FormControl,
-    DialogActions,
     Button,
-    Select,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControl,
+    InputAdornment,
     InputLabel,
     MenuItem,
+    Select,
     TextField,
-    InputAdornment,
 } from "@mui/material";
-import { useRouter } from "next/router";
-import { useState } from "react";
-import { useCreateInvite } from "../../../hooks/requests/useCreateInvite";
-import { useGuildsStore } from "../../../stores/useGuildsStore";
-import { CopyButton } from "../Form/CopyButton";
+import {useRouter} from "next/router";
+import {useState} from "react";
+import {useCreateInvite} from "../../../hooks/requests/useCreateInvite";
+import {useGuildsStore} from "../../../stores/useGuildsStore";
+import {CopyButton} from "../Form/CopyButton";
 
 export interface CreateInviteDialogProps {
     channel_id?: string;
@@ -25,24 +25,24 @@ export interface CreateInviteDialogProps {
 }
 
 export const CreateInviteDialog: React.FC<CreateInviteDialogProps> = ({
-    channel_id,
-    open,
-    handleClose,
-}) => {
+                                                                          channel_id,
+                                                                          open,
+                                                                          handleClose,
+                                                                      }) => {
     const guilds = useGuildsStore(state => state.guilds);
     const [max_uses, setMaxUses] = useState(0);
     const [max_age, setMaxAge] = useState(86400);
-    const { data, mutate, isLoading } = useCreateInvite();
+    const {data, mutate, isLoading} = useCreateInvite();
     const router = useRouter();
     channel_id =
         channel_id ||
-        guilds.find(({ id }) => id === router.query.server_id)?.first_channel;
+        guilds.find(({id}) => id === router.query.server_id)?.first_channel;
 
     return (
         <Dialog fullWidth maxWidth="xs" open={open} onClose={handleClose}>
             <DialogTitle>
                 Invite people to{" "}
-                {guilds.find(({ id }) => id === router.query.server_id)?.name ||
+                {guilds.find(({id}) => id === router.query.server_id)?.name ||
                     ""}
             </DialogTitle>
             <DialogContent
@@ -54,7 +54,7 @@ export const CreateInviteDialog: React.FC<CreateInviteDialogProps> = ({
                     justifyContent: "center",
                 }}
             >
-                <FormControl sx={{ marginTop: "1rem" }} fullWidth>
+                <FormControl sx={{marginTop: "1rem"}} fullWidth>
                     <InputLabel id="max-age-lable">Expire After</InputLabel>
                     <Select
                         labelId="max-age-lable"
@@ -97,8 +97,8 @@ export const CreateInviteDialog: React.FC<CreateInviteDialogProps> = ({
                     value={
                         data
                             ? `${
-                                  process.env.NEXT_PUBLIC_API_URL
-                              }/channels/join/${(data as any)?.id}`
+                                process.env.NEXT_PUBLIC_API_URL
+                            }/join/${(data as any)?.id}`
                             : ""
                     }
                     InputProps={{
@@ -108,12 +108,12 @@ export const CreateInviteDialog: React.FC<CreateInviteDialogProps> = ({
                                     disabled={!data}
                                     text={`${
                                         process.env.NEXT_PUBLIC_API_URL
-                                    }/channels/join/${(data as any)?.id}`}
+                                    }/join/${(data as any)?.id}`}
                                 />
                             </InputAdornment>
                         ),
                     }}
-                    inputProps={{ readOnly: true }}
+                    inputProps={{readOnly: true}}
                 />
             </DialogContent>
             <DialogActions>

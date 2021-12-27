@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { useMessages } from "../../../hooks/requests/useMessages";
+import { useGuildsStore } from "../../../stores/useGuildsStore";
 import { ChannelBar } from "../ChannelBar";
 import { ChannelLayout } from "../ChannelLayout";
 import { DefaultProfilePic } from "../DefaultProfilePic";
@@ -49,16 +50,17 @@ export const organizeMessages = (messages: any[]): React.ReactNode => {
 
 export const ServerLayout: React.FC<{
     name: string;
-    members: any[];
-    channels: any[];
-}> = ({ name, members, channels }) => {
+}> = ({ name }) => {
     const router = useRouter();
+    const guild = useGuildsStore(
+        state => state[router.query.server_id as string]
+    );
     const { status, data } = useMessages(router.query.channel as string);
     return (
         <Container>
             <ServersBar />
             <ChannelBar name={name}>
-                <ChannelLayout channels={channels} />
+                <ChannelLayout />
             </ChannelBar>
             <div
                 style={{
@@ -91,7 +93,7 @@ export const ServerLayout: React.FC<{
                 <MessageBox />
             </div>
             <MembersBar>
-                {members.map(member => (
+                {guild.members.map(member => (
                     <ListItemButton key={member.id}>
                         <ListItemAvatar>
                             <Avatar>

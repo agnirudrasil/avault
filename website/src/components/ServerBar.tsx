@@ -34,36 +34,35 @@ const getGuildInitials = (name: string) =>
 
 export const ServersBar: React.FC = () => {
     const [open, setOpen] = useState(false);
-    const guilds = useGuildsStore(state => state.guilds);
+    const guilds = useGuildsStore();
     const handleClickOpen = () => {
         setOpen(true);
     };
-
+    console.log(guilds);
     const handleClose = () => {
         setOpen(false);
     };
 
     return (
         <Container>
-            <ServerItems onClick={() => Router.replace("/channels/@me")}>
+            <ServerItems id="" onClick={() => Router.replace("/channels/@me")}>
                 <img style={{ width: "90%" }} src="/logo-black.png" />
             </ServerItems>
             <Separator />
-            {guilds &&
-                guilds &&
-                guilds.map((guild: any) => (
-                    <ServerItems
-                        onClick={() =>
-                            Router.replace(
-                                `/channels/${guild.id}/${guild.first_channel}`
-                            )
-                        }
-                        title={guild.name ?? ""}
-                        key={guild.id}
-                    >
-                        {getGuildInitials(guild.name ?? "")}
-                    </ServerItems>
-                ))}
+            {Object.keys(guilds).map(key => {
+                const guild = guilds[key];
+                return (
+                    typeof guild !== "function" && (
+                        <ServerItems
+                            title={guild.name ?? ""}
+                            key={guild.id}
+                            id={guild.id}
+                        >
+                            {getGuildInitials(guild.name ?? "")}
+                        </ServerItems>
+                    )
+                );
+            })}
             <Separator />
             <Tooltip title="Add a server">
                 <IconButton onClick={handleClickOpen}>

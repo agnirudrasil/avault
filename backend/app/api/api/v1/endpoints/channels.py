@@ -123,11 +123,11 @@ async def delete_message(channel_id: int,
 def bulk_delete_messages(channel_id: int, body: MessageBulkDelete, background_task: BackgroundTasks,
                          dependencies: Channel = Depends(deps.ChannelPerms(Permissions.MANAGE_MESSAGES)),
                          db: Session = Depends(deps.get_db)):
-    db.query(Message).filter_by(channel_id=channel_id).filter(Message.id.in_(body.messages)).delete()
+    db.query(Message).filter_by(channel_id=channel_id).filter(Message.id.in_(map(int, body.messages))).delete()
 
     channel, user = dependencies
     background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.MESSAGE_DELETE_BULK,
-                             {"id": body.messages, "channel_id": channel.id, 'guild_id': channel.guild_id})
+                             {"ids": body.messages, "channel_id": channel.id, 'guild_id': channel.guild_id})
     return
 
 

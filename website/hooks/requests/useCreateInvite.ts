@@ -1,15 +1,12 @@
-import { useMutation } from "react-query";
-import { request } from "../../src/request";
+import {useMutation} from "react-query";
+import {request} from "../../src/request";
 
 type PostData = {
     max_uses: number;
     max_age: number;
 };
 
-export const createInvite = async ({
-    body,
-    channelId,
-}: {
+export const createInvite = async ({body, channelId}: {
     channelId: string;
     body: PostData;
 }) => {
@@ -18,9 +15,6 @@ export const createInvite = async ({
         {
             credentials: "include",
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
             body: JSON.stringify(body),
         }
     );

@@ -39,10 +39,10 @@ import { useGetPermissions } from "../../hooks/requests/useGetPermissions";
 import { useGetRole } from "../../hooks/requests/useGetRole";
 import { useGetRoles } from "../../hooks/requests/useGetRoles";
 import { useUnsaved } from "../../hooks/useUnsaved";
+import { Roles, useRolesStore } from "../../stores/useRolesStore";
 import { ColorPicker } from "../components/ColorPicker";
 import { Android12Switch } from "../components/Form/AndroidSwitch";
 import { SettingsLayout } from "../components/layouts/SettingsLayout";
-// import { permissions } from "../permissions";
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -54,21 +54,13 @@ export const SettingsRoles = () => {
     const router = useRouter();
     const queryClient = useQueryClient();
     const { mutateAsync, isLoading: isCreating } = useCreateRoles();
-    const { data, isLoading } = useGetRoles(router.query.server_id as string);
+    const roles = useRolesStore(
+        state => state[router.query.server_id as string]
+    );
     const [selected, setSelected] = useState<string>(
         router.query.server_id as string
     );
-    const { handleReset, ogData, setOgdata, unsaved } = useUnsaved(
-        data && data.roles
-    );
-
-    if (isLoading || !data || !ogData) {
-        return (
-            <div>
-                <LinearProgress />
-            </div>
-        );
-    }
+    const { handleReset, ogData, setOgdata, unsaved } = useUnsaved(roles);
 
     const onDragEnd = (result: DropResult) => {
         if (!result.destination) return;
@@ -83,6 +75,7 @@ export const SettingsRoles = () => {
 
     const createRole = async () => {
         const [{ role }] = await mutateAsync(router.query.server_id as string);
+        // TODO
         queryClient.setQueryData(
             ["roles", router.query.server_id as string],
             existingRoles =>
@@ -280,6 +273,7 @@ export const SettingsRoles = () => {
                     </List>
                 </DragDropContext>
                 <RolesDisplay
+                    role={roles.find(r => r.id === selected)!}
                     setSelected={setSelected}
                     key={selected}
                     roleId={selected}
@@ -297,10 +291,11 @@ const TransitionComponent = (props: any) => {
 export const RolesDisplay: React.FC<{
     roleId: string;
     guildId: string;
+    role: Roles;
     setSelected: (id: string) => any;
-}> = ({ roleId, guildId, setSelected }) => {
-    const { data, isLoading } = useGetRole(guildId, roleId);
+}> = ({ roleId, guildId, setSelected, role }) => {
     const queryClient = useQueryClient();
+    const updateRole = useRolesStore(state => state.updateRole);
     const { data: permissions } = useGetPermissions();
     const [permsQuery, setPermsQuery] = useState<string>("");
     const { mutateAsync, isLoading: isUpdating } = useEditRole(guildId, roleId);
@@ -309,26 +304,11 @@ export const RolesDisplay: React.FC<{
         roleId
     );
     const [value, setValue] = useState(guildId === roleId ? 1 : 0);
-    const { ogData, setOgdata, handleReset, unsaved } = useUnsaved(
-        data && data?.role
-    );
+    const { ogData, setOgdata, handleReset, unsaved } = useUnsaved(role);
 
     const saveFn = async (data: Object) => {
         await mutateAsync(data);
-        queryClient.setQueryData(["roles", guildId, roleId], existingRole =>
-            produce(existingRole, (draft: any) => {
-                Object.assign(draft.role, data);
-            })
-        );
-        queryClient.setQueryData(["roles", guildId], existingRoles =>
-            produce(existingRoles, (draft: any) => {
-                draft.roles.forEach((role: any) => {
-                    if (role.id === roleId) {
-                        Object.assign(role, data);
-                    }
-                });
-            })
-        );
+        updateRole(guildId, data);
     };
 
     const handleDelete = async () => {
@@ -351,14 +331,6 @@ export const RolesDisplay: React.FC<{
     useEffect(() => {
         console.log(permissions);
     }, [permissions]);
-
-    if (isLoading || !data || !ogData) {
-        return (
-            <div>
-                <LinearProgress />
-            </div>
-        );
-    }
 
     return (
         <div

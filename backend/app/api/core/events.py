@@ -1,11 +1,11 @@
 import enum
 from typing import Optional
 
-from sqlalchemy import or_, func
-
 from api import models
 from api.api.deps import get_db
-from . import emitter
+from api.core import emitter
+from sqlalchemy import or_, func
+
 from .permissions import Permissions
 
 
@@ -41,53 +41,51 @@ class Events(str, enum.Enum):
     WEBHOOKS_UPDATE = 'WEBHOOKS_UPDATE'
 
 
-def get_dm_channel_recipients(db, channel_id: int) -> list[int]:
+def get_dm_channel_recipients(db, channel_id: int) -> list[str]:
     recipients: models.Channel = db.query(models.Channel).filter_by(id=channel_id).first()
-    return [recipient.user_id for recipient in recipients.members]
+    return [str(recipient.user_id) for recipient in recipients.members]
 
 
-class WebsocketEmitter:
-    def __init__(self):
-        self.emitter = emitter
-        self.special_events = {
-            Events.CHANNEL_PINS_UPDATE,
-            Events.MESSAGE_DELETE_BULK,
-            Events.TYPING_START,
-            Events.MESSAGE_DELETE_BULK,
-            Events.MESSAGE_CREATE,
-            Events.MESSAGE_UPDATE,
-            Events.MESSAGE_DELETE,
-            Events.MESSAGE_DELETE_BULK,
-            Events.MESSAGE_REACTION_ADD,
-            Events.MESSAGE_REACTION_REMOVE,
-            Events.MESSAGE_REACTION_REMOVE_ALL,
-            Events.MESSAGE_REACTION_REMOVE_EMOJI,
-        }
+SPECIAL_EVENTS = {
+    Events.CHANNEL_PINS_UPDATE,
+    Events.MESSAGE_DELETE_BULK,
+    Events.TYPING_START,
+    Events.MESSAGE_DELETE_BULK,
+    Events.MESSAGE_CREATE,
+    Events.MESSAGE_UPDATE,
+    Events.MESSAGE_DELETE,
+    Events.MESSAGE_DELETE_BULK,
+    Events.MESSAGE_REACTION_ADD,
+    Events.MESSAGE_REACTION_REMOVE,
+    Events.MESSAGE_REACTION_REMOVE_ALL,
+    Events.MESSAGE_REACTION_REMOVE_EMOJI,
+}
 
-    def recipients(self, event: Events, guild_id: Optional[int] = None, channel_id: Optional[int] = None,
-                   user_id: Optional[int] = None) -> list[int]:
-        db = next(get_db())
-        if event == Events.GUILD_CREATE or (event == Events.GUILD_DELETE and user_id):
-            return [user_id]
-        if event in self.special_events:
-            if not guild_id:
-                return get_dm_channel_recipients(db, channel_id)
-            recipients = db.query(models.GuildMembers).filter_by(guild_id=guild_id).filter(
-                or_(models.GuildMembers.is_owner,
-                    models.GuildMembers.permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR,
-                    func.compute_channel_overwrites(
-                        models.GuildMembers.permissions,
-                        guild_id,
-                        models.GuildMembers.user_id,
-                        channel_id) & Permissions.VIEW_CHANNEL == Permissions.VIEW_CHANNEL))
-            return [recipient.user_id for recipient in recipients]
-        else:
-            if guild_id:
-                return [guild_id]
+
+def get_recipients(event: Events, guild_id: Optional[int] = None, channel_id: Optional[int] = None,
+                   user_id: Optional[int] = None) -> list[str]:
+    db = next(get_db())
+    if event == Events.GUILD_CREATE or (event == Events.GUILD_DELETE and user_id):
+        return [str(user_id)]
+    if event in SPECIAL_EVENTS:
+        if not guild_id:
             return get_dm_channel_recipients(db, channel_id)
+        recipients = db.query(models.GuildMembers).filter_by(guild_id=guild_id).filter(
+            or_(models.GuildMembers.is_owner,
+                models.GuildMembers.permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR,
+                func.compute_channel_overwrites(
+                    models.GuildMembers.permissions,
+                    guild_id,
+                    models.GuildMembers.user_id,
+                    channel_id) & Permissions.VIEW_CHANNEL == Permissions.VIEW_CHANNEL))
+        return [str(recipient.user_id) for recipient in recipients]
+    else:
+        if guild_id:
+            return [str(guild_id)]
+        return get_dm_channel_recipients(db, channel_id)
 
-    async def __call__(self, channel_id: int, guild_id: int, event: Events, args, user_id: int = None):
-        await self.emitter.to(self.recipients(event, guild_id, channel_id, user_id)).emit(event, args)
 
-
-websocket_emitter = WebsocketEmitter()
+async def websocket_emitter(channel_id: int, guild_id: int, event: Events, args, user_id: int = None):
+    my_recipients = get_recipients(event, guild_id, channel_id, user_id)
+    print(my_recipients)
+    await emitter.to(my_recipients).emit(event, args)

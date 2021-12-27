@@ -1,4 +1,6 @@
+import { useRouter } from "next/router";
 import { useMemo } from "react";
+import { useChannelsStore } from "../../stores/useChannelsStore";
 import { CategoryChannel } from "./channels/CategoryChannel";
 import { TextChannel } from "./channels/TextChannel";
 
@@ -21,7 +23,11 @@ const createHierarchy = (channels: any[]) => {
     return hierarchy;
 };
 
-export const ChannelLayout: React.FC<{ channels: any[] }> = ({ channels }) => {
+export const ChannelLayout: React.FC = () => {
+    const router = useRouter();
+    const channels = useChannelsStore(
+        state => state[router.query.server_id as string]
+    );
     const heirarchy = useMemo(() => createHierarchy(channels), [channels]);
     return (
         <>

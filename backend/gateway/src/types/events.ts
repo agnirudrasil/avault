@@ -1,4 +1,4 @@
-import { IdentifyObject } from "./event-objects";
+import {IdentifyObject} from "./event-objects";
 
 export interface ClientToServerEvents {
     IDENTIFY: (identify: IdentifyObject) => void;
@@ -14,6 +14,7 @@ export interface ServerToClientEvents {
     THREAD_LIST_SYNC: (channel: any) => void;
     THREAD_MEMBER_UPDATE: (channel: any) => void;
     THREAD_MEMBERS_UPDATE: (channel: any) => void;
+    GUILD_CREATE: (guild: any) => void;
     GUILD_UPDATE: (guild: any) => void;
     GUILD_DELETE: (guild: any) => void;
     GUILD_BAN_ADD: (guild: any) => void;

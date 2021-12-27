@@ -28,10 +28,10 @@ async def handle_message(message):
                 guild_data = []
                 for guild in guilds:
                     await emitter.in_room(socket_id).sockets_join(str(guild.guild.id))
-                    guild_data.append(guild.guild.preview())
-
+                    guild_data.append(guild.guild.serialize())
                 await emitter.in_room(socket_id).emit(
-                    "READY", {"guilds": guild_data, "user": user.serialize()}
+                    "READY", {"guilds": guild_data, "user": user.json(),
+                              "private_channels": [channel.serialize() for channel in user.channel_members]}
                 )
                 return
             await emitter.to(msgobj["id"]).disconnect_sockets(True)

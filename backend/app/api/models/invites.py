@@ -1,12 +1,13 @@
-
 import datetime
 from random import randint
+
+from sqlalchemy import Column, String, BigInteger, ForeignKey, Integer, DateTime
 from sqlalchemy import func
+from sqlalchemy.orm import relationship
+
+from api.db.base_class import Base
 from api.models.channels import Channel
 from api.utils.nanoid import generate
-from api.db.base_class import Base
-from sqlalchemy import Column, String, BigInteger, ForeignKey, Integer, DateTime
-from sqlalchemy.orm import relationship
 
 
 class Invite(Base):
@@ -33,11 +34,11 @@ class Invite(Base):
         }
 
     def gen_id(self, db):
-        id = generate(size=randint(8, 21))
-        invite = db.query(Invite).query.filter_by(id=id).first()
+        invite_id = generate(size=randint(8, 21))
+        invite = db.query(Invite).filter_by(id=invite_id).first()
         if invite:
-            return self.gen_id()
-        return id
+            return self.gen_id(db)
+        return invite_id
 
     def __init__(self, channel_id, user_id, max_age, max_uses, db):
         self.id = self.gen_id(db)

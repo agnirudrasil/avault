@@ -1,0 +1,18 @@
+GET http://localhost:8000/join/46412
+
+<> 2021-12-22T125147.404.json
+
+###
+
+GET http://localhost:8000/join/46412
+
+###
+
+GET http://localhost:8080/join/46412
+
+###
+
+GET http://localhost:8080/@me/channels
+
+###
+

@@ -1,13 +1,12 @@
-
-from datetime import datetime
-from api.models.channels import Channel
-from api.core.security import snowflake_id
-from sqlalchemy.dialects.postgresql import JSONB, ARRAY
-from sqlalchemy.ext.hybrid import hybrid_property
-from api.db.base_class import Base
-from sqlalchemy import Column, Integer, ForeignKey, String, DateTime, Boolean, UniqueConstraint, func, BigInteger, Text
-from sqlalchemy.orm import relationship
 import re
+from datetime import datetime
+
+from api.core.security import snowflake_id
+from api.db.base_class import Base
+from api.models.channels import Channel
+from sqlalchemy import Column, ForeignKey, String, DateTime, Boolean, UniqueConstraint, func, BigInteger, Text
+from sqlalchemy.dialects.postgresql import JSONB, ARRAY
+from sqlalchemy.orm import relationship
 
 
 class Reactions(Base):
@@ -87,10 +86,10 @@ class Message(Base):
             'timestamp': self.timestamp.isoformat(),
             'edited_timestamp': self.edited_timestamp,
             'tts': self.tts,
-            'mention_everyone': self.mention_everyone(self.content),
-            'mentions': self.mentions(self.content),
-            'mention_roles': self.mention_roles(self.content),
-            'mention_channels': self.mention_channels(self.content),
+            'mention_everyone': self.mentions_everyone(),
+            'mentions': self.mention(),
+            'mention_roles': self.mentions_roles(),
+            'mention_channels': self.mentions_channels(),
             'embeds': self.embeds,
             'attachments': self.attachments,
             'reactions': [reaction.serialize() for reaction in self.reactions],
@@ -98,21 +97,17 @@ class Message(Base):
             'reply': self.reply.serialize() if self.reply else None
         }
 
-    @hybrid_property
-    def guild_id(self):
-        return self.channel.guild_id
+    def mentions_everyone(self):
+        return '@everyone' in self.content
 
-    def mention_everyone(self, content):
-        return '@everyone' in content
+    def mention(self):
+        return re.findall(r'<@(\d+)>', self.content)
 
-    def mentions(self, content):
-        return re.findall(r'<@(\d+)>', content)
+    def mentions_roles(self):
+        return re.findall(r'<@&(\d+)>', self.content)
 
-    def mention_roles(self, content):
-        return re.findall(r'<@&(\d+)>', content)
-
-    def mention_channels(self, content):
-        return re.findall(r'<#(\d+)>', content)
+    def mentions_channels(self):
+        return re.findall(r'<#(\d+)>', self.content)
 
     def __init__(self,
                  content,
@@ -120,15 +115,15 @@ class Message(Base):
                  author_id,
                  tts=False,
                  embeds=None,
-                 attachments=None):
+                 attachments=None, guild_id=None):
         self.id = next(snowflake_id)
         self.content = content
         self.channel_id = channel_id
-        self.guild_id = self.channel.guild_id
+        self.guild_id = guild_id
         self.author_id = author_id
         self.tts = tts
         self.timestamp = datetime.utcnow()
-        self.mentions_everyone = self.mention_everyone(content)
+        self.mentions_everyone = self.mentions_everyone(content)
         self.mention = self.mentions(content)
         self.mention_role = self.mention_roles(content)
         self.mention_channel = self.mention_channels(content)

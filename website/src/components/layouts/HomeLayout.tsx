@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { DMChannelItem } from "../DMChannelItem";
 import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
+import { useChannelsStore } from "../../../stores/useChannelsStore";
 
 const Container = styled.div`
     display: flex;
@@ -23,6 +24,7 @@ const Container = styled.div`
 `;
 
 export const HomeLayout: React.FC = () => {
+    const privateChannels = useChannelsStore(state => state.privateChannels);
     return (
         <Container>
             <ServersBar />
@@ -56,11 +58,9 @@ export const HomeLayout: React.FC = () => {
                         </div>
                     }
                 >
-                    {Array(5)
-                        .fill(0)
-                        .map((_, index) => (
-                            <DMChannelItem key={index} text="Agnirudra Sil" />
-                        ))}
+                    {privateChannels.map(channel => (
+                        <DMChannelItem key={channel.id} text={channel.name} />
+                    ))}
                 </List>
             </ChannelBar>
         </Container>

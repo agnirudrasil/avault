@@ -1,36 +1,46 @@
+import produce from "immer";
 import create from "zustand";
 import { combine } from "zustand/middleware";
+import { useChannelsStore } from "./useChannelsStore";
+import { useRolesStore } from "./useRolesStore";
 
 export const useGuildsStore = create(
-    combine({ guilds: [] as any[] }, set => ({
-        setGuilds: (guilds: any) =>
+    combine({ ...({} as Record<string, any>) }, set => ({
+        setGuilds: (guilds: any[]) =>
             set(() => {
-                console.log("guilds", guilds);
-                return { guilds };
+                const guildsMap: Record<string, any> = {};
+                guilds.forEach(guild => {
+                    guildsMap[guild.id] = guild;
+                });
+                return guildsMap;
             }),
-        addGuilds: (guild: any) =>
-            set(({ guilds }) => ({ guilds: [...guilds, guild] })),
+        updateGuild: (guild: any) => {
+            set(state =>
+                produce(state, draft => {
+                    draft[guild.id] = guild;
+                })
+            );
+        },
+        addGuilds: (guild: any) => {
+            const addGuild = useChannelsStore.getState().addGuild;
+            const addRoles = useRolesStore.getState().addGuild;
+            addGuild(guild.id, guild.channels);
+            addRoles(guild.id, guild.roles);
+            return set(state =>
+                produce(state, draft => {
+                    draft[guild.id] = guild;
+                })
+            );
+        },
         removeGuild: (guildId: string) =>
-            set(({ guilds }) => {
-                return {
-                    guilds: guilds.filter(g => g.id !== guildId),
-                };
+            set(state => {
+                const deleteGuild = useChannelsStore.getState().deleteGuild;
+                const deleteRoles = useRolesStore.getState().deleteGuild;
+                deleteGuild(guildId);
+                deleteRoles(guildId);
+                return produce(state, draft => {
+                    delete draft.guilds[guildId];
+                });
             }),
-    }))
-);
-
-export const useChannelsStore = create(
-    combine({ channels: [] as any, currentChannel: {} as any }, set => ({
-        setCurrentChannel: (currentChannel: any) =>
-            set(() => ({
-                currentChannel: { ...currentChannel, unread: false },
-            })),
-        setChannels: (channels: any[]) =>
-            set(() => ({
-                channels: channels.map(channel => ({
-                    ...channel,
-                    unread: false,
-                })),
-            })),
     }))
 );

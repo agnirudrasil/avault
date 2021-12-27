@@ -24,8 +24,10 @@ const ListItemButton = styled(MuiListItemButton)`
 `;
 
 export const SettingsLayout: React.FC = ({ children }) => {
-    const guilds = useGuildsStore(state => state.guilds);
     const router = useRouter();
+    const guilds = useGuildsStore(
+        state => state[router.query.server_id as string]
+    );
     const { setRoute, route } = useRoutesStore();
 
     return (
@@ -60,13 +62,7 @@ export const SettingsLayout: React.FC = ({ children }) => {
                             <ListItemText
                                 primary={
                                     <Typography variant="button">
-                                        {
-                                            guilds.find(
-                                                (g: any) =>
-                                                    g.id ===
-                                                    router.query.server_id
-                                            )?.name
-                                        }
+                                        {guilds.name}
                                     </Typography>
                                 }
                             />

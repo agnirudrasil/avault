@@ -1,5 +1,7 @@
 import styled from "@emotion/styled";
 import { Tooltip } from "@mui/material";
+import { useChannelsStore } from "../../stores/useChannelsStore";
+import Link from "next/link";
 
 const ServerButton = styled.button<{ hoverColor?: string }>`
     background-color: #f1f1f1;
@@ -30,12 +32,18 @@ export const ServerItems: React.FC<{
     hoverColor?: string;
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => any;
     title?: string;
-}> = ({ children, hoverColor, onClick, title = "" }) => {
+    id: string;
+}> = ({ children, hoverColor, id, onClick, title = "" }) => {
+    const getFirstChannel = useChannelsStore(
+        state => state.getFirstGuildChannel
+    );
     return (
         <Tooltip title={title}>
-            <ServerButton onClick={onClick} hoverColor={hoverColor}>
-                {children}
-            </ServerButton>
+            <Link href={`/channels/${id}/${getFirstChannel(id)?.id ?? ""}`}>
+                <ServerButton onClick={onClick} hoverColor={hoverColor}>
+                    {children}
+                </ServerButton>
+            </Link>
         </Tooltip>
     );
 };

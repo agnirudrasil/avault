@@ -1,15 +1,14 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, Response, BackgroundTasks
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
-
 from api.api import deps
 from api.core.events import Events, websocket_emitter
 from api.crud import user
 from api.models.channels import Channel, ChannelType
 from api.models.guilds import GuildMembers
 from api.models.user import User
+from fastapi import APIRouter, Depends, Response, BackgroundTasks
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -110,7 +109,7 @@ def leave_guild(guild_id: int, response: Response, background_task: BackgroundTa
         db.commit()
         background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_MEMBER_REMOVE,
                                  guild_member.serialize())
-        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_DELETE, {'guild_id': guild_id},
+        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_DELETE, {'id': guild_id},
                                  current_user.id)
         return
     response.status_code = 404

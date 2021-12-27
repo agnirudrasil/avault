@@ -116,7 +116,7 @@ class Channel(Base):
     parent_id = Column(BigInteger, ForeignKey(
         'channels.id', ondelete="SET NULL"), nullable=True)
     members = relationship(
-        'User', secondary=channel_members, backref='channels_members')
+        'User', secondary=channel_members, backref='channel_members')
     overwrites = relationship('Overwrite', back_populates='channel')
     pinned_messages = relationship('PinnedMessages', back_populates='channel')
     thread_metadata = relationship('ThreadMetadata', back_populates='channel')
