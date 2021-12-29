@@ -66,12 +66,15 @@ class Message(Base):
     webhook = relationship('Webhook')
     reply = relationship('Message', remote_side=[id])
 
-    def serialize(self):
+    def serialize(self, current_user, db):
         author = None
         if self.webhook_id:
             author = self.webhook.get_author()
         else:
             author = self.author.serialize()
+        reactions_count = db.query(Reactions.reaction, func.count(Reactions.id),
+                                   func.bool_or(Reactions.user_id == current_user)).filter_by(
+            message_id=self.id).group_by(Reactions.reaction).all()
         return {
             'id': str(self.id),
             'channel_id': str(self.channel_id) if self.channel_id else None,
@@ -82,7 +85,8 @@ class Message(Base):
             'tts': self.tts,
             'embeds': self.embeds,
             'attachments': self.attachments,
-            'reactions': [reaction.serialize() for reaction in self.reactions],
+            'reactions': [{"emoji": reaction[0], "count": reaction[1], "me": reaction[2]} for reaction in
+                          reactions_count],
             'author': author,
             'reply': self.reply.serialize() if self.reply else None
         }

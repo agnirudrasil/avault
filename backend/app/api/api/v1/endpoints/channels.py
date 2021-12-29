@@ -41,28 +41,29 @@ class MessageBulkDelete(BaseModel):
         return v
 
 
-@router.get('/{channel_id}/messages', dependencies=[Depends(
-    deps.ChannelPerms([Permissions.VIEW_CHANNEL, Permissions.READ_MESSAGE_HISTORY])
-)])
+@router.get('/{channel_id}/messages')
 def get_messages(channel_id: int,
                  limit: int = 50,
                  before: Optional[int] = None,
                  after: Optional[int] = None,
+                 dependencies: tuple[Channel, User] = Depends(
+                     deps.ChannelPerms([Permissions.VIEW_CHANNEL, Permissions.READ_MESSAGE_HISTORY])),
                  db: Session = Depends(deps.get_db)) -> List[dict]:
+    _, user = dependencies
     if after:
         messages = db.query(Message).filter_by(channel_id=channel_id).filter(Message.id >= after).order_by(desc(
             Message.timestamp)).limit(limit).all()
-        return [message.serialize() for message in messages]
+        return [message.serialize(user.id, db) for message in messages]
 
     elif before:
         messages = db.query(Message).filter_by(channel_id=channel_id).filter(Message.id <= before).order_by(desc(
             Message.timestamp)).limit(limit).all()
-        return [message.serialize() for message in messages]
+        return [message.serialize(user.id, db) for message in messages]
 
     messages = db.query(Message).filter_by(channel_id=channel_id).order_by(desc(
         Message.timestamp)).limit(limit).all()
 
-    return [message.serialize() for message in messages]
+    return [message.serialize(user.id, db) for message in messages]
 
 
 @router.post('/{channel_id}/messages')
@@ -76,20 +77,22 @@ def create_message(channel_id: int,
     db.add(message)
     db.commit()
     background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.MESSAGE_CREATE,
-                             message.serialize())
-    return message.serialize()
+                             message.serialize(current_user.id, db))
+    return message.serialize(current_user.id, db)
 
 
 @router.get('/{channel_id}/messages/{message_id}',
-            dependencies=[Depends(deps.ChannelPerms(Permissions.READ_MESSAGE_HISTORY))])
+            dependencies=[])
 def get_message(channel_id: int,
                 message_id: int,
                 response: Response,
+                dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.VIEW_CHANNEL)),
                 db: Session = Depends(deps.get_db)) -> Union[dict[str, str], None]:
+    channel, user = dependencies
     message = db.query(Message).filter_by(
         id=message_id).filter_by(channel_id=channel_id).first()
     if message:
-        return message.serialize()
+        return message.serialize(user.id, db)
     response.status_code = 404
     return
 
@@ -154,8 +157,8 @@ async def edit_message(channel_id: int,
                 prev_message.edited_timestamp = datetime.utcnow()
             db.commit()
             background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.MESSAGE_UPDATE,
-                                     prev_message.serialize())
-            return prev_message.serialize()
+                                     prev_message.serialize(current_user.id, db))
+            return prev_message.serialize(current_user.id, db)
         response.status_code = 403
         return {"message": "Not authorized"}
     response.status_code = 404
@@ -452,12 +455,12 @@ def typing(channel_id: int,
 def get_pins(channel_id: int,
              db: Session = Depends(deps.get_db),
              dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.VIEW_CHANNEL))):
-    channel, _ = dependencies
+    channel, user = dependencies
     pins: list[PinnedMessages] = db.query(
         PinnedMessages).filter_by(channel_id=channel_id).all()
     if not pins:
         return []
-    return {[pin.message.serialize() for pin in pins]}
+    return {[pin.message.serialize(user.id, db) for pin in pins]}
 
 
 @router.put("/{channel_id}/pins/{message_id}")

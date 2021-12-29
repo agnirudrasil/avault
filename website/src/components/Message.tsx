@@ -12,15 +12,18 @@ import {
     Link,
     Tooltip,
     Popover,
+    Fade,
 } from "@mui/material";
 import { DefaultProfilePic } from "./DefaultProfilePic";
 import React, { useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { useEditMessage } from "../../hooks/requests/useMessageEdit";
 import { useDeleteMessage } from "../../hooks/requests/useMessageDelete";
-import { EmojiData, Picker } from "emoji-mart";
+import { Emoji, EmojiData, getEmojiDataFromNative, Picker } from "emoji-mart";
 import { useCreateReaction } from "../../hooks/requests/useCreateReaction";
-import { Messages } from "../../stores/useMessagesStore";
+import { Messages, Reactions } from "../../stores/useMessagesStore";
+import data from "emoji-mart/data/all.json";
+import { useDeleteReaction } from "../../hooks/requests/useDeleteReaction";
 
 const ToolBar: React.FC<{
     editFn: () => any;
@@ -28,6 +31,7 @@ const ToolBar: React.FC<{
     addReactionFn: (emoji: string) => any;
 }> = ({ editFn, deleteFn, addReactionFn }) => {
     const [open, setOpen] = useState<HTMLElement | null>(null);
+
     const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
         setOpen(e.currentTarget);
     };
@@ -129,6 +133,7 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
             router.query.channel as string
         );
         const { mutateAsync } = useCreateReaction();
+        const { mutateAsync: deleteReaction } = useDeleteReaction();
 
         const editFn = (messageId: string, content: string) => {
             mutate({
@@ -139,6 +144,14 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
         };
         const deleteFn = (messageId: string) => {
             mutateDelete({ messageId });
+        };
+
+        const deleteReactionFn = async (emoji: string) => {
+            await deleteReaction({
+                message_id: message.id,
+                emoji,
+                channel_id: router.query.channel as string,
+            });
         };
 
         const addReactionFn = async (emoji: string) => {
@@ -227,20 +240,12 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
                         ) : (
                             <ListItemText
                                 secondary={message.reactions.map(reaction => (
-                                    <span
-                                        style={{
-                                            margin: "0.2rem",
-                                            padding: "0.25rem",
-                                            borderRadius: "5px",
-                                            cursor: "pointer",
-                                            border: "1px solid #ccc",
-                                            backgroundColor: reaction.me
-                                                ? "#55ddff61"
-                                                : "white",
-                                        }}
-                                    >
-                                        {reaction.emoji} {reaction.count}
-                                    </span>
+                                    <Reaction
+                                        reaction={reaction}
+                                        key={reaction.emoji}
+                                        addReactionFn={addReactionFn}
+                                        deleteFn={deleteReactionFn}
+                                    />
                                 ))}
                                 primary={
                                     <Typography>
@@ -349,25 +354,17 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
                                             </Typography>
                                         </div>
                                     ) : (
-                                        <Typography>
+                                        <Typography color="ButtonText">
                                             {message.content}
                                         </Typography>
                                     )}
                                     {message.reactions.map(reaction => (
-                                        <span
-                                            style={{
-                                                padding: "0.25rem",
-                                                margin: "0.2rem",
-                                                borderRadius: "5px",
-                                                cursor: "pointer",
-                                                border: "1px solid #ccc",
-                                                backgroundColor: reaction.me
-                                                    ? "#55ddff61"
-                                                    : "white",
-                                            }}
-                                        >
-                                            {reaction.emoji} {reaction.count}
-                                        </span>
+                                        <Reaction
+                                            reaction={reaction}
+                                            key={reaction.emoji}
+                                            addReactionFn={addReactionFn}
+                                            deleteFn={deleteReactionFn}
+                                        />
                                     ))}
                                 </div>
                             }
@@ -377,3 +374,46 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
             </>
         );
     };
+
+const Reaction: React.FC<{
+    reaction: Reactions;
+    deleteFn: (emoji: string) => any;
+    addReactionFn: (emoji: string) => any;
+}> = ({ reaction, deleteFn, addReactionFn }) => {
+    const handleClick = () => {
+        if (reaction.me) {
+            deleteFn(reaction.emoji);
+        } else {
+            addReactionFn(reaction.emoji);
+        }
+    };
+
+    return (
+        <Fade in={true}>
+            <Button
+                variant="outlined"
+                startIcon={
+                    <Emoji
+                        emoji={getEmojiDataFromNative(
+                            reaction.emoji,
+                            "twitter",
+                            data
+                        )}
+                        set="twitter"
+                        size={16}
+                    />
+                }
+                onClick={handleClick}
+                size="small"
+                style={{
+                    backgroundColor: reaction.me ? "#55ddff61" : "white",
+                    verticalAlign: "middle",
+                    padding: "0.01rem",
+                    marginRight: "0.2rem",
+                }}
+            >
+                {reaction.count}
+            </Button>
+        </Fade>
+    );
+};

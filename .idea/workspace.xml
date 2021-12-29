@@ -7,33 +7,7 @@
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/gifs.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/gifs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/invites.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/invites.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/events.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/events.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/guilds.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/guilds.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/models/messages.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/messages.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/roles.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/roles.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useEditRole.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useEditRole.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useMessageCreate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useMessageCreate.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useMessages.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useMessages.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ChannelLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ChannelLayout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/MarkdownEditor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/MarkdownEditor.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/Message.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/Message.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/MessageBox.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/MessageBox.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ServerBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ServerBar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ServerItems.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ServerItems.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/dialogs/CreateInviteDialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/dialogs/CreateInviteDialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/layouts/ServerLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/layouts/ServerLayout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/routes/ChannelIndex.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/routes/ChannelIndex.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/routes/SettingsRoles.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/routes/SettingsRoles.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/stores/useGuildsStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useGuildsStore.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/stores/useMessagesStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useMessagesStore.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -115,7 +89,7 @@
       <command value="yarn run dev" />
     </option>
   </component>
-  <component name="RunManager" selected="FastAPI.Backend">
+  <component name="RunManager" selected="npm.dev">
     <configuration name="Backend" type="Python.FastAPI">
       <option name="additionalOptions" value="--reload --reload-dir $PROJECT_DIR$/backend/app" />
       <option name="file" value="$PROJECT_DIR$/backend/app/api/main.py" />
@@ -215,7 +189,9 @@
       <workItem from="1640749450569" duration="80000" />
       <workItem from="1640749770632" duration="2361000" />
       <workItem from="1640756054076" duration="169000" />
-      <workItem from="1640756250617" duration="3559000" />
+      <workItem from="1640756250617" duration="4071000" />
+      <workItem from="1640779318334" duration="333000" />
+      <workItem from="1640779689133" duration="2218000" />
     </task>
     <servers />
   </component>
@@ -244,6 +220,6 @@
     <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1640759492106" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1640781250444" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>
