@@ -1,6 +1,7 @@
 import produce from "immer";
 import create from "zustand";
 import { combine } from "zustand/middleware";
+import { messages } from "../hooks/requests/useMessages";
 import { useUserStore } from "./useUserStore";
 
 export interface Reactions {
@@ -40,16 +41,28 @@ export const useMessagesStore = create(
         {
             ...({} as Record<string, Messages[]>),
         },
-        set => ({
+        (set, get) => ({
+            getChannelMessages: async (channelId: string) => {
+                if (!get()[channelId]) {
+                    const data = await messages({ queryKey: ["", channelId] });
+                    set(state =>
+                        produce(state, draft => {
+                            draft[channelId] = data;
+                        })
+                    );
+                }
+            },
             setMessages: (messages: Record<string, Messages[]>) =>
                 set(() => messages),
             addMessage: (message: Messages) =>
                 set(state =>
                     produce(state, draft => {
-                        draft[message.channel_id] = [
-                            message,
-                            ...draft[message.channel_id],
-                        ];
+                        if (draft[message.channel_id]) {
+                            draft[message.channel_id] = [
+                                message,
+                                ...draft[message.channel_id],
+                            ];
+                        }
                     })
                 ),
             deleteBulkMessages: (data: {

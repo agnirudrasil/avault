@@ -8,7 +8,6 @@ import {
     Divider,
     IconButton,
     InputAdornment,
-    LinearProgress,
     List,
     ListItem,
     ListItemButton,
@@ -24,7 +23,7 @@ import {
 } from "@mui/material";
 import produce from "immer";
 import { useRouter } from "next/router";
-import { SyntheticEvent, useEffect, useState } from "react";
+import { SyntheticEvent, useState } from "react";
 import {
     DragDropContext,
     Draggable,
@@ -36,8 +35,6 @@ import { useCreateRoles } from "../../hooks/requests/useCreateRole";
 import { useDeleteRole } from "../../hooks/requests/useDeleteRole";
 import { useEditRole } from "../../hooks/requests/useEditRole";
 import { useGetPermissions } from "../../hooks/requests/useGetPermissions";
-import { useGetRole } from "../../hooks/requests/useGetRole";
-import { useGetRoles } from "../../hooks/requests/useGetRoles";
 import { useUnsaved } from "../../hooks/useUnsaved";
 import { Roles, useRolesStore } from "../../stores/useRolesStore";
 import { ColorPicker } from "../components/ColorPicker";
@@ -306,7 +303,7 @@ export const RolesDisplay: React.FC<{
     const [value, setValue] = useState(guildId === roleId ? 1 : 0);
     const { ogData, setOgdata, handleReset, unsaved } = useUnsaved(role);
 
-    const saveFn = async (data: Object) => {
+    const saveFn = async (data: any) => {
         await mutateAsync(data);
         updateRole(guildId, data);
     };
@@ -327,10 +324,6 @@ export const RolesDisplay: React.FC<{
     const handleChange = (_: SyntheticEvent, newValue: number) => {
         setValue(newValue);
     };
-
-    useEffect(() => {
-        console.log(permissions);
-    }, [permissions]);
 
     return (
         <div

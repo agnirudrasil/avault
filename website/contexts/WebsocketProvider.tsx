@@ -91,7 +91,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                         capabilities: 125,
                     });
                 } catch (e) {
-                    console.log(e);
+                    console.error(e);
                 }
             });
             socket.once("READY", (data: any) => {

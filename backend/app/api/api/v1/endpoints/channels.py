@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
+import sqlalchemy.exc
 from fastapi import APIRouter, Depends, Response, BackgroundTasks
 from pydantic import BaseModel, root_validator
 from sqlalchemy import desc
@@ -47,21 +48,21 @@ def get_messages(channel_id: int,
                  limit: int = 50,
                  before: Optional[int] = None,
                  after: Optional[int] = None,
-                 db: Session = Depends(deps.get_db)) -> dict[str, list]:
+                 db: Session = Depends(deps.get_db)) -> List[dict]:
     if after:
         messages = db.query(Message).filter_by(channel_id=channel_id).filter(Message.id >= after).order_by(desc(
             Message.timestamp)).limit(limit).all()
-        return {"messages": [message.serialize() for message in messages]}
+        return [message.serialize() for message in messages]
 
     elif before:
         messages = db.query(Message).filter_by(channel_id=channel_id).filter(Message.id <= before).order_by(desc(
             Message.timestamp)).limit(limit).all()
-        return {"messages": [message.serialize() for message in messages]}
+        return [message.serialize() for message in messages]
 
     messages = db.query(Message).filter_by(channel_id=channel_id).order_by(desc(
         Message.timestamp)).limit(limit).all()
 
-    return {"messages": [message.serialize() for message in messages]}
+    return [message.serialize() for message in messages]
 
 
 @router.post('/{channel_id}/messages')
@@ -69,7 +70,7 @@ def create_message(channel_id: int,
                    body: MessageCreate,
                    background_task: BackgroundTasks,
                    dependency: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES)),
-                   db: Session = Depends(lambda: deps.get_db())) -> dict:
+                   db: Session = Depends(deps.get_db)) -> dict:
     channel, current_user = dependency
     message = Message(body.content.strip(), channel_id, current_user.id)
     db.add(message)
@@ -88,7 +89,7 @@ def get_message(channel_id: int,
     message = db.query(Message).filter_by(
         id=message_id).filter_by(channel_id=channel_id).first()
     if message:
-        return {"message": message.serialize()}
+        return message.serialize()
     response.status_code = 404
     return
 
@@ -110,7 +111,8 @@ async def delete_message(channel_id: int,
             db.commit()
             response.status_code = 204
             background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.MESSAGE_DELETE,
-                                     {"id": message.id, "channel_id": channel.id, 'guild_id': channel.guild_id})
+                                     {"id": str(message.id), "channel_id": str(channel.id),
+                                      'guild_id': str(channel.guild_id)})
             return
         response.status_code = 401
         return {"message": "Not authorized"}
@@ -127,7 +129,8 @@ def bulk_delete_messages(channel_id: int, body: MessageBulkDelete, background_ta
 
     channel, user = dependencies
     background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.MESSAGE_DELETE_BULK,
-                             {"ids": body.messages, "channel_id": channel.id, 'guild_id': channel.guild_id})
+                             {"ids": map(str, body.messages), "channel_id": str(channel.id),
+                              'guild_id': str(channel.guild_id)})
     return
 
 
@@ -148,11 +151,11 @@ async def edit_message(channel_id: int,
         if prev_message.author_id == current_user.id or await perm_checker.is_valid(channel, current_user, db):
             if message.content.strip() and prev_message.author_id == current_user.id:
                 prev_message.content = message.content.strip()
-                prev_message.edited_timestamp = datetime.now()
+                prev_message.edited_timestamp = datetime.utcnow()
             db.commit()
             background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.MESSAGE_UPDATE,
                                      prev_message.serialize())
-            return {"message": prev_message.serialize()}
+            return prev_message.serialize()
         response.status_code = 403
         return {"message": "Not authorized"}
     response.status_code = 404
@@ -162,40 +165,44 @@ async def edit_message(channel_id: int,
 async def create_reaction_with_perms(permission, channel, current_user, db, background_task, message, emoji):
     perms_checker = deps.ChannelPerms(permission)
     if await perms_checker.is_valid(channel, current_user, db):
-        reaction = Reactions(emoji, current_user.id)
-        message.reactions.append(reaction)
-        db.add(message)
-        db.commit()
-        background_task.add_task(websocket_emitter, channel.id, channel.guild_id, Events.MESSAGE_REACTION_ADD, {
-            'user_id': current_user.id,
-            'channel_id': channel.id,
-            'message_id': message.id,
-            'guild_id': channel.guild_id,
-            'emoji': emoji,
-        })
+        try:
+            reaction = Reactions(emoji, current_user.id)
+            message.reactions.append(reaction)
+            db.add(message)
+            db.commit()
+            background_task.add_task(websocket_emitter, channel.id, channel.guild_id, Events.MESSAGE_REACTION_ADD, {
+                'user_id': str(current_user.id),
+                'channel_id': str(channel.id),
+                'message_id': str(message.id),
+                'guild_id': str(channel.guild_id),
+                'emoji': emoji,
+            })
+        except sqlalchemy.exc.IntegrityError:
+            pass
     else:
         raise ValueError("Unauthorized")
 
 
-@router.put('/{channel_id}/message/{message_id}/reactions/{emoji}/@me')
+@router.put('/{channel_id}/message/{message_id}/reactions/{emoji}/@me', status_code=204)
 async def create_reaction(channel_id: int, message_id: int, emoji: str,
                           background_task: BackgroundTasks,
                           db: Session = Depends(deps.get_db),
-                          current_user: User = Depends(deps.get_current_user)) -> Response:
-    message: Message = db.query(Message).filter_by(
-        id=message_id).filter_by(channel_id=channel_id).first()
+                          current_user: User = Depends(deps.get_current_user)) -> Optional[Response]:
+    message: Message = db.query(Message).filter_by(id=message_id).filter_by(channel_id=channel_id).first()
     channel: Channel = db.query(Channel).filter_by(id=channel_id).first()
     if message:
         if len(message.reactions) == 0:
             try:
                 await create_reaction_with_perms(Permissions.ADD_REACTIONS, channel, current_user, db, background_task,
                                                  message, emoji)
+                return
             except ValueError:
                 return Response(status_code=403)
         else:
             try:
                 await create_reaction_with_perms(Permissions.VIEW_CHANNEL, channel, current_user, db, background_task,
                                                  message, emoji)
+                return
             except ValueError:
                 return Response(status_code=403)
 
@@ -218,10 +225,10 @@ def delete_reaction(channel_id: int, message_id: int, emoji: str, background_tas
             db.delete(reaction)
             background_task.add_task(websocket_emitter, channel_id, message.channel.guild_id,
                                      Events.MESSAGE_REACTION_REMOVE, {
-                                         'user_id': current_user.id,
-                                         'channel_id': channel_id,
-                                         'message_id': message_id,
-                                         'guild_id': channel.guild_id,
+                                         'user_id': str(current_user.id),
+                                         'channel_id': str(channel_id),
+                                         'message_id': str(message_id),
+                                         'guild_id': str(channel.guild_id),
                                          'emoji': emoji,
                                      })
         db.commit()
@@ -247,10 +254,10 @@ def delete_reaction_by_user(channel_id: int, message_id: int, emoji: str,
             db.delete(reaction)
             background_task.add_task(
                 websocket_emitter, channel_id, message.channel.guild_id, Events.MESSAGE_REACTION_REMOVE, {
-                    'user_id': user_id,
-                    'channel_id': channel_id,
-                    'message_id': message_id,
-                    'guild_id': channel.guild_id,
+                    'user_id': str(user_id),
+                    'channel_id': str(channel_id),
+                    'message_id': str(message_id),
+                    'guild_id': str(channel.guild_id),
                     'emoji': emoji,
                 })
             db.commit()
@@ -283,9 +290,9 @@ def delete_all_reactions(channel_id: int, message_id: int, background_task: Back
             message_id=message_id).delete(synchronize_session=False)
         background_task.add_task(websocket_emitter, channel_id, message.channel.guild_id,
                                  Events.MESSAGE_REACTION_REMOVE_ALL, {
-                                     'channel_id': channel_id,
-                                     'guild_id': channel.guild_id,
-                                     'message_id': message_id
+                                     'channel_id': str(channel_id),
+                                     'guild_id': str(channel.guild_id),
+                                     'message_id': str(message_id)
                                  })
         db.commit()
         return Response(status_code=204)
@@ -306,9 +313,9 @@ def delete_all_reactions_with_same_emoji(channel_id: int, message_id: int, emoji
             message_id=message_id).filter_by(reaction=emoji).delete(synchronize_session=False)
         background_task.add_task(websocket_emitter, channel_id, message.channel.guild_id,
                                  Events.MESSAGE_REACTION_REMOVE_EMOJI, {
-                                     'channel_id': channel_id,
-                                     'guild_id': channel.guild_id,
-                                     'message_id': message_id,
+                                     'channel_id': str(channel_id),
+                                     'guild_id': str(channel.guild_id),
+                                     'message_id': str(message_id),
                                      'emoji': emoji
                                  })
         db.commit()
@@ -433,10 +440,10 @@ def typing(channel_id: int,
            dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES))):
     channel, user = dependencies
     background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.TYPING_START, {
-        'channel_id': channel_id,
-        'guild_id': channel.guild_id,
-        'user_id': user.id,
-        'timestamp': round(datetime.now()),
+        'channel_id': str(channel_id),
+        'guild_id': str(channel.guild_id),
+        'user_id': str(user.id),
+        'timestamp': str(datetime.now()),
     })
     return
 
@@ -466,8 +473,8 @@ def pin_message(channel_id: int, message_id: int,
             channel.pinned_messages.append(message)
             db.commit()
             background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.CHANNEL_PINS_UPDATE, {
-                'guild_id': channel.guild_id,
-                'channel_id': channel.id,
+                'guild_id': str(channel.guild_id),
+                'channel_id': str(channel.id),
             })
             return Response(status_code=204)
         return Response(status_code=403)
@@ -486,8 +493,8 @@ def unpin_message(channel_id: int, message_id: int,
         channel.pinned_messages.remove(message)
         db.commit()
         background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.CHANNEL_PINS_UPDATE, {
-            'guild_id': channel.guild_id,
-            'channel_id': channel.id,
+            'guild_id': str(channel.guild_id),
+            'channel_id': str(channel.id),
         })
         return Response(status_code=204)
     return Response(status_code=404)
@@ -547,7 +554,7 @@ def create_webhook(channel_id: int,
     channel.webhooks.append(webhook)
     db.commit()
     background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.WEBHOOKS_UPDATE, {
-        'guild_id': channel.guild_id,
-        'channel_id': channel.id,
+        'guild_id': str(channel.guild_id),
+        'channel_id': str(channel.id),
     })
     return webhook.serialize()

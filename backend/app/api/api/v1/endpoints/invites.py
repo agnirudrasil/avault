@@ -27,8 +27,8 @@ def delete_invite(code: str, background_tasks: BackgroundTasks, invite: Invite =
     db.delete(invite)
     db.commit()
     background_tasks.add_task(websocket_emitter, invite.channel_id, invite.channel.guild_id, Events.INVITE_DELETE, {
-        'channel_id': invite.channel_id,
-        'guild': invite.channel.guild_id,
+        'channel_id': str(invite.channel_id),
+        'guild': str(invite.channel.guild_id),
         'code': code
     })
     return {'success': True}

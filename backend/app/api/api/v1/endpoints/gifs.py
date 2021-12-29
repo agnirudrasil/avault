@@ -1,16 +1,16 @@
 import enum
+import urllib.parse
 from typing import Optional
-from xml.dom import ValidationErr
-from api.core.config import settings
-from api.models.user import User
-from fastapi import APIRouter, Query
-from api.api import deps
-from api.core import http_session
+
+from fastapi import APIRouter
 from fastapi.param_functions import Depends
 from pydantic import ValidationError
 from pydantic.main import BaseModel
-import urllib.parse
 
+from api.api import deps
+from api.core import http_session
+from api.core.config import settings
+from api.models.user import User
 
 router = APIRouter()
 
@@ -113,7 +113,7 @@ async def get_trending_gifs(
         json = await response.json()
 
         response_obj = [make_response(result, media_type)
-                        for result in json['results']]
+                        for result in json.get('results', [])]
 
         return response_obj
 
@@ -121,11 +121,11 @@ async def get_trending_gifs(
 @router.get("/suggest")
 async def get_search_suggestions(q: str, locale: str = "en_US", limit: int = 5):
     async with http_session.get(f"{settings.TENOR_BASE_URL}/search_suggestions?" + urllib.parse.urlencode({
-        "key": settings.TENOR_API_KEY, 
+        "key": settings.TENOR_API_KEY,
         "q": q,
         "locale": locale,
         "limit": limit
     })) as response:
         json = await response.json()
 
-        return json['results']
+        return json.get('results', [])

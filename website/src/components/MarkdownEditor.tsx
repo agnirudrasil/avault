@@ -547,7 +547,6 @@ export const MarkdownEditor = () => {
                     emojiTooltip
                     custom={customEmojis}
                     onSelect={emoji => {
-                        console.log(emoji);
                         insertEmoji(editor, emoji);
                         setAnchorEl(null);
                     }}

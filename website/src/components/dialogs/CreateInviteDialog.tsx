@@ -1,4 +1,4 @@
-import {LoadingButton} from "@mui/lab";
+import { LoadingButton } from "@mui/lab";
 import {
     Button,
     Dialog,
@@ -12,11 +12,12 @@ import {
     Select,
     TextField,
 } from "@mui/material";
-import {useRouter} from "next/router";
-import {useState} from "react";
-import {useCreateInvite} from "../../../hooks/requests/useCreateInvite";
-import {useGuildsStore} from "../../../stores/useGuildsStore";
-import {CopyButton} from "../Form/CopyButton";
+import { useRouter } from "next/router";
+import { useState } from "react";
+import { useCreateInvite } from "../../../hooks/requests/useCreateInvite";
+import { useChannelsStore } from "../../../stores/useChannelsStore";
+import { useGuildsStore } from "../../../stores/useGuildsStore";
+import { CopyButton } from "../Form/CopyButton";
 
 export interface CreateInviteDialogProps {
     channel_id?: string;
@@ -25,26 +26,23 @@ export interface CreateInviteDialogProps {
 }
 
 export const CreateInviteDialog: React.FC<CreateInviteDialogProps> = ({
-                                                                          channel_id,
-                                                                          open,
-                                                                          handleClose,
-                                                                      }) => {
-    const guilds = useGuildsStore(state => state.guilds);
+    channel_id,
+    open,
+    handleClose,
+}) => {
+    const router = useRouter();
+    const guilds = useGuildsStore(
+        state => state[router.query.server_id as string]
+    );
+    const channel = useChannelsStore(state => state.getFirstGuildChannel);
     const [max_uses, setMaxUses] = useState(0);
     const [max_age, setMaxAge] = useState(86400);
-    const {data, mutate, isLoading} = useCreateInvite();
-    const router = useRouter();
-    channel_id =
-        channel_id ||
-        guilds.find(({id}) => id === router.query.server_id)?.first_channel;
+    const { data, mutate, isLoading } = useCreateInvite();
+    channel_id = channel_id || channel(guilds.id)?.id;
 
     return (
         <Dialog fullWidth maxWidth="xs" open={open} onClose={handleClose}>
-            <DialogTitle>
-                Invite people to{" "}
-                {guilds.find(({id}) => id === router.query.server_id)?.name ||
-                    ""}
-            </DialogTitle>
+            <DialogTitle>Invite people to {guilds.name || ""}</DialogTitle>
             <DialogContent
                 sx={{
                     display: "flex",
@@ -54,7 +52,7 @@ export const CreateInviteDialog: React.FC<CreateInviteDialogProps> = ({
                     justifyContent: "center",
                 }}
             >
-                <FormControl sx={{marginTop: "1rem"}} fullWidth>
+                <FormControl sx={{ marginTop: "1rem" }} fullWidth>
                     <InputLabel id="max-age-lable">Expire After</InputLabel>
                     <Select
                         labelId="max-age-lable"
@@ -96,9 +94,9 @@ export const CreateInviteDialog: React.FC<CreateInviteDialogProps> = ({
                     disabled={!data}
                     value={
                         data
-                            ? `${
-                                process.env.NEXT_PUBLIC_API_URL
-                            }/join/${(data as any)?.id}`
+                            ? `${process.env.NEXT_PUBLIC_API_URL}/join/${
+                                  (data as any)?.id
+                              }`
                             : ""
                     }
                     InputProps={{
@@ -113,7 +111,7 @@ export const CreateInviteDialog: React.FC<CreateInviteDialogProps> = ({
                             </InputAdornment>
                         ),
                     }}
-                    inputProps={{readOnly: true}}
+                    inputProps={{ readOnly: true }}
                 />
             </DialogContent>
             <DialogActions>

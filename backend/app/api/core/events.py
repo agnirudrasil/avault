@@ -1,12 +1,11 @@
 import enum
 from typing import Optional
 
+from sqlalchemy import func, or_, and_
+
 from api import models
 from api.api.deps import get_db
 from api.core import emitter
-from sqlalchemy import or_, func
-
-from .permissions import Permissions
 
 
 class Events(str, enum.Enum):
@@ -70,14 +69,15 @@ def get_recipients(event: Events, guild_id: Optional[int] = None, channel_id: Op
     if event in SPECIAL_EVENTS:
         if not guild_id:
             return get_dm_channel_recipients(db, channel_id)
-        recipients = db.query(models.GuildMembers).filter_by(guild_id=guild_id).filter(
-            or_(models.GuildMembers.is_owner,
-                models.GuildMembers.permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR,
-                func.compute_channel_overwrites(
-                    models.GuildMembers.permissions,
-                    guild_id,
-                    models.GuildMembers.user_id,
-                    channel_id) & Permissions.VIEW_CHANNEL == Permissions.VIEW_CHANNEL))
+        recipients = db.query(models.GuildMembers).filter(
+            and_(models.GuildMembers.guild_id == guild_id,
+                 or_(models.GuildMembers.is_owner,
+                     models.GuildMembers.permissions.op('&')(8) == 8,
+                     func.compute_channel_overwrites(
+                         models.GuildMembers.permissions,
+                         guild_id,
+                         models.GuildMembers.user_id,
+                         channel_id).op('&')(1024) == 1024))).all()
         return [str(recipient.user_id) for recipient in recipients]
     else:
         if guild_id:
@@ -87,5 +87,4 @@ def get_recipients(event: Events, guild_id: Optional[int] = None, channel_id: Op
 
 async def websocket_emitter(channel_id: int, guild_id: int, event: Events, args, user_id: int = None):
     my_recipients = get_recipients(event, guild_id, channel_id, user_id)
-    print(my_recipients)
     await emitter.to(my_recipients).emit(event, args)

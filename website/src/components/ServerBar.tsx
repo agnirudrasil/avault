@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { Add } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
-import Router from "next/router";
+import Router, { useRouter } from "next/router";
 import { useState } from "react";
 import { useGuildsStore } from "../../stores/useGuildsStore";
 import { CreateServerDialog } from "./dialogs/CreateServerDialog";
@@ -34,18 +34,22 @@ const getGuildInitials = (name: string) =>
 
 export const ServersBar: React.FC = () => {
     const [open, setOpen] = useState(false);
+    const router = useRouter();
     const guilds = useGuildsStore();
     const handleClickOpen = () => {
         setOpen(true);
     };
-    console.log(guilds);
     const handleClose = () => {
         setOpen(false);
     };
 
     return (
         <Container>
-            <ServerItems id="" onClick={() => Router.replace("/channels/@me")}>
+            <ServerItems
+                id=""
+                selected={router.asPath === "/channels/@me"}
+                onClick={() => Router.replace("/channels/@me")}
+            >
                 <img style={{ width: "90%" }} src="/logo-black.png" />
             </ServerItems>
             <Separator />
@@ -57,6 +61,7 @@ export const ServersBar: React.FC = () => {
                             title={guild.name ?? ""}
                             key={guild.id}
                             id={guild.id}
+                            selected={guild.id === router.query.server_id}
                         >
                             {getGuildInitials(guild.name ?? "")}
                         </ServerItems>

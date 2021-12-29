@@ -2,23 +2,22 @@ import json
 from asyncio import AbstractEventLoop
 
 import aio_pika
-from itsdangerous import json
-from jose import jwt
-from pydantic import ValidationError
-from sqlalchemy.orm import Session
-
 from api import models
 from api.api.deps import get_db
 from api.core import emitter
 from api.core.security import verify_jwt
 from api.models.user import User
+from itsdangerous import json
+from jose import jwt
+from pydantic import ValidationError
+from sqlalchemy.orm import Session
 
 
 async def handle_message(message):
     msgobj = json.loads(message)
     if msgobj["event"] == "IDENTIFY":
         try:
-            data = verify_jwt(msgobj["token"])
+            data = verify_jwt(msgobj.get("token", ""))
             socket_id = msgobj["id"]
             db: Session = next(get_db())
             user: User = db.query(models.User).filter_by(id=data.sub).first()

@@ -1,4 +1,3 @@
-import secrets
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import AnyHttpUrl, BaseSettings, HttpUrl, PostgresDsn, validator
@@ -13,7 +12,7 @@ class Settings(BaseSettings):
     SERVER_NAME: str = "localhost:5000"
     SERVER_HOST: AnyHttpUrl = "http://localhost:5000"
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ['http://localhost:3000']
-    TENOR_API_KEY: str = ""
+    TENOR_API_KEY: str = "ZXOQ05LGC2I9"
     TENOR_BASE_URL: str = "https://g.tenor.com/v1"
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
@@ -52,7 +51,7 @@ class Settings(BaseSettings):
         )
 
     class Config:
-        env_file = ".env"
+        # env_file = ".env"
         case_sensitive = True
 
 

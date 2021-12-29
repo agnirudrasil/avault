@@ -3,11 +3,12 @@ import { Tooltip } from "@mui/material";
 import { useChannelsStore } from "../../stores/useChannelsStore";
 import Link from "next/link";
 
-const ServerButton = styled.button<{ hoverColor?: string }>`
-    background-color: #f1f1f1;
+const ServerButton = styled.button<{ hoverColor?: string; selected?: boolean }>`
+    background-color: ${({ hoverColor, selected }) =>
+        selected ? hoverColor ?? "#5865f2" : "#f1f1f1"};
     border: none;
-    border-radius: 50px;
-    color: #333;
+    border-radius: ${({ selected }) => (selected ? "10px" : "50px")};
+    color: ${({ selected }) => (selected ? "white" : "#333")};
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
@@ -33,14 +34,19 @@ export const ServerItems: React.FC<{
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => any;
     title?: string;
     id: string;
-}> = ({ children, hoverColor, id, onClick, title = "" }) => {
+    selected?: boolean;
+}> = ({ children, hoverColor, id, onClick, selected, title = "" }) => {
     const getFirstChannel = useChannelsStore(
         state => state.getFirstGuildChannel
     );
     return (
         <Tooltip title={title}>
             <Link href={`/channels/${id}/${getFirstChannel(id)?.id ?? ""}`}>
-                <ServerButton onClick={onClick} hoverColor={hoverColor}>
+                <ServerButton
+                    selected={selected}
+                    onClick={onClick}
+                    hoverColor={hoverColor}
+                >
                     {children}
                 </ServerButton>
             </Link>

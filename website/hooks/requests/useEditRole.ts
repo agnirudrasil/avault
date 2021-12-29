@@ -6,7 +6,6 @@ export const editRole = async (
     roleId: string,
     data: Object
 ) => {
-    console.log(data);
     const res = await request(
         `${process.env.NEXT_PUBLIC_API_URL}/guilds/${guildId}/roles/${roleId}`,
         {

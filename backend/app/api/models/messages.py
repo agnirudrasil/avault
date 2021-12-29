@@ -1,12 +1,13 @@
 import re
 from datetime import datetime
 
+from sqlalchemy import Column, ForeignKey, String, DateTime, Boolean, UniqueConstraint, func, BigInteger, Text
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship
+
 from api.core.security import snowflake_id
 from api.db.base_class import Base
 from api.models.channels import Channel
-from sqlalchemy import Column, ForeignKey, String, DateTime, Boolean, UniqueConstraint, func, BigInteger, Text
-from sqlalchemy.dialects.postgresql import JSONB, ARRAY
-from sqlalchemy.orm import relationship
 
 
 class Reactions(Base):
@@ -46,8 +47,6 @@ class Message(Base):
     id = Column(BigInteger, primary_key=True)
     channel_id = Column(BigInteger, ForeignKey(
         'channels.id', ondelete='CASCADE'), nullable=False)
-    guild_id = Column(BigInteger, ForeignKey(
-        'guilds.id', ondelete='CASCADE'))
     author_id = Column(BigInteger, ForeignKey(
         'users.id', ondelete="SET NULL"))
     webhook_id = Column(BigInteger, ForeignKey(
@@ -59,10 +58,6 @@ class Message(Base):
         'messages.id', ondelete="SET NULL"))
     edited_timestamp = Column(DateTime)
     tts = Column(Boolean, nullable=False, default=False)
-    mention_everyone = Column(Boolean, nullable=False, default=False)
-    mentions = Column(ARRAY(BigInteger))
-    mention_roles = Column(ARRAY(BigInteger))
-    mention_channels = Column(ARRAY(BigInteger))
     embeds = Column(JSONB)
     attachments = Column(JSONB)
     reactions = relationship('Reactions', back_populates='message')
@@ -80,16 +75,11 @@ class Message(Base):
         return {
             'id': str(self.id),
             'channel_id': str(self.channel_id) if self.channel_id else None,
-            'guild_id': str(self.guild_id) if self.guild_id else None,
             'author_id': str(self.author_id) if self.author_id else None,
             'content': self.content,
             'timestamp': self.timestamp.isoformat(),
-            'edited_timestamp': self.edited_timestamp,
+            'edited_timestamp': self.edited_timestamp.isoformat() if self.edited_timestamp else None,
             'tts': self.tts,
-            'mention_everyone': self.mentions_everyone(),
-            'mentions': self.mention(),
-            'mention_roles': self.mentions_roles(),
-            'mention_channels': self.mentions_channels(),
             'embeds': self.embeds,
             'attachments': self.attachments,
             'reactions': [reaction.serialize() for reaction in self.reactions],
@@ -115,17 +105,17 @@ class Message(Base):
                  author_id,
                  tts=False,
                  embeds=None,
-                 attachments=None, guild_id=None):
+                 attachments=None):
         self.id = next(snowflake_id)
         self.content = content
         self.channel_id = channel_id
-        self.guild_id = guild_id
         self.author_id = author_id
         self.tts = tts
+        self.edited_timestamp = None
         self.timestamp = datetime.utcnow()
-        self.mentions_everyone = self.mentions_everyone(content)
-        self.mention = self.mentions(content)
-        self.mention_role = self.mention_roles(content)
-        self.mention_channel = self.mention_channels(content)
+        self.mentions_everyone = self.mentions_everyone()
+        self.mention = self.mention()
+        self.mention_role = self.mentions_roles()
+        self.mention_channel = self.mentions_channels()
         self.embeds = embeds
         self.attachments = attachments

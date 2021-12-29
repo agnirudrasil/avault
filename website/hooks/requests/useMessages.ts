@@ -4,7 +4,7 @@ import { useMessagesStore } from "../../stores/useMessagesStore";
 
 export const messages = async ({ queryKey }: { queryKey: string[] }) => {
     const data = await request(
-        `${process.env.NEXT_PUBLIC_API_URL}/channels/${queryKey[1]}/messages`,
+        `${process.env.NEXT_PUBLIC_API_URL}/channels/${queryKey[1]}/messages?limit=50`,
         {
             method: "GET",
             credentials: "include",
@@ -16,7 +16,7 @@ export const messages = async ({ queryKey }: { queryKey: string[] }) => {
 export const useMessages = (channelId: string) =>
     useQuery(["messages", channelId], messages, {
         cacheTime: Infinity,
-        onSuccess: data => {
-            useMessagesStore.getState().setMessages(data.messages);
+        onSettled: data => {
+            useMessagesStore.setState({ channel_id: data });
         },
     });

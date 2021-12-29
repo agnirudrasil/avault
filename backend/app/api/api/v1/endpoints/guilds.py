@@ -1,6 +1,12 @@
 # from datetime import datetime, timedelta
 from typing import Optional
 
+from fastapi import APIRouter, Depends, File, Form, Response, UploadFile, BackgroundTasks
+from pydantic import BaseModel
+from sqlalchemy import asc, desc
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
 from api.api import deps
 from api.core.events import Events, websocket_emitter
 from api.core.permissions import Permissions
@@ -9,11 +15,6 @@ from api.models.guilds import Guild, GuildBans, GuildMembers
 from api.models.roles import Role
 from api.models.user import User
 from api.schemas.channel import ChannelValidate
-from fastapi import APIRouter, Depends, File, Form, Response, UploadFile, BackgroundTasks
-from pydantic import BaseModel
-from sqlalchemy import asc, desc
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -140,7 +141,7 @@ def add_role(guild_id: int,
         guild_member.roles.append(Role)
         db.commit()
         background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_ROLE_CREATE,
-                                 {'role': role.serialize(), 'guild_id': guild_id})
+                                 {'role': role.serialize(), 'guild_id': str(guild_id)})
         return ''
 
 
@@ -240,7 +241,7 @@ def update_role(guild_id: int, role_id: int,
         role.mentionable = data.mentionable
     db.commit()
     background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_ROLE_UPDATE,
-                             {'role': role.serialize(), 'guild_id': guild_id})
+                             {'role': role.serialize(), 'guild_id': str(guild_id)})
     return {'role': role.serialize()}
 
 
@@ -253,7 +254,7 @@ def delete_role(guild_id: int, role_id: int,
         db.delete(role)
         db.commit()
         background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_ROLE_DELETE,
-                                 {'role': role.serialize(), 'guild_id': guild_id})
+                                 {'role': role.serialize(), 'guild_id': str(guild_id)})
         return ''
     return Response(status_code=404)
 
@@ -384,7 +385,7 @@ def delete_guild_member(guild_id: int, user_id: int, background_task: Background
         db.delete(member)
         db.commit()
         background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_MEMBER_REMOVE, member.serialize())
-        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_DELETE, {'id': guild_id},
+        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
                                  user_id)
         return ''
 
@@ -421,7 +422,7 @@ def add_guild_ban(guild_id: int, user_id: int, body: CreateGuildBan, background_
             db.delete(member)
             background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_MEMBER_REMOVE,
                                      member.serialize())
-            background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_DELETE, {'id': guild_id},
+            background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
                                      user_id)
         # TODO : delete previous messages
         # filter_after = datetime.now() + timedelta(days=body.delete_message_days)

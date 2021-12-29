@@ -1,7 +1,9 @@
+from sqlalchemy import Column, BigInteger, ForeignKeyConstraint, PrimaryKeyConstraint, Table, ForeignKey, Boolean, \
+    String, Integer
+from sqlalchemy.orm import relationship, backref
+
 from api.core.security import snowflake_id
 from api.db.base_class import Base
-from sqlalchemy import Column, BigInteger, ForeignKeyConstraint, PrimaryKeyConstraint, Table, ForeignKey, Boolean,  String, Integer
-from sqlalchemy.orm import relationship, backref
 
 role_members = Table('role_members', Base.metadata,
                      Column('user_id', BigInteger),
@@ -27,7 +29,7 @@ class Role(Base):
     position = Column(Integer, nullable=False)
     permissions = Column(BigInteger, nullable=False)
     mentionable = Column(Boolean, nullable=False)
-    guild = relationship('Guild', backref='roles')
+    guild = relationship('Guild', back_populates="roles")
     members = relationship('GuildMembers', secondary=role_members,
                            lazy='subquery', backref=backref('roles', lazy=True))
 

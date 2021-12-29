@@ -8,8 +8,10 @@ import {
     ListItemText,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { useMessages } from "../../../hooks/requests/useMessages";
+import { useEffect, useState } from "react";
+import shallow from "zustand/shallow";
 import { useGuildsStore } from "../../../stores/useGuildsStore";
+import { useMessagesStore } from "../../../stores/useMessagesStore";
 import { ChannelBar } from "../ChannelBar";
 import { ChannelLayout } from "../ChannelLayout";
 import { DefaultProfilePic } from "../DefaultProfilePic";
@@ -27,7 +29,7 @@ const Container = styled.div`
 `;
 
 export const organizeMessages = (messages: any[]): React.ReactNode => {
-    return !messages
+    return !messages || !Array.isArray(messages)
         ? null
         : messages.map((m, index, array) => {
               const timestamp = new Date(m.timestamp);
@@ -55,7 +57,25 @@ export const ServerLayout: React.FC<{
     const guild = useGuildsStore(
         state => state[router.query.server_id as string]
     );
-    const { status, data } = useMessages(router.query.channel as string);
+    const [loading, setLoading] = useState(false);
+
+    const { messages, getChannelMessages } = useMessagesStore(
+        state => ({
+            messages: state[router.query.channel as string],
+            getChannelMessages: state.getChannelMessages,
+        }),
+        shallow
+    );
+
+    useEffect(() => {
+        setLoading(true);
+        getChannelMessages(router.query.channel as string)
+            .then(() => {
+                setLoading(false);
+            })
+            .catch(console.error);
+    }, [router.query.channel]);
+
     return (
         <Container>
             <ServersBar />
@@ -84,16 +104,16 @@ export const ServerLayout: React.FC<{
                         width: "100%",
                     }}
                 >
-                    {status === "loading" ? (
+                    {loading ? (
                         <CircularProgress />
                     ) : (
-                        organizeMessages(data && (data.messages as any[]))
+                        organizeMessages(messages as any[])
                     )}
                 </List>
                 <MessageBox />
             </div>
             <MembersBar>
-                {guild.members.map(member => (
+                {guild?.members.map((member: any) => (
                     <ListItemButton key={member.id}>
                         <ListItemAvatar>
                             <Avatar>

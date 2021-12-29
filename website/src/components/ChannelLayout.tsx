@@ -5,6 +5,7 @@ import { CategoryChannel } from "./channels/CategoryChannel";
 import { TextChannel } from "./channels/TextChannel";
 
 const createHierarchy = (channels: any[]) => {
+    if (!channels) return {};
     const hierarchy: Record<string, { self: any; children: any[] }> = {};
     for (const channel of channels) {
         if (channel?.parent_id) {
