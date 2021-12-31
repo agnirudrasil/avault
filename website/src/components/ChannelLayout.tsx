@@ -1,12 +1,13 @@
 import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { useChannelsStore } from "../../stores/useChannelsStore";
+import { Channel } from "../../types/channels";
 import { CategoryChannel } from "./channels/CategoryChannel";
 import { TextChannel } from "./channels/TextChannel";
 
-const createHierarchy = (channels: any[]) => {
+const createHierarchy = (channels: Channel[]) => {
     if (!channels) return {};
-    const hierarchy: Record<string, { self: any; children: any[] }> = {};
+    const hierarchy: Record<string, { self: any; children: Channel[] }> = {};
     for (const channel of channels) {
         if (channel?.parent_id) {
             if (!hierarchy[channel.parent_id]) {
@@ -48,6 +49,7 @@ export const ChannelLayout: React.FC = () => {
                             key={key}
                             id={key}
                             index={index}
+                            overwrites={heirarchy[key].self.overwrites}
                         />
                     )
                 ) : (
@@ -63,6 +65,7 @@ export const ChannelLayout: React.FC = () => {
                                 key={channel.id}
                                 id={channel.id}
                                 index={index}
+                                overwrites={channel.overwrites}
                             />
                         ))}
                     </CategoryChannel>

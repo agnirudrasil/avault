@@ -95,6 +95,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 }
             });
             socket.once("READY", (data: any) => {
+                console.log(data);
                 const guildChannels: Record<string, Channel[]> = {};
                 const guildsRoles: Record<string, Roles[]> = {};
                 for (const guild of data.guilds) {
@@ -105,7 +106,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                     ...guildChannels,
                     privateChannels: data.private_channels,
                 });
-                setUser(data.user);
+                setUser(data.user, data.merged_members);
                 setRoles(guildsRoles);
                 setGuilds(data.guilds);
             });

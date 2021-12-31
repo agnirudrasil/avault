@@ -6,9 +6,6 @@ export const createChannel = async (payload: any) => {
         `${process.env.NEXT_PUBLIC_API_URL}/guilds/${payload.guild_id}/channels`,
         {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
             body: JSON.stringify(payload),
             credentials: "include",
         }

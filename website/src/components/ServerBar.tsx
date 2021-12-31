@@ -60,7 +60,7 @@ export const ServersBar: React.FC = () => {
                         <ServerItems
                             title={guild.name ?? ""}
                             key={guild.id}
-                            id={guild.id}
+                            id={guild.id + "/"}
                             selected={guild.id === router.query.server_id}
                         >
                             {getGuildInitials(guild.name ?? "")}

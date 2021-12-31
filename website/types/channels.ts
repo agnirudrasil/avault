@@ -18,6 +18,14 @@ export interface Channel {
     guild_id?: string;
     owner_id?: string;
     parent_id?: string;
+    overwrites: Overwrites[];
+}
+
+export interface Overwrites {
+    id: string;
+    type: 1 | 0;
+    allow: string;
+    deny: string;
 }
 
 export interface ChannelStore {

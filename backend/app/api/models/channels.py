@@ -1,6 +1,7 @@
 import enum
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Boolean, DateTime, Table, BigInteger
+from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Boolean, DateTime, Table, BigInteger, \
+    PrimaryKeyConstraint
 from sqlalchemy import func
 from sqlalchemy.orm import relationship
 
@@ -75,6 +76,7 @@ class Overwrite(Base):
     channel_id = Column(BigInteger, ForeignKey('channels.id', ondelete="CASCADE", ),
                         nullable=False, primary_key=True)
     channel = relationship('Channel', back_populates='overwrites')
+    __table_args__ = [PrimaryKeyConstraint('id', 'channel_id')]
 
     def serialize(self):
         return {

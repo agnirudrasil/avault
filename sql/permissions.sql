@@ -29,6 +29,19 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+-- TODO: Add permissions for roles
+CREATE OR REPLACE FUNCTION roles_update() returns trigger as
+$$
+DECLARE
+    gm guild_members;
+BEGIN
+    for gm in select * from guild_members where guild_id = NEW.guild_id and user_id = NEW.user_id
+        loop
+
+        end loop;
+END
+$$ LANGUAGE plpgsql;
+
 
 CREATE TRIGGER permissions_update
     AFTER INSERT OR DELETE
@@ -54,10 +67,10 @@ BEGIN
                    OR overwrites.id IN
                       (SELECT role_id FROM role_members WHERE user_id = member AND guild_id = guild)))
         LOOP
-            IF ov.deny THEN
+            IF (ov.deny) IS NULL THEN
                 permission := permission & ~ov.deny;
             END IF;
-            IF ov.allow THEN
+            IF (ov.allow) IS NULL THEN
                 permission := permission | ov.allow;
             END IF;
             RETURN permission;

@@ -23,8 +23,11 @@ import React, { useState } from "react";
 import { useLeaveServer } from "../../hooks/requests/useLeaveServer";
 import { useCreateChannel } from "../../hooks/useCreateChannel";
 import { useCreateInvite } from "../../hooks/useCreateInvite";
+import { usePermssions } from "../../hooks/usePermissions";
 import { useGuildsStore } from "../../stores/useGuildsStore";
 import { useRoutesStore } from "../../stores/useRoutesStore";
+import { checkPermissions } from "../compute-permissions";
+import { Permissions } from "../permissions";
 import { EditServerProfileDialog } from "./dialogs/EditServerProfileDialog";
 
 const MyMenuItems: React.FC<{ lable: string; onClick?: () => any }> = ({
@@ -55,6 +58,10 @@ const MyMenu: React.FC<{
     const removeGuild = useGuildsStore(state => state.removeGuild);
     const { createInvite } = useCreateInvite();
     const { mutateAsync } = useLeaveServer(() => {});
+    const { permissions, guild, guildMember } = usePermssions(
+        router.query.server_id as string,
+        router.query.channel as string
+    );
 
     return (
         <Menu
@@ -81,51 +88,72 @@ const MyMenu: React.FC<{
                 open={open}
                 onClose={() => setOpen(false)}
             />
-            <MyMenuItems onClick={() => createInvite()} lable="Invite People">
-                <PersonAdd />
-            </MyMenuItems>
-            <MyMenuItems
-                onClick={() => {
-                    routeSetter(`/settings`);
-                }}
-                lable="Server Settings"
-            >
-                <Settings />
-            </MyMenuItems>
-            <MyMenuItems
-                onClick={() => createChannelHandler("guild_text")}
-                lable="Create Channel"
-            >
-                <AddCircle />
-            </MyMenuItems>
-            <MyMenuItems
-                onClick={() => createChannelHandler("guild_category")}
-                lable="Create Category"
-            >
-                <CreateNewFolder />
-            </MyMenuItems>
+            {checkPermissions(
+                permissions,
+                Permissions.CREATE_INSTANT_INVITE
+            ) && (
+                <MyMenuItems
+                    onClick={() => createInvite()}
+                    lable="Invite People"
+                >
+                    <PersonAdd />
+                </MyMenuItems>
+            )}
+            {(checkPermissions(permissions, Permissions.MANAGE_GUILD) ||
+                checkPermissions(permissions, Permissions.MANAGE_ROLES)) && (
+                <MyMenuItems
+                    onClick={() => {
+                        routeSetter(`/settings`);
+                    }}
+                    lable="Server Settings"
+                >
+                    <Settings />
+                </MyMenuItems>
+            )}
+            {checkPermissions(permissions, Permissions.MANAGE_CHANNELS) && (
+                <>
+                    <MyMenuItems
+                        onClick={() => createChannelHandler("guild_text")}
+                        lable="Create Channel"
+                    >
+                        <AddCircle />
+                    </MyMenuItems>
+                    <MyMenuItems
+                        onClick={() => createChannelHandler("guild_category")}
+                        lable="Create Category"
+                    >
+                        <CreateNewFolder />
+                    </MyMenuItems>
+                </>
+            )}
             <Divider />
-            <MyMenuItems
-                onClick={() => setOpen(true)}
-                lable="Edit Server Profile"
-            >
-                <Edit />
-            </MyMenuItems>
+            {checkPermissions(permissions, Permissions.CHANGE_NICKNAME) && (
+                <MyMenuItems
+                    onClick={() => setOpen(true)}
+                    lable="Edit Server Profile"
+                >
+                    <Edit />
+                </MyMenuItems>
+            )}
             <MyMenuItems lable="Hide Muted Channels">
                 <CheckBox />
             </MyMenuItems>
-            <Divider />
-            <MyMenuItems
-                onClick={async () => {
-                    const id = router.query.server_id as string;
-                    await mutateAsync(id);
-                    removeGuild(id);
-                    router.replace("/channels/@me");
-                }}
-                lable="Leave Server"
-            >
-                <ExitToApp />
-            </MyMenuItems>
+            {!(guild.owner_id === guildMember.user.id) && (
+                <>
+                    <Divider />
+                    <MyMenuItems
+                        onClick={async () => {
+                            const id = router.query.server_id as string;
+                            await mutateAsync(id);
+                            removeGuild(id);
+                            router.replace("/channels/@me");
+                        }}
+                        lable="Leave Server"
+                    >
+                        <ExitToApp />
+                    </MyMenuItems>
+                </>
+            )}
         </Menu>
     );
 };

@@ -50,9 +50,7 @@ export const organizeMessages = (messages: any[]): React.ReactNode => {
           });
 };
 
-export const ServerLayout: React.FC<{
-    name: string;
-}> = ({ name }) => {
+export const ServerLayout: React.FC = () => {
     const router = useRouter();
     const guild = useGuildsStore(
         state => state[router.query.server_id as string]
@@ -79,7 +77,7 @@ export const ServerLayout: React.FC<{
     return (
         <Container>
             <ServersBar />
-            <ChannelBar name={name}>
+            <ChannelBar name={guild?.name}>
                 <ChannelLayout />
             </ChannelBar>
             <div

@@ -10,8 +10,11 @@ import {
     Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
+import { usePermssions } from "../../../hooks/usePermissions";
 import { useGuildsStore } from "../../../stores/useGuildsStore";
 import { useRoutesStore } from "../../../stores/useRoutesStore";
+import { checkPermissions } from "../../compute-permissions";
+import { Permissions } from "../../permissions";
 
 const Container = styled.div`
     width: 100%;
@@ -29,6 +32,10 @@ export const SettingsLayout: React.FC = ({ children }) => {
         state => state[router.query.server_id as string]
     );
     const { setRoute, route } = useRoutesStore();
+    const { permissions } = usePermssions(
+        router.query.server_id as string,
+        router.query.channel as string
+    );
 
     return (
         <Container>
@@ -74,34 +81,56 @@ export const SettingsLayout: React.FC = ({ children }) => {
                         >
                             <ListItemText primary="Overview" />
                         </ListItemButton>
-                        <ListItemButton
-                            selected={route === "/settings/roles"}
-                            onClick={() => setRoute("/settings/roles")}
-                            sx={{ width: "100%" }}
-                        >
-                            <ListItemText primary="Roles" />
-                        </ListItemButton>
-                        <ListItemButton
-                            selected={route === "/settings/emojis"}
-                            onClick={() => setRoute("/settings/emojis")}
-                            sx={{ width: "100%" }}
-                        >
-                            <ListItemText primary="Emoji" />
-                        </ListItemButton>
-                        <ListItemButton
-                            selected={route === "/settings/moderation"}
-                            onClick={() => setRoute("/settings/moderation")}
-                            sx={{ width: "100%" }}
-                        >
-                            <ListItemText primary="Moderation" />
-                        </ListItemButton>
-                        <ListItemButton
-                            selected={route === "/settings/inetegrations"}
-                            onClick={() => setRoute("/settings/integrations")}
-                            sx={{ width: "100%" }}
-                        >
-                            <ListItemText primary="Integrations" />
-                        </ListItemButton>
+                        {checkPermissions(
+                            permissions,
+                            Permissions.MANAGE_ROLES
+                        ) && (
+                            <ListItemButton
+                                selected={route === "/settings/roles"}
+                                onClick={() => setRoute("/settings/roles")}
+                                sx={{ width: "100%" }}
+                            >
+                                <ListItemText primary="Roles" />
+                            </ListItemButton>
+                        )}
+                        {checkPermissions(
+                            permissions,
+                            Permissions.MANAGE_EMOJIS_AND_STICKERS
+                        ) && (
+                            <ListItemButton
+                                selected={route === "/settings/emojis"}
+                                onClick={() => setRoute("/settings/emojis")}
+                                sx={{ width: "100%" }}
+                            >
+                                <ListItemText primary="Emoji" />
+                            </ListItemButton>
+                        )}
+                        {checkPermissions(
+                            permissions,
+                            Permissions.MANAGE_GUILD
+                        ) && (
+                            <ListItemButton
+                                selected={route === "/settings/moderation"}
+                                onClick={() => setRoute("/settings/moderation")}
+                                sx={{ width: "100%" }}
+                            >
+                                <ListItemText primary="Moderation" />
+                            </ListItemButton>
+                        )}
+                        {checkPermissions(
+                            permissions,
+                            Permissions.MANAGE_GUILD
+                        ) && (
+                            <ListItemButton
+                                selected={route === "/settings/inetegrations"}
+                                onClick={() =>
+                                    setRoute("/settings/integrations")
+                                }
+                                sx={{ width: "100%" }}
+                            >
+                                <ListItemText primary="Integrations" />
+                            </ListItemButton>
+                        )}
                         <Divider sx={{ margin: "1rem 0" }} />
                         <ListItem>
                             <ListItemText
@@ -119,13 +148,18 @@ export const SettingsLayout: React.FC = ({ children }) => {
                         >
                             <ListItemText primary="Member" />
                         </ListItemButton>
-                        <ListItemButton
-                            selected={route === "/settings/invites"}
-                            onClick={() => setRoute("/settings/invites")}
-                            sx={{ width: "100%" }}
-                        >
-                            <ListItemText primary="Invites" />
-                        </ListItemButton>
+                        {checkPermissions(
+                            permissions,
+                            Permissions.MANAGE_GUILD
+                        ) && (
+                            <ListItemButton
+                                selected={route === "/settings/invites"}
+                                onClick={() => setRoute("/settings/invites")}
+                                sx={{ width: "100%" }}
+                            >
+                                <ListItemText primary="Invites" />
+                            </ListItemButton>
+                        )}
                     </List>
                 </div>
             </div>

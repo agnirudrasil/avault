@@ -11,6 +11,9 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { useCreateChannel } from "../../../hooks/useCreateChannel";
+import { usePermssions } from "../../../hooks/usePermissions";
+import { checkPermissions } from "../../compute-permissions";
+import { Permissions } from "../../permissions";
 
 export const CategoryChannel: React.FC<{
     name: string;
@@ -20,7 +23,8 @@ export const CategoryChannel: React.FC<{
     const [open, setOpen] = useState(true);
     const { createChannel } = useCreateChannel();
     const router = useRouter();
-    return (
+    const { permissions } = usePermssions(router.query.server_id as string, id);
+    return checkPermissions(permissions, Permissions.VIEW_CHANNEL) ? (
         <Droppable droppableId={`category-${id}`}>
             {provided => (
                 <div ref={provided.innerRef} {...provided.droppableProps}>
@@ -65,20 +69,25 @@ export const CategoryChannel: React.FC<{
                                         }}
                                         secondary={name}
                                     />
-                                    <ListItemSecondaryAction>
-                                        <IconButton
-                                            onClick={() => {
-                                                createChannel({
-                                                    guild_id: router.query
-                                                        .server_id as string,
-                                                    parent_id: id,
-                                                    type: "guild_text",
-                                                });
-                                            }}
-                                        >
-                                            <Add />
-                                        </IconButton>
-                                    </ListItemSecondaryAction>
+                                    {checkPermissions(
+                                        permissions,
+                                        Permissions.MANAGE_CHANNELS
+                                    ) && (
+                                        <ListItemSecondaryAction>
+                                            <IconButton
+                                                onClick={() => {
+                                                    createChannel({
+                                                        guild_id: router.query
+                                                            .server_id as string,
+                                                        parent_id: id,
+                                                        type: "guild_text",
+                                                    });
+                                                }}
+                                            >
+                                                <Add />
+                                            </IconButton>
+                                        </ListItemSecondaryAction>
+                                    )}
                                 </ListItem>
                                 <Collapse
                                     in={open}
@@ -107,5 +116,5 @@ export const CategoryChannel: React.FC<{
                 </div>
             )}
         </Droppable>
-    );
+    ) : null;
 };

@@ -16,6 +16,9 @@ import { useMessageCreate } from "../../hooks/requests/useMessageCreate";
 import { useChannelsStore } from "../../stores/useChannelsStore";
 import { Picker } from "emoji-mart";
 import { GifPicker } from "./GifPicker/GifPicker";
+import { usePermssions } from "../../hooks/usePermissions";
+import { checkPermissions } from "../compute-permissions";
+import { Permissions } from "../permissions";
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
     "& .MuiToggleButtonGroup-grouped": {
@@ -44,6 +47,10 @@ export const MessageBox: React.FC = () => {
     } | null>({ type: "emoji" });
     const currentChannel = channel?.find(c => c.id === router.query.channel);
     const { mutateAsync } = useMessageCreate(router.query.channel as string);
+    const { permissions } = usePermssions(
+        router.query.server_id as string,
+        currentChannel?.id || ""
+    );
 
     const handleChange = (
         event: React.MouseEvent<HTMLElement>,
@@ -132,11 +139,19 @@ export const MessageBox: React.FC = () => {
                             bottom: "0",
                         }}
                     >
-                        <Tooltip title="Attachments Coming Soon">
-                            <IconButton sx={{ p: "10px" }} aria-label="menu">
-                                <AddCircle />
-                            </IconButton>
-                        </Tooltip>
+                        {checkPermissions(
+                            permissions,
+                            Permissions.ATTACH_FILES
+                        ) && (
+                            <Tooltip title="Attachments Coming Soon">
+                                <IconButton
+                                    sx={{ p: "10px" }}
+                                    aria-label="menu"
+                                >
+                                    <AddCircle />
+                                </IconButton>
+                            </Tooltip>
+                        )}
                         <Field
                             component={MessageField}
                             name="content"
@@ -146,13 +161,18 @@ export const MessageBox: React.FC = () => {
                             }`}
                         />
                         <StyledToggleButtonGroup onChange={handleChange}>
-                            <ToggleButton
-                                value="gif"
-                                sx={{ p: "10px" }}
-                                aria-label="search"
-                            >
-                                <Gif />
-                            </ToggleButton>
+                            {checkPermissions(
+                                permissions,
+                                Permissions.EMBED_LINKS
+                            ) && (
+                                <ToggleButton
+                                    value="gif"
+                                    sx={{ p: "10px" }}
+                                    aria-label="search"
+                                >
+                                    <Gif />
+                                </ToggleButton>
+                            )}
                             <ToggleButton
                                 value="emoji"
                                 sx={{ p: "10px" }}

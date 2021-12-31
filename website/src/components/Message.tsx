@@ -12,7 +12,7 @@ import {
     Link,
     Tooltip,
     Popover,
-    Fade,
+    Grow,
 } from "@mui/material";
 import { DefaultProfilePic } from "./DefaultProfilePic";
 import React, { useRef, useState } from "react";
@@ -24,12 +24,26 @@ import { useCreateReaction } from "../../hooks/requests/useCreateReaction";
 import { Messages, Reactions } from "../../stores/useMessagesStore";
 import data from "emoji-mart/data/all.json";
 import { useDeleteReaction } from "../../hooks/requests/useDeleteReaction";
+import { usePermssions } from "../../hooks/usePermissions";
+import { checkPermissions } from "../compute-permissions";
+import { Permissions } from "../permissions";
+import { GuildMembers } from "../../stores/useUserStore";
 
 const ToolBar: React.FC<{
     editFn: () => any;
     deleteFn: () => any;
     addReactionFn: (emoji: string) => any;
-}> = ({ editFn, deleteFn, addReactionFn }) => {
+    message: Messages;
+    permissions: bigint | "ALL";
+    guildMember: GuildMembers;
+}> = ({
+    editFn,
+    deleteFn,
+    addReactionFn,
+    permissions,
+    guildMember,
+    message,
+}) => {
     const [open, setOpen] = useState<HTMLElement | null>(null);
 
     const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
@@ -77,15 +91,29 @@ const ToolBar: React.FC<{
                 />
             </Popover>
             <ButtonGroup variant="text">
-                <Button onClick={editFn} size="small">
-                    <Edit />
-                </Button>
-                <Button onClick={deleteFn} size="small">
-                    <Delete />
-                </Button>
-                <Button onClick={handleOpen} size="small">
-                    <AddReaction />
-                </Button>
+                {(message.author_id === guildMember.user?.id ||
+                    !checkPermissions(
+                        permissions,
+                        Permissions.SEND_MESSAGES
+                    )) && (
+                    <Button onClick={editFn} size="small">
+                        <Edit />
+                    </Button>
+                )}
+                {(message.author_id === guildMember.user?.id ||
+                    checkPermissions(
+                        permissions,
+                        Permissions.MANAGE_MESSAGES
+                    )) && (
+                    <Button onClick={deleteFn} size="small">
+                        <Delete />
+                    </Button>
+                )}
+                {checkPermissions(permissions, Permissions.ADD_REACTIONS) && (
+                    <Button onClick={handleOpen} size="small">
+                        <AddReaction />
+                    </Button>
+                )}
                 <Button size="small">
                     <MoreHoriz />
                 </Button>
@@ -95,11 +123,13 @@ const ToolBar: React.FC<{
 };
 
 export const EditMessageField: React.FC<{
+    disabled: boolean;
     defaultValue: string;
     editFn: (value: string) => any;
     setEditing: () => any;
-}> = ({ defaultValue, editFn, setEditing }) => {
+}> = ({ defaultValue, editFn, setEditing, disabled }) => {
     const [value, setValue] = useState(defaultValue);
+
     return (
         <TextField
             multiline
@@ -114,10 +144,16 @@ export const EditMessageField: React.FC<{
                 }
             }}
             fullWidth
+            disabled={disabled}
             value={value}
             onChange={e => {
                 setValue(e.target.value);
             }}
+            placeholder={
+                disabled
+                    ? "You do not have permission to send message in this channel"
+                    : "Edit message"
+            }
             sx={{ margin: "1rem" }}
         />
     );
@@ -134,6 +170,10 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
         );
         const { mutateAsync } = useCreateReaction();
         const { mutateAsync: deleteReaction } = useDeleteReaction();
+        const { permissions, guildMember } = usePermssions(
+            router.query.server_id as string,
+            router.query.channel as string
+        );
 
         const editFn = (messageId: string, content: string) => {
             mutate({
@@ -142,6 +182,7 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
             } as any);
             setEditing(false);
         };
+
         const deleteFn = (messageId: string) => {
             mutateDelete({ messageId });
         };
@@ -184,6 +225,9 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
                             editFn={() => setEditing(prev => !prev)}
                             deleteFn={() => deleteFn(message.id)}
                             addReactionFn={addReactionFn}
+                            permissions={permissions}
+                            guildMember={guildMember}
+                            message={message}
                         />
                         <ListItemAvatar
                             sx={{ visibility: "hidden" }}
@@ -208,6 +252,12 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
                         {editing ? (
                             <div style={{ width: "80%" }}>
                                 <EditMessageField
+                                    disabled={
+                                        !checkPermissions(
+                                            permissions,
+                                            Permissions.SEND_MESSAGES
+                                        )
+                                    }
                                     defaultValue={message.content}
                                     editFn={value => editFn(message.id, value)}
                                     setEditing={() => setEditing(false)}
@@ -226,10 +276,17 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
                                         sx={{ cursor: "pointer" }}
                                         underline="hover"
                                         onClick={() => {
-                                            editFn(
-                                                message.id,
-                                                editRef.current!.value
-                                            );
+                                            if (
+                                                checkPermissions(
+                                                    permissions,
+                                                    Permissions.SEND_MESSAGES
+                                                )
+                                            ) {
+                                                editFn(
+                                                    message.id,
+                                                    editRef.current!.value
+                                                );
+                                            }
                                             setEditing(false);
                                         }}
                                     >
@@ -292,6 +349,9 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
                             editFn={() => setEditing(prev => !prev)}
                             deleteFn={() => deleteFn(message.id)}
                             addReactionFn={addReactionFn}
+                            permissions={permissions}
+                            guildMember={guildMember}
+                            message={message}
                         />
                         <ListItemAvatar>
                             <Avatar>
@@ -313,6 +373,12 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
                                         <div style={{ width: "80%" }}>
                                             <Typography component="div">
                                                 <EditMessageField
+                                                    disabled={
+                                                        !checkPermissions(
+                                                            permissions,
+                                                            Permissions.SEND_MESSAGES
+                                                        )
+                                                    }
                                                     defaultValue={
                                                         message.content
                                                     }
@@ -341,11 +407,18 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
                                                     sx={{ cursor: "pointer" }}
                                                     underline="hover"
                                                     onClick={() => {
-                                                        editFn(
-                                                            message.id,
-                                                            editRef.current!
-                                                                .value
-                                                        );
+                                                        if (
+                                                            checkPermissions(
+                                                                permissions,
+                                                                Permissions.SEND_MESSAGES
+                                                            )
+                                                        ) {
+                                                            editFn(
+                                                                message.id,
+                                                                editRef.current!
+                                                                    .value
+                                                            );
+                                                        }
                                                         setEditing(false);
                                                     }}
                                                 >
@@ -389,7 +462,7 @@ const Reaction: React.FC<{
     };
 
     return (
-        <Fade in={true}>
+        <Grow in={true} exit={true} timeout={300}>
             <Button
                 variant="outlined"
                 startIcon={
@@ -414,6 +487,6 @@ const Reaction: React.FC<{
             >
                 {reaction.count}
             </Button>
-        </Fade>
+        </Grow>
     );
 };

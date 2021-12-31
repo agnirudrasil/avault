@@ -39,9 +39,14 @@ export const ServerItems: React.FC<{
     const getFirstChannel = useChannelsStore(
         state => state.getFirstGuildChannel
     );
+
     return (
         <Tooltip title={title}>
-            <Link href={`/channels/${id}/${getFirstChannel(id)?.id ?? ""}`}>
+            <Link
+                href={`/channels/${id}${
+                    getFirstChannel(id.substring(0, id.length - 1))?.id ?? ""
+                }`}
+            >
                 <ServerButton
                     selected={selected}
                     onClick={onClick}
