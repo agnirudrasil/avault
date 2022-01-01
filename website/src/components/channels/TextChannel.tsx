@@ -12,6 +12,7 @@ import { useMemo } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { useCreateInvite } from "../../../hooks/useCreateInvite";
 import { usePermssions } from "../../../hooks/usePermissions";
+import { useRoutesStore } from "../../../stores/useRoutesStore";
 import { Overwrites } from "../../../types/channels";
 import { checkPermissions } from "../../compute-permissions";
 import { Permissions } from "../../permissions";
@@ -24,6 +25,7 @@ export const TextChannel: React.FC<{
     overwrites: Overwrites[];
 }> = ({ name, id, index, overwrites }) => {
     const router = useRouter();
+    const setRoute = useRoutesStore(s => s.setRoute);
     const { createInvite } = useCreateInvite();
     const { permissions } = usePermssions(router.query.server_id as string, id);
     const isChannelPrivate = useMemo(() => {
@@ -37,6 +39,7 @@ export const TextChannel: React.FC<{
             return true;
         }
     }, [overwrites]);
+
     return checkPermissions(permissions, Permissions.VIEW_CHANNEL) ? (
         <Draggable draggableId={id} index={index}>
             {provided => (
@@ -86,7 +89,12 @@ export const TextChannel: React.FC<{
                             permissions,
                             Permissions.MANAGE_CHANNELS
                         ) && (
-                            <IconButton size="small">
+                            <IconButton
+                                onClick={() => {
+                                    setRoute(`/channel-settings`);
+                                }}
+                                size="small"
+                            >
                                 <Settings fontSize="small" />
                             </IconButton>
                         )}

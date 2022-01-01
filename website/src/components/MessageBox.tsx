@@ -127,6 +127,14 @@ export const MessageBox: React.FC = () => {
                         </Popover>
                     )}
                     <Paper
+                        variant={
+                            checkPermissions(
+                                permissions,
+                                Permissions.SEND_MESSAGES
+                            )
+                                ? "elevation"
+                                : "outlined"
+                        }
                         component="div"
                         sx={{
                             p: "2px 4px",
@@ -156,39 +164,64 @@ export const MessageBox: React.FC = () => {
                             component={MessageField}
                             name="content"
                             type="text"
-                            placeholder={`Message #${
-                                currentChannel?.name ?? ""
-                            }`}
+                            disabled={
+                                !checkPermissions(
+                                    permissions,
+                                    Permissions.SEND_MESSAGES
+                                )
+                            }
+                            placeholder={
+                                checkPermissions(
+                                    permissions,
+                                    Permissions.SEND_MESSAGES
+                                )
+                                    ? `Message #${currentChannel?.name ?? ""}`
+                                    : "You don't have permission to send messages in this channel"
+                            }
                         />
                         <StyledToggleButtonGroup onChange={handleChange}>
                             {checkPermissions(
                                 permissions,
                                 Permissions.EMBED_LINKS
+                            ) &&
+                                checkPermissions(
+                                    permissions,
+                                    Permissions.SEND_MESSAGES
+                                ) && (
+                                    <ToggleButton
+                                        value="gif"
+                                        sx={{ p: "10px" }}
+                                        aria-label="search"
+                                    >
+                                        <Gif />
+                                    </ToggleButton>
+                                )}
+                            {checkPermissions(
+                                permissions,
+                                Permissions.SEND_MESSAGES
                             ) && (
                                 <ToggleButton
-                                    value="gif"
+                                    value="emoji"
                                     sx={{ p: "10px" }}
                                     aria-label="search"
                                 >
-                                    <Gif />
+                                    <EmojiEmotions />
                                 </ToggleButton>
                             )}
-                            <ToggleButton
-                                value="emoji"
-                                sx={{ p: "10px" }}
-                                aria-label="search"
-                            >
-                                <EmojiEmotions />
-                            </ToggleButton>
                         </StyledToggleButtonGroup>
-                        <IconButton
-                            color="primary"
-                            sx={{ p: "10px" }}
-                            aria-label="directions"
-                            type="submit"
-                        >
-                            <Send />
-                        </IconButton>
+                        {checkPermissions(
+                            permissions,
+                            Permissions.SEND_MESSAGES
+                        ) && (
+                            <IconButton
+                                color="primary"
+                                sx={{ p: "10px" }}
+                                aria-label="directions"
+                                type="submit"
+                            >
+                                <Send />
+                            </IconButton>
+                        )}
                     </Paper>
                 </Form>
             )}

@@ -414,7 +414,10 @@ def edit_channel(channel_id: int,
     channel = db.query(Channel).filter_by(id=channel_id).first()
     if channel:
         channel.name = body.name
-        channel.icon = body.icon
+        if body.icon:
+            channel.icon = body.icon
+        if body.topic:
+            channel.topic = body.topic
         db.commit()
         background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.CHANNEL_UPDATE,
                                  channel.serialize())

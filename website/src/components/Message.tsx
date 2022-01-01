@@ -28,6 +28,7 @@ import { usePermssions } from "../../hooks/usePermissions";
 import { checkPermissions } from "../compute-permissions";
 import { Permissions } from "../permissions";
 import { GuildMembers } from "../../stores/useUserStore";
+import { Markdown } from "./markdown/Markdown";
 
 const ToolBar: React.FC<{
     editFn: () => any;
@@ -306,7 +307,7 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
                                 ))}
                                 primary={
                                     <Typography>
-                                        {message.content}
+                                        <Markdown content={message.content} />
                                         {message.edited_timestamp && (
                                             <Tooltip
                                                 title={new Date(
@@ -428,7 +429,9 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
                                         </div>
                                     ) : (
                                         <Typography color="ButtonText">
-                                            {message.content}
+                                            <Markdown
+                                                content={message.content}
+                                            />
                                         </Typography>
                                     )}
                                     {message.reactions.map(reaction => (

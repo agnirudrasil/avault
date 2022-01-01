@@ -5,33 +5,36 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/avault.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/avault.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/2a8b0838ed1d_.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/70537b55f4c5_.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/9b29edd88996_.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.zip" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/events.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/events.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/models/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/channels.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/models/guilds.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/guilds.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/schemas/channel.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/schemas/channel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sql/permissions.sql" beforeDir="false" afterPath="$PROJECT_DIR$/sql/permissions.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useCreateChannel.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useCreateChannel.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ChannelIcon.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ChannelIcon.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ChannelLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ChannelLayout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/Message.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/Message.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useUpdateSelfNickname.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useUpdateSelfNickname.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/hooks/useUnsaved.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/useUnsaved.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/channels/[server_id]/[channel].tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/channels/[server_id]/[channel].tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/MessageBox.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/MessageBox.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/ServerBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ServerBar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ServerItems.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ServerItems.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ServerNavbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ServerNavbar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/channels/CategoryChannel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/channels/CategoryChannel.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/channels/TextChannel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/channels/TextChannel.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/layouts/ServerLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/layouts/ServerLayout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/layouts/SettingsLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/layouts/SettingsLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/compute-permissions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/compute-permissions.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/permissions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/permissions.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/routes/ChannelIndex.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/routes/ChannelIndex.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/routes/SettingsIndex.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/routes/SettingsIndex.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/routes/SettingsRoles.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/routes/SettingsRoles.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/stores/useGuildsStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useGuildsStore.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/stores/useRolesStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useRolesStore.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/stores/useUserStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useUserStore.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/types/channels.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/types/channels.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/test.html" beforeDir="false" afterPath="$PROJECT_DIR$/website/test.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,7 +116,7 @@
       <command value="yarn run dev" />
     </option>
   </component>
-  <component name="RunManager" selected="npm.dev">
+  <component name="RunManager" selected="FastAPI.Backend">
     <configuration name="Backend" type="Python.FastAPI">
       <option name="additionalOptions" value="--reload --reload-dir $PROJECT_DIR$/backend/app" />
       <option name="file" value="$PROJECT_DIR$/backend/app/api/main.py" />
@@ -218,6 +221,13 @@
       <workItem from="1640842904832" duration="592000" />
       <workItem from="1640844527475" duration="2025000" />
       <workItem from="1640927227460" duration="1216000" />
+      <workItem from="1640928644772" duration="4842000" />
+      <workItem from="1640960259431" duration="593000" />
+      <workItem from="1640961142373" duration="6318000" />
+      <workItem from="1640972062725" duration="104000" />
+      <workItem from="1640972200459" duration="3603000" />
+      <workItem from="1641008950979" duration="223000" />
+      <workItem from="1641009202256" duration="8503000" />
     </task>
     <servers />
   </component>
@@ -246,6 +256,6 @@
     <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1640844558397" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1641009217646" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
 </project>

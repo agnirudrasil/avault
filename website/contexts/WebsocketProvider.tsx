@@ -9,6 +9,8 @@ import shallow from "zustand/shallow";
 import { Roles, useRolesStore } from "../stores/useRolesStore";
 import { useUserStore } from "../stores/useUserStore";
 import { useMessagesStore } from "../stores/useMessagesStore";
+import { CircularProgress } from "@mui/material";
+import { useRouter } from "next/router";
 
 export const WebsocketContext = createContext<{ socket: Socket | null }>({
     socket: null as any,
@@ -16,6 +18,8 @@ export const WebsocketContext = createContext<{ socket: Socket | null }>({
 
 export const WebsocketProvider: React.FC = ({ children }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
+    const router = useRouter();
+    const [loading, setLoading] = useState(true);
     const { setGuilds, addGuilds, removeGuilds, updateGuilds } = useGuildsStore(
         state => ({
             setGuilds: state.setGuilds,
@@ -56,7 +60,15 @@ export const WebsocketProvider: React.FC = ({ children }) => {
         }),
         shallow
     );
-    const setUser = useUserStore(state => state.setUser);
+
+    const { setUser, isUserMe, updateGuildMember } = useUserStore(
+        state => ({
+            setUser: state.setUser,
+            isUserMe: state.isUserMe,
+            updateGuildMember: state.updateGuildMembers,
+        }),
+        shallow
+    );
     const { setChannels, updateChannel, deleteChannel, addChannel } =
         useChannelsStore(
             state => ({
@@ -95,7 +107,6 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 }
             });
             socket.once("READY", (data: any) => {
-                console.log(data);
                 const guildChannels: Record<string, Channel[]> = {};
                 const guildsRoles: Record<string, Roles[]> = {};
                 for (const guild of data.guilds) {
@@ -109,6 +120,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 setUser(data.user, data.merged_members);
                 setRoles(guildsRoles);
                 setGuilds(data.guilds);
+                setLoading(false);
             });
             socket.on("CHANNEL_CREATE", data => {
                 addChannel(data);
@@ -129,13 +141,18 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 addGuilds(data);
             });
             socket.on("GUILD_ROLE_CREATE", data => {
-                addRole(data.guild_id, data);
+                addRole(data.guild_id, data.role);
             });
             socket.on("GUILD_ROLE_UPDATE", data => {
                 updateRole(data.guild_id, data.role);
             });
             socket.on("GUILD_ROLE_DELETE", data => {
-                deleteRole(data.guild_id, data.role_id);
+                deleteRole(data.guild_id, data.role.id);
+            });
+            socket.on("GUILD_MEMBER_UPDATE", data => {
+                if (isUserMe(data.user.id)) {
+                    updateGuildMember(data);
+                }
             });
             socket.on("MESSAGE_CREATE", data => {
                 addMessage(data);
@@ -162,7 +179,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 messageReactionRemoveEmoji(data);
             });
             socket.on("disconnect", () => {
-                console.log("disconnected");
+                console.log("Disconnected");
             });
             socket.on("connect_error", data => {
                 console.error("connect_error", data);
@@ -172,7 +189,24 @@ export const WebsocketProvider: React.FC = ({ children }) => {
 
     return (
         <WebsocketContext.Provider value={{ socket }}>
-            {children}
+            {loading &&
+            !router.asPath.startsWith("/login") &&
+            !router.asPath.startsWith("/register") ? (
+                <div
+                    style={{
+                        width: "100%",
+                        height: "100vh",
+                        display: "grid",
+                        placeItems: "center",
+                    }}
+                >
+                    <div>
+                        <CircularProgress />
+                    </div>
+                </div>
+            ) : (
+                children
+            )}
         </WebsocketContext.Provider>
     );
 };

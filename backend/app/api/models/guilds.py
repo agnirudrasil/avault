@@ -106,10 +106,10 @@ class GuildMembers(Base):
         return {
             "guild_id": str(self.guild_id),
             "user": self.member.serialize(),
-            "nickname": self.nickname,
+            "nick": self.nickname,
             "is_owner": self.is_owner,
             "permissions": str(self.permissions),
-            "roles": [role.id for role in self.roles],
+            "roles": [str(role.id) for role in self.roles],
         }
 
     def __init__(self, nickname=None, permissions=1071698660929, is_owner: bool = False):

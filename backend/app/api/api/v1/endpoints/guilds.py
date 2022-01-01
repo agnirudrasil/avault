@@ -25,7 +25,7 @@ class CreateGuildBan(BaseModel):
 
 
 class GuildMemberUpdate(BaseModel):
-    nick: Optional[str] = ""
+    nick: Optional[str] = None
 
 
 class RoleCreate(BaseModel):
@@ -102,8 +102,7 @@ def get_guild(guild_id: int,
 def edit_guild(body: GuildEdit,
                background_task: BackgroundTasks,
                db: Session = Depends(deps.get_db),
-               dependencies: tuple[Guild, User] = Depends(deps.GuildPerms(Permissions.MANAGE_GUILD))
-               ):
+               dependencies: tuple[Guild, User] = Depends(deps.GuildPerms(Permissions.MANAGE_GUILD))):
     guild, user = dependencies
     guild.name = body.name
     db.commit()
@@ -129,19 +128,19 @@ def delete_guild(guild_id: int,
 
 @router.put('/{guild_id}/members/{user_id}/roles/{role_id}', status_code=204,
             dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
-def add_role(guild_id: int,
-             user_id: int,
-             role_id: int,
-             background_task: BackgroundTasks,
-             db: Session = Depends(deps.get_db)):
+def add_user_role(guild_id: int,
+                  user_id: int,
+                  role_id: int,
+                  background_task: BackgroundTasks,
+                  db: Session = Depends(deps.get_db)):
     guild_member = db.query(GuildMembers).filter_by(
         user_id=user_id).filter_by(guild_id=guild_id).first()
     if guild_member:
         role = db.query(Role).filter_by(id=role_id).first()
-        guild_member.roles.append(Role)
+        guild_member.roles.append(role)
         db.commit()
-        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_ROLE_CREATE,
-                                 {'role': role.serialize(), 'guild_id': str(guild_id)})
+        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_MEMBER_UPDATE,
+                                 guild_member.serialize())
         return ''
 
 
@@ -192,6 +191,15 @@ def get_roles(guild_id: int,
     return Response(status_code=404)
 
 
+@router.get('/{guild_id}/roles/{role_id}/members', dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
+def get_role_members(guild_id: int,
+                     role_id: int,
+                     db: Session = Depends(deps.get_db)):
+    members = db.query(GuildMembers).filter_by(guild_id=guild_id).filter(
+        GuildMembers.roles.any(Role.id == role_id)).all()
+    return [member.serialize() for member in members]
+
+
 @router.post('/{guild_id}/roles', dependencies=[Depends(deps.get_current_user)])
 def create_role(guild_id: int,
                 data: RoleCreate,
@@ -203,7 +211,8 @@ def create_role(guild_id: int,
                 data.mentionable)
     db.add(role)
     db.commit()
-    background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_ROLE_CREATE, role.serialize())
+    background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_ROLE_CREATE,
+                             {'role': role.serialize(), 'guild_id': str(guild_id)})
     return role.serialize()
 
 
@@ -242,7 +251,7 @@ def update_role(guild_id: int, role_id: int,
     db.commit()
     background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_ROLE_UPDATE,
                              {'role': role.serialize(), 'guild_id': str(guild_id)})
-    return {'role': role.serialize()}
+    return role.serialize()
 
 
 @router.delete('/{guild_id}/roles/{role_id}', dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
@@ -278,8 +287,9 @@ def create_guild_channel(guild_id: int, background_task: BackgroundTasks,
     channel = Channel(data.type, guild_id, data.name,
                       data.topic, data.nsfw,
                       parent_id=data.parent_id)
-    overwrite = Overwrite(guild_id, 0, deny=1024 if data.privateChannel else 0, allow=0)
-    channel.overwrites.append(overwrite)
+    if data.privateChannel:
+        overwrite = Overwrite(guild_id, 0, deny=1024 if data.privateChannel else 0, allow=0)
+        channel.overwrites.append(overwrite)
     db.add(channel)
     db.commit()
     background_task.add_task(websocket_emitter, channel.id, guild_id, Events.CHANNEL_CREATE, channel.serialize())
@@ -307,19 +317,21 @@ def get_guild_member(guild_id: int, user_id: int, response: Response,
 
 @router.get('/{guild_id}/members')
 def get_guild_members(guild_id: int, response: Response,
-                      limit: int = 1,
+                      limit: int = 50,
                       after: Optional[int] = None,
                       user: User = Depends(deps.get_current_user),
                       db: Session = Depends(deps.get_db)):
     guild: Guild = db.query(Guild).filter_by(id=guild_id).first()
     limit = max(limit, 1)
     limit = min(1000, limit)
+    real_limit = limit + 1
     if guild and guild.is_member(db, user.id):
         if after:
-            members = db.query(GuildMembers).filter_by(guild_id=guild_id).filter(User.id > after).limit(limit).all()
-            return {[member.serialize() for member in members]}
-        members = db.query(GuildMembers).filter_by(guild_id=guild_id).limit(limit).all()
-        return {[member.serialize() for member in members]}
+            members = db.query(GuildMembers).filter_by(guild_id=guild_id).filter(User.id > after).limit(
+                real_limit).all()
+            return {"members": [member.serialize() for member in members[0:limit]], "has_more": len(members) > limit}
+        members = db.query(GuildMembers).filter_by(guild_id=guild_id).limit(real_limit).all()
+        return {"members": [member.serialize() for member in members[0:limit]], 'has_more': len(members) > limit}
     response.status_code = 404
     return
 
@@ -342,6 +354,24 @@ def add_guild_member(guild_id: int, user_id: int,
         return member.serialize()
 
 
+@router.patch('/{guild_id}/members/@me')
+def update_guild_member(guild_id: int, data: GuildMemberUpdate,
+                        background_task: BackgroundTasks,
+                        dependencies: tuple[Guild, User] = Depends(deps.GuildPerms(Permissions.CHANGE_NICKNAME)),
+                        db: Session = Depends(deps.get_db)):
+    _, user = dependencies
+    member = db.query(GuildMembers).filter_by(
+        guild_id=guild_id).filter_by(user_id=user.id).first()
+    if member:
+        if data.nick:
+            member.nickname = data.nick
+            db.add(member)
+            db.commit()
+            background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_MEMBER_UPDATE, member.serialize())
+        return member.serialize()
+    return Response(status_code=404)
+
+
 @router.patch('/{guild_id}/members/{user_id}', dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_NICKNAMES))])
 def update_guild_member(guild_id: int, user_id: int, data: GuildMemberUpdate,
                         background_task: BackgroundTasks,
@@ -350,28 +380,10 @@ def update_guild_member(guild_id: int, user_id: int, data: GuildMemberUpdate,
         guild_id=guild_id).filter_by(user_id=user_id).first()
     if member:
         if data.nick:
-            member.nick = data.nick
-        db.commit()
-        background_task.add_task(websocket_emitter, member.id, guild_id, Events.GUILD_MEMBER_UPDATE, member.serialize())
-        return member.serialize()
-    return Response(status_code=404)
-
-
-@router.patch('/{guild_id}/members/@me')
-def update_guild_member_me(guild_id: int, body: GuildMemberUpdate, background_task: BackgroundTasks,
-                           current_user: User = Depends(deps.get_current_user),
-                           db: Session = Depends(deps.get_db)):
-    guild: Guild = db.query(Guild).filter_by(id=guild_id).first()
-    if guild and guild.is_member(db, current_user.id):
-        member = db.query(GuildMembers).filter_by(
-            guild_id=guild_id).filter_by(user_id=current_user.id).first()
-        if member:
-            member.nick = body.nick
+            member.nickname = data.nick
             db.commit()
-            background_task.add_task(websocket_emitter, member.id, guild_id, Events.GUILD_MEMBER_UPDATE,
-                                     member.serialize())
-            return member.serialize()
-        return Response(status_code=404)
+            background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_MEMBER_UPDATE, member.serialize())
+        return member.serialize()
     return Response(status_code=404)
 
 

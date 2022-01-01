@@ -36,7 +36,11 @@ export const useRolesStore = create(
                         if (!draft[guildId]) {
                             draft[guildId] = [];
                         }
-                        draft[guildId].push(role);
+                        draft[guildId].splice(
+                            draft[guildId].length - 1,
+                            0,
+                            role
+                        );
                     })
                 ),
             deleteRole: (guildId: string, roleId: string) =>

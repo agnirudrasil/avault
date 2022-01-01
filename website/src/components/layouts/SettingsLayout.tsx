@@ -69,7 +69,7 @@ export const SettingsLayout: React.FC = ({ children }) => {
                             <ListItemText
                                 primary={
                                     <Typography variant="button">
-                                        {guilds.name}
+                                        {guilds?.name}
                                     </Typography>
                                 }
                             />
@@ -105,32 +105,6 @@ export const SettingsLayout: React.FC = ({ children }) => {
                                 <ListItemText primary="Emoji" />
                             </ListItemButton>
                         )}
-                        {checkPermissions(
-                            permissions,
-                            Permissions.MANAGE_GUILD
-                        ) && (
-                            <ListItemButton
-                                selected={route === "/settings/moderation"}
-                                onClick={() => setRoute("/settings/moderation")}
-                                sx={{ width: "100%" }}
-                            >
-                                <ListItemText primary="Moderation" />
-                            </ListItemButton>
-                        )}
-                        {checkPermissions(
-                            permissions,
-                            Permissions.MANAGE_GUILD
-                        ) && (
-                            <ListItemButton
-                                selected={route === "/settings/inetegrations"}
-                                onClick={() =>
-                                    setRoute("/settings/integrations")
-                                }
-                                sx={{ width: "100%" }}
-                            >
-                                <ListItemText primary="Integrations" />
-                            </ListItemButton>
-                        )}
                         <Divider sx={{ margin: "1rem 0" }} />
                         <ListItem>
                             <ListItemText
@@ -148,6 +122,18 @@ export const SettingsLayout: React.FC = ({ children }) => {
                         >
                             <ListItemText primary="Member" />
                         </ListItemButton>
+                        {checkPermissions(
+                            permissions,
+                            Permissions.BAN_MEMBERS
+                        ) && (
+                            <ListItemButton
+                                selected={route === "/settings/bans"}
+                                onClick={() => setRoute("/settings/bans")}
+                                sx={{ width: "100%" }}
+                            >
+                                <ListItemText primary="Bans" />
+                            </ListItemButton>
+                        )}
                         {checkPermissions(
                             permissions,
                             Permissions.MANAGE_GUILD

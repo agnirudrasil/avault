@@ -1,11 +1,21 @@
 import produce from "immer";
 import create from "zustand";
 import { combine } from "zustand/middleware";
+import { Channel } from "../types/channels";
 import { useChannelsStore } from "./useChannelsStore";
-import { useRolesStore } from "./useRolesStore";
+import { Roles, useRolesStore } from "./useRolesStore";
+import { GuildMembers } from "./useUserStore";
+
+export interface Guild {
+    id: string;
+    name: string;
+    roles: Roles[];
+    channels: Channel[];
+    members: GuildMembers[];
+}
 
 export const useGuildsStore = create(
-    combine({ ...({} as Record<string, any>) }, set => ({
+    combine({ ...({} as Record<string, Guild>) }, set => ({
         setGuilds: (guilds: any[]) =>
             set(() => {
                 const guildsMap: Record<string, any> = {};
@@ -14,14 +24,14 @@ export const useGuildsStore = create(
                 });
                 return guildsMap;
             }),
-        updateGuild: (guild: any) => {
+        updateGuild: (guild: Guild) => {
             set(state =>
                 produce(state, draft => {
                     draft[guild.id] = guild;
                 })
             );
         },
-        addGuilds: (guild: any) => {
+        addGuilds: (guild: Guild) => {
             const addGuild = useChannelsStore.getState().addGuild;
             const addRoles = useRolesStore.getState().addGuild;
             addGuild(guild.id, guild.channels);

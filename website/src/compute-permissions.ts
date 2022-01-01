@@ -15,7 +15,7 @@ export const computeBasePermissions = (
     let permissions = BigInt(role_everyone?.permissions || 0);
 
     guildMember.roles?.forEach(role_id => {
-        const role = roles.find(r => r.id === role_id);
+        const role = roles?.find(r => r.id === role_id);
         if (role) {
             permissions |= BigInt(role.permissions);
         }

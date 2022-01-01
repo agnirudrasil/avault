@@ -69,14 +69,14 @@ class ThreadMetadata(Base):
 
 class Overwrite(Base):
     __tablename__ = 'overwrites'
-    id = Column(BigInteger, primary_key=True)
+    id = Column(BigInteger, nullable=False)
     type = Column(Integer, nullable=False)
     allow = Column(BigInteger, nullable=False)
     deny = Column(BigInteger, nullable=False)
     channel_id = Column(BigInteger, ForeignKey('channels.id', ondelete="CASCADE", ),
-                        nullable=False, primary_key=True)
+                        nullable=False)
     channel = relationship('Channel', back_populates='overwrites')
-    __table_args__ = [PrimaryKeyConstraint('id', 'channel_id')]
+    __table_args__ = (PrimaryKeyConstraint('id', 'channel_id', 'type'),)
 
     def serialize(self):
         return {
@@ -169,7 +169,7 @@ class Channel(Base):
         self.nsfw = bool(nsfw)
         self.owner_id = owner_id
         if parent_id:
-            if type in valid_channel_types:
+            if channel_type in valid_channel_types:
                 self.parent_id = parent_id
             else:
                 self.parent_id = None

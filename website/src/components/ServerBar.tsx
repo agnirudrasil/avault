@@ -4,6 +4,7 @@ import { IconButton, Tooltip } from "@mui/material";
 import Router, { useRouter } from "next/router";
 import { useState } from "react";
 import { useGuildsStore } from "../../stores/useGuildsStore";
+import { getGuildInitials } from "../get-guild-intials";
 import { CreateServerDialog } from "./dialogs/CreateServerDialog";
 import { ServerItems } from "./ServerItems";
 
@@ -24,13 +25,6 @@ const Separator = styled.div`
     border-radius: 1px;
     background-color: #ccc;
 `;
-
-const getGuildInitials = (name: string) =>
-    name
-        .split(" ")
-        .slice(0, 3)
-        .map(n => n[0]?.toUpperCase())
-        .join("");
 
 export const ServersBar: React.FC = () => {
     const [open, setOpen] = useState(false);

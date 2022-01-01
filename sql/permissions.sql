@@ -29,16 +29,55 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
--- TODO: Add permissions for roles
-CREATE OR REPLACE FUNCTION roles_update() returns trigger as
+CREATE OR REPLACE FUNCTION roles_update() RETURNS TRIGGER AS
 $$
 DECLARE
-    gm guild_members;
+    roles_id  bigint;
+    guilds_id bigint;
 BEGIN
-    for gm in select * from guild_members where guild_id = NEW.guild_id and user_id = NEW.user_id
-        loop
 
-        end loop;
+    IF TG_OP = 'UPDATE' THEN
+        IF new.permissions = old.permissions THEN
+            RETURN NEW;
+        END IF;
+        roles_id := NEW.id;
+        guilds_id := NEW.guild_id;
+    ELSE
+        roles_id := OLD.id;
+        guilds_id := OLD.guild_id;
+    END IF;
+
+    IF roles_id = guilds_id THEN
+        UPDATE guild_members
+        SET permissions = (SELECT bit_or(permissions)
+                           FROM roles
+                           WHERE roles.id = guilds_id
+                              OR roles.id IN (SELECT role_id
+                                              FROM role_members
+                                              WHERE (guild_id = guild_members.guild_id
+                                                  AND user_id = guild_members.user_id)))
+        WHERE guild_id = guilds_id;
+    ELSE
+        UPDATE guild_members
+        SET permissions = (SELECT bit_or(permissions)
+                           FROM roles
+                           WHERE roles.id = guilds_id
+                              OR roles.id IN (SELECT role_members.role_id
+                                              FROM role_members
+                                              WHERE (role_members.guild_id = guild_members.guild_id
+                                                  AND role_members.user_id = guild_members.user_id)))
+        WHERE user_id IN (SELECT role_members.user_id
+                          FROM role_members
+                          WHERE role_members.guild_id = guilds_id
+                            AND role_members.role_id = roles_id)
+          AND guild_id = guilds_id;
+    END IF;
+
+    IF TG_OP = 'UPDATE' THEN
+        RETURN NEW;
+    ELSE
+        RETURN OLD;
+    END IF;
 END
 $$ LANGUAGE plpgsql;
 
@@ -48,6 +87,12 @@ CREATE TRIGGER permissions_update
     ON role_members
     FOR EACH ROW
 EXECUTE PROCEDURE permissions();
+
+CREATE TRIGGER roles_permissions_update
+    AFTER UPDATE OR DELETE
+    ON roles
+    FOR EACH ROW
+EXECUTE PROCEDURE roles_update();
 
 CREATE OR REPLACE FUNCTION compute_channel_overwrites(
     base bigint,
@@ -67,10 +112,10 @@ BEGIN
                    OR overwrites.id IN
                       (SELECT role_id FROM role_members WHERE user_id = member AND guild_id = guild)))
         LOOP
-            IF (ov.deny) IS NULL THEN
+            IF NOT (ov.deny) IS NULL THEN
                 permission := permission & ~ov.deny;
             END IF;
-            IF (ov.allow) IS NULL THEN
+            IF NOT (ov.allow) IS NULL THEN
                 permission := permission | ov.allow;
             END IF;
             RETURN permission;
@@ -97,3 +142,29 @@ WHERE channel_id = 6861355209106463459
 
 select *
 from guilds;
+
+SELECT username, name, permissions
+from guild_members
+         INNER JOIN users u on u.id = guild_members.user_id
+         INNER JOIN guilds g on g.id = guild_members.guild_id
+WHERE guild_id = 6861355209106463456;
+
+
+select *
+from roles;
+
+SELECT *,
+       (
+           SELECT bit_or(permissions)
+           FROM roles
+           WHERE roles.id = 6861355209106463456
+              OR roles.id IN (SELECT role_id
+                              FROM role_members
+                              WHERE guild_id = guild_members.guild_id
+                                AND user_id = guild_members.user_id))
+from guild_members
+where guild_id = 6861355209106463456
+  AND user_id IN (SELECT user_id
+                  FROM role_members
+                  WHERE role_id = 6875750381835475712
+                    AND role_members.guild_id = 6861355209106463456);

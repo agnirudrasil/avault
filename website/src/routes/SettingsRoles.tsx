@@ -30,7 +30,6 @@ import {
     Droppable,
     DropResult,
 } from "react-beautiful-dnd";
-import { useQueryClient } from "react-query";
 import { useCreateRoles } from "../../hooks/requests/useCreateRole";
 import { useDeleteRole } from "../../hooks/requests/useDeleteRole";
 import { useEditRole } from "../../hooks/requests/useEditRole";
@@ -40,6 +39,7 @@ import { Roles, useRolesStore } from "../../stores/useRolesStore";
 import { ColorPicker } from "../components/ColorPicker";
 import { Android12Switch } from "../components/Form/AndroidSwitch";
 import { SettingsLayout } from "../components/layouts/SettingsLayout";
+import { RoleMembers } from "../components/RoleMembers";
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -49,7 +49,6 @@ interface TabPanelProps {
 
 export const SettingsRoles = () => {
     const router = useRouter();
-    const queryClient = useQueryClient();
     const { mutateAsync, isLoading: isCreating } = useCreateRoles();
     const roles = useRolesStore(
         state => state[router.query.server_id as string]
@@ -62,8 +61,8 @@ export const SettingsRoles = () => {
     const onDragEnd = (result: DropResult) => {
         if (!result.destination) return;
         const dragCard = ogData[result.source.index];
-        setOgdata((data: any) =>
-            produce(data, (draft: any) => {
+        setOgdata(data =>
+            produce(data, draft => {
                 draft.splice(result.source.index, 1);
                 draft.splice(result.destination!.index, 0, dragCard);
             })
@@ -71,16 +70,7 @@ export const SettingsRoles = () => {
     };
 
     const createRole = async () => {
-        const [{ role }] = await mutateAsync(router.query.server_id as string);
-        // TODO
-        queryClient.setQueryData(
-            ["roles", router.query.server_id as string],
-            existingRoles =>
-                produce(existingRoles, (draft: any) => {
-                    draft.roles.splice(draft.roles.length - 1, 0, role);
-                })
-        );
-        setSelected(role.id);
+        await mutateAsync(router.query.server_id as string);
     };
 
     return (
@@ -291,7 +281,6 @@ export const RolesDisplay: React.FC<{
     role: Roles;
     setSelected: (id: string) => any;
 }> = ({ roleId, guildId, setSelected, role }) => {
-    const queryClient = useQueryClient();
     const updateRole = useRolesStore(state => state.updateRole);
     const { data: permissions } = useGetPermissions();
     const [permsQuery, setPermsQuery] = useState<string>("");
@@ -310,14 +299,6 @@ export const RolesDisplay: React.FC<{
 
     const handleDelete = async () => {
         await deleteRole();
-        queryClient.setQueryData(["roles", guildId], existingRoles =>
-            produce(existingRoles, (draft: any) => {
-                draft.roles = draft.roles.filter(
-                    (role: any) => role.id !== roleId
-                );
-            })
-        );
-        queryClient.invalidateQueries(["roles", guildId, roleId]);
         setSelected(guildId);
     };
 
@@ -366,7 +347,7 @@ export const RolesDisplay: React.FC<{
                     You have unsaved changes!
                 </Alert>
             </Snackbar>
-            <Typography variant="h6">Edit Role - {ogData.name}</Typography>
+            <Typography variant="h6">Edit Role - {ogData?.name}</Typography>
             <br />
             <Tabs value={value} onChange={handleChange}>
                 <Tab disabled={guildId === roleId} label="Display" />
@@ -376,13 +357,13 @@ export const RolesDisplay: React.FC<{
             <TabPanel value={value} index={0}>
                 <Typography variant="button">ROLE NAME*</Typography>
                 <TextField
-                    value={ogData.name}
+                    value={ogData?.name}
                     fullWidth
                     required
                     inputProps={{ readOnly: guildId === roleId }}
                     onChange={e => {
-                        setOgdata((prev: any) =>
-                            produce(prev, (draft: any) => {
+                        setOgdata(prev =>
+                            produce(prev, draft => {
                                 draft.name = e.target.value;
                             })
                         );
@@ -397,10 +378,10 @@ export const RolesDisplay: React.FC<{
                     roles list
                 </Typography>
                 <ColorPicker
-                    value={ogData.color}
+                    value={ogData?.color ?? 0}
                     onChange={color => {
-                        setOgdata((prev: any) =>
-                            produce(prev, (draft: any) => {
+                        setOgdata(prev =>
+                            produce(prev, draft => {
                                 draft.color = color;
                             })
                         );
@@ -418,14 +399,14 @@ export const RolesDisplay: React.FC<{
                         <ListItemSecondaryAction>
                             <Android12Switch
                                 onChange={e => {
-                                    setOgdata((prev: any) =>
-                                        produce(prev, (draft: any) => {
+                                    setOgdata(prev =>
+                                        produce(prev, draft => {
                                             draft.mentionable =
                                                 e.target.checked;
                                         })
                                     );
                                 }}
-                                checked={ogData.mentionable}
+                                checked={ogData?.mentionable}
                             />
                         </ListItemSecondaryAction>
                     </ListItem>
@@ -479,12 +460,12 @@ export const RolesDisplay: React.FC<{
                                 <ListItemSecondaryAction>
                                     <Android12Switch
                                         checked={Boolean(
-                                            BigInt(ogData.permissions || "0") &
+                                            BigInt(ogData?.permissions || "0") &
                                                 BigInt(permission.value)
                                         )}
                                         onChange={e => {
-                                            setOgdata((prev: any) =>
-                                                produce(prev, (draft: any) => {
+                                            setOgdata(prev =>
+                                                produce(prev, draft => {
                                                     if (e.target.checked) {
                                                         draft.permissions = (
                                                             BigInt(
@@ -515,7 +496,9 @@ export const RolesDisplay: React.FC<{
                         ))}
                 </List>
             </TabPanel>
-            <TabPanel value={value} index={2}></TabPanel>
+            <TabPanel value={value} index={2}>
+                <RoleMembers guildId={guildId} role={role} />
+            </TabPanel>
         </div>
     );
 };

@@ -39,3 +39,201 @@ export const Permissions = {
     SEND_MESSAGES_IN_THREADS: "274877906944",
     START_EMBEDDED_ACTIVITIES: "549755813888",
 };
+
+export const permissions = [
+    {
+        permission: "CREATE_INSTANT_INVITE",
+        value: "1",
+        title: "Create Invite",
+    },
+    {
+        permission: "KICK_MEMBERS",
+        value: "2",
+        title: "Kick Members",
+    },
+    {
+        permission: "BAN_MEMBERS",
+        value: "4",
+        title: "Ban Members",
+    },
+    {
+        permission: "ADMINISTRATOR",
+        value: "8",
+        title: "Administrator",
+    },
+    {
+        permission: "MANAGE_CHANNELS",
+        value: "16",
+        title: "Manage Channels",
+    },
+    {
+        permission: "MANAGE_GUILD",
+        value: "32",
+        title: "Manage Server",
+    },
+    {
+        permission: "ADD_REACTIONS",
+        value: "64",
+        title: "Add Reactions",
+    },
+    {
+        permission: "VIEW_AUDIT_LOG",
+        value: "128",
+        title: "View Audit Log",
+    },
+    {
+        permission: "PRIORITY_SPEAKER",
+        value: "256",
+        title: "Priority Speaker",
+    },
+    {
+        permission: "STREAM",
+        value: "512",
+        title: "Stream",
+    },
+    {
+        permission: "VIEW_CHANNEL",
+        value: "1024",
+        title: "View Channel",
+    },
+    {
+        permission: "SEND_MESSAGES",
+        value: "2048",
+        title: "Send Messages",
+    },
+    {
+        permission: "SEND_TTS_MESSAGES",
+        value: "4096",
+        title: "Send TTS Messages",
+    },
+    {
+        permission: "MANAGE_MESSAGES",
+        value: "8192",
+        title: "Manage Messages",
+    },
+    {
+        permission: "EMBED_LINKS",
+        value: "16384",
+        title: "Embed Links",
+    },
+    {
+        permission: "ATTACH_FILES",
+        value: "32768",
+        title: "Attach Files",
+    },
+    {
+        permission: "READ_MESSAGE_HISTORY",
+        value: "65536",
+        title: "Read Message History",
+    },
+    {
+        permission: "MENTION_EVERYONE",
+        value: "131072",
+        title: "Mention @everyone",
+    },
+    {
+        permission: "USE_EXTERNAL_EMOJIS",
+        value: "262144",
+        title: "Use External Emojis",
+    },
+    {
+        permission: "VIEW_GUILD_INSIGHTS",
+        value: "524288",
+        title: "View Guild Insights",
+    },
+    {
+        permission: "CONNECT",
+        value: "1048576",
+        title: "Connect",
+    },
+    {
+        permission: "SPEAK",
+        value: "2097152",
+        title: "Speak",
+    },
+    {
+        permission: "MUTE_MEMBERS",
+        value: "4194304",
+        title: "Mute Members",
+    },
+    {
+        permission: "DEAFEN_MEMBERS",
+        value: "8388608",
+        title: "Deafen Members",
+    },
+    {
+        permission: "MOVE_MEMBERS",
+        value: "16777216",
+        title: "Move Members",
+    },
+    {
+        permission: "USE_VAD",
+        value: "33554432",
+        title: "Use Voice Activity",
+    },
+    {
+        permission: "CHANGE_NICKNAME",
+        value: "67108864",
+        title: "Change Nickname",
+    },
+    {
+        permission: "MANAGE_NICKNAMES",
+        value: "134217728",
+        title: "Manage Nicknames",
+    },
+    {
+        permission: "MANAGE_ROLES",
+        value: "268435456",
+        title: "Manage Roles",
+    },
+    {
+        permission: "MANAGE_WEBHOOKS",
+        value: "536870912",
+        title: "Manage Webhooks",
+    },
+    {
+        permission: "MANAGE_EMOJIS_AND_STICKERS",
+        value: "1073741824",
+        title: "Manage Emojis And Stickers",
+    },
+    {
+        permission: "USE_APPLICATION_COMMANDS",
+        value: "2147483648",
+        title: "Use Application Commands",
+    },
+    {
+        permission: "REQUEST_TO_SPEAK",
+        value: "4294967296",
+        title: "Request To Speak",
+    },
+    {
+        permission: "MANAGE_THREADS",
+        value: "17179869184",
+        title: "Manage Threads",
+    },
+    {
+        permission: "CREATE_PUBLIC_THREADS",
+        value: "34359738368",
+        title: "Create Public Threads",
+    },
+    {
+        permission: "CREATE_PRIVATE_THREADS",
+        value: "68719476736",
+        title: "Create Private Threads",
+    },
+    {
+        permission: "USE_EXTERNAL_STICKERS",
+        value: "137438953472",
+        title: "Use External Stickers",
+    },
+    {
+        permission: "SEND_MESSAGES_IN_THREADS",
+        value: "274877906944",
+        title: "Send Messages In Threads",
+    },
+    {
+        permission: "START_EMBEDDED_ACTIVITIES",
+        value: "549755813888",
+        title: "Start Activities",
+    },
+];

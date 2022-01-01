@@ -1,3 +1,4 @@
+import produce from "immer";
 import create from "zustand";
 import { combine } from "zustand/middleware";
 
@@ -10,7 +11,7 @@ export interface User {
 
 export interface GuildMembers {
     guild_id: string;
-    user_id: string;
+    nick?: string;
     user: User;
     roles: string[];
 }
@@ -30,6 +31,13 @@ export const useUserStore = create(
                     });
                     return { user, members: membersMap };
                 });
+            },
+            updateGuildMembers: (guildMembers: GuildMembers) => {
+                set(state =>
+                    produce(state, draft => {
+                        draft.members[guildMembers.guild_id] = guildMembers;
+                    })
+                );
             },
             isUserMe: (id: string) => {
                 const user = get().user;

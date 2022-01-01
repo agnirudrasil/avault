@@ -17,7 +17,7 @@
                     JSON.stringify({
                         op: 2,
                         d: {
-                            token: "mfa.ozvhcjSwGwk23oytXzz9HrQzX60wPolyKHuUVHCS8SDmD5bvf24keA92tMdoOqbL_s7z5PFtZNgXi7Z10zrt",
+                            token: "mfa.jV71y-A6raI7GXjHZoFFo0kcq2I6ysDdBIfkeYpVg4pU-RdXcfEcHEAYn9kCNg4RNMsB_qWYmFKXHH6-5Mj8",
                             capabilities: 253,
                             properties: {
                                 os: "Linux",
@@ -54,6 +54,19 @@
                     })
                 );
             });
+
+            setTimeout(() => {
+                socket.send(
+                    JSON.stringify({
+                        op: 8,
+                        d: {
+                            guild_id: ["763375653881249822"],
+                            query: "",
+                            presences: false,
+                        },
+                    })
+                );
+            }, 2000);
 
             socket.addEventListener("message", function (event) {
                 console.log(JSON.parse(event.data));
