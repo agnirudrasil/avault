@@ -397,7 +397,7 @@ def get_invites(channel_id: int, db: Session = Depends(deps.get_db)):
     invites = db.query(Invite).filter_by(channel_id=channel_id).all()
     if not invites:
         return Response(status_code=404)
-    return {'invites': [invite.serialize() for invite in invites]}
+    return [invite.serialize() for invite in invites]
 
 
 @router.get('/{channel_id}')
@@ -421,7 +421,7 @@ def edit_channel(channel_id: int,
         db.commit()
         background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.CHANNEL_UPDATE,
                                  channel.serialize())
-        return {**channel.serialize()}
+        return channel.serialize()
     response.status_code = 404
     return {"message": "Channel not found"}
 

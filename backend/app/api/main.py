@@ -1,6 +1,4 @@
-from async_timeout import asyncio
-from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
+import asyncio
 
 from api.api.v1.api import api_router
 from api.core import http_session
@@ -8,6 +6,8 @@ from api.core import redis
 from api.core.config import settings
 from api.core.emitter import Emitter
 from api.core.rabbitmq import consume
+from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"

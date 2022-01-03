@@ -220,8 +220,9 @@ export const GifPicker: React.FC<{ onShare: (url: string) => any }> = ({
                         </ImageListItem>
                     )}
                     {(data || Array(50).fill({ src: "", name: "" })).map(
-                        (i: any) => (
+                        (i: any, index: number) => (
                             <ImageListItem
+                                key={index}
                                 onClick={async () => {
                                     if (search || view) {
                                         await mutateAsync({
@@ -259,7 +260,7 @@ export const GifPicker: React.FC<{ onShare: (url: string) => any }> = ({
                 {suggest && (
                     <Grid container spacing={3}>
                         {suggest.map((s: string) => (
-                            <Grid item xs="auto">
+                            <Grid key={s} item xs="auto">
                                 <Button
                                     onClick={() => setSearch(s)}
                                     variant="outlined"

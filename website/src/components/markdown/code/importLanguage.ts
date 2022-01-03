@@ -2,7 +2,7 @@ import type { HLJSApi, LanguageDetail } from "highlight.js";
 import hljs from "highlight.js/lib/core";
 import { getLanguageFromAlias } from "./getLanguageFromAlias";
 
-const importRawLanguage = async (name: string) =>
+const importRawLanguage = async () =>
     import(`highlight.js/lib/languages/1c`).then(
         module => module.default as (hljs?: HLJSApi) => LanguageDetail
     );
@@ -21,10 +21,7 @@ export const importLanguage = async (alias: string) => {
         );
     }
 
-    hljs.registerLanguage(
-        language.name,
-        await importRawLanguage(language.name)
-    );
+    hljs.registerLanguage(language.name, await importRawLanguage());
 
     if (typeof window !== "undefined") {
         console.log("Registered highlight.js language:", language.name);

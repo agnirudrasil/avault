@@ -155,6 +155,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 }
             });
             socket.on("MESSAGE_CREATE", data => {
+                console.log(data);
                 addMessage(data);
             });
             socket.on("MESSAGE_UPDATE", data => {

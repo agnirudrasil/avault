@@ -2,16 +2,14 @@ import json
 from asyncio import AbstractEventLoop
 
 import aio_pika
-from itsdangerous import json
-from jose import jwt
-from pydantic import ValidationError
-from sqlalchemy.orm import Session
-
 from api import models
 from api.api.deps import get_db
 from api.core import emitter
 from api.core.security import verify_jwt
 from api.models.user import User
+from jose import jwt
+from pydantic import ValidationError
+from sqlalchemy.orm import Session
 
 
 async def handle_message(message):
@@ -45,7 +43,7 @@ async def handle_message(message):
 
 async def consume(loop: AbstractEventLoop):
     connection = await aio_pika.connect_robust(
-        "amqp://guest:guest@127.0.0.1/", loop=loop
+        host="rabbit", loop=loop
     )
 
     queue_name = "gateway_api_talks"

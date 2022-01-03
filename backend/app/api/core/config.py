@@ -32,7 +32,7 @@ class Settings(BaseSettings):
             return None
         return v
 
-    POSTGRES_SERVER: str = "localhost:5432"
+    POSTGRES_SERVER: str = "postgres:5432"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_DB: str = "avault"

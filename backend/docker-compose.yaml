@@ -1,0 +1,81 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    expose:
+      - 5432
+    networks:
+      - network
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5432" ]
+      interval: 3s
+      timeout: 10s
+      retries: 3
+  redis:
+    image: redis:latest
+    networks:
+      - network
+    expose:
+      - 6379
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "6379" ]
+      interval: 3s
+      timeout: 10s
+      retries: 3
+  rabbit:
+    image: rabbitmq:latest
+    expose:
+      - 5672
+    networks:
+      - network
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 3s
+      timeout: 10s
+      retries: 3
+  gateway:
+    image: gateway
+    build:
+      context: .
+      dockerfile: ./Dockerfile.gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - network
+    links:
+      - rabbit
+      - redis
+    depends_on:
+      - api
+  api:
+    image: fastapi-backend
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:80"
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    restart: on-failure
+    links:
+      - rabbit
+      - redis
+      - postgres
+    networks:
+      - network
+    depends_on:
+      - rabbit
+      - redis
+      - postgres
+
+networks:
+  network: { }

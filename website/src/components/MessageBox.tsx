@@ -105,6 +105,7 @@ export const MessageBox: React.FC = () => {
                             {open.type === "emoji" ? (
                                 <Paper>
                                     <Picker
+                                        set="twitter"
                                         onSelect={emoji => {
                                             setFieldValue(
                                                 "content",

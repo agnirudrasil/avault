@@ -31,7 +31,6 @@ import {
 import { AddCircle, EmojiEmotions, GifRounded } from "@mui/icons-material";
 import { Emoji, EmojiData, emojiIndex, Picker } from "emoji-mart";
 import Prism from "prismjs";
-import isKeyHotkey from "is-hotkey";
 import { Mention, MentionIcon, MentionTypes } from "../../types/mentions";
 
 const Container = styled.div`
@@ -107,7 +106,7 @@ const insertEmoji = (editor: Editor, emoji: EmojiData) => {
         emoji,
         children: [text],
     };
-    Transforms.insertNodes(editor, image);
+    Transforms.insertNodes(editor, image as any);
     Transforms.move(editor);
 };
 
@@ -137,7 +136,7 @@ const Element: React.FC<RenderElementProps> = props => {
             return (
                 <span {...attributes}>
                     <InlineChromiumBugfix />
-                    {cover.emoji.custom ? (
+                    {(element.emoji as any).custom ? (
                         <span
                             style={{
                                 display: "inline-block",
@@ -148,7 +147,7 @@ const Element: React.FC<RenderElementProps> = props => {
                             <img
                                 className="emoji"
                                 alt={`:${element.emoji.name}:`}
-                                src={element.emoji.imageUrl}
+                                src={(element.emoji as any).imageUrl}
                             />
                         </span>
                     ) : (
@@ -188,6 +187,7 @@ const insertMention = (editor: Editor, mention: Mention) => {
     };
 
     if (mention.type === "emoji") {
+        //@ts-ignore
         insertEmoji(editor, mention.emoji);
         return;
     }
@@ -212,8 +212,10 @@ export const MarkdownEditor = () => {
 
     const chars =
         search.type === "emoji"
-            ? (
-                  emojiIndex.search(search.query, {
+            ? //@ts-ignore
+              (
+                  (emojiIndex as any).search(search.query, {
+                      //@ts-ignore
                       custom: customEmojis,
                   }) || []
               ).slice(0, Math.min(10))
@@ -251,8 +253,9 @@ export const MarkdownEditor = () => {
                         ? (chars[index] as any)?.id
                         : chars[index],
                 type: search.type,
+                //@ts-ignore
                 emoji: search.type === "emoji" && chars[index],
-            });
+            } as any);
         }
         setTarget(undefined);
     };
@@ -305,6 +308,7 @@ export const MarkdownEditor = () => {
                                         ? (chars[index] as any)?.id
                                         : chars[index],
                                 type: search.type,
+                                //@ts-ignore
                                 emoji: search.type === "emoji" && chars[index],
                             });
                         }
@@ -459,8 +463,9 @@ export const MarkdownEditor = () => {
                                     }}
                                     dense
                                 >
-                                    {chars.map((emoji: any, i) => (
+                                    {chars.map((emoji: any, i: any) => (
                                         <ListItemButton
+                                            key={i}
                                             onClick={() => handleSelect(i)}
                                             selected={i == index}
                                         >
@@ -502,7 +507,7 @@ export const MarkdownEditor = () => {
                                 </List>
                             ) : (
                                 <List dense>
-                                    {chars.map((char: any, i) => (
+                                    {chars.map((char: any, i: any) => (
                                         <ListItemButton
                                             onClick={() => handleSelect(i)}
                                             key={char}

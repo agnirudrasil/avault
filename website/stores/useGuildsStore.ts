@@ -8,6 +8,7 @@ import { GuildMembers } from "./useUserStore";
 
 export interface Guild {
     id: string;
+    owner_id: string;
     name: string;
     roles: Roles[];
     channels: Channel[];

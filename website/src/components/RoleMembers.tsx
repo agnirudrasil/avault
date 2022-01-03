@@ -92,7 +92,7 @@ const AddMembersDialog: React.FC<{
                 ) : (
                     <List dense>
                         {myData.map(member => (
-                            <ListItemButton>
+                            <ListItemButton key={member.user.id}>
                                 <ListItemIcon>
                                     <Checkbox
                                         checked={Boolean(
@@ -229,7 +229,7 @@ export const RoleMembers: React.FC<{ role: Roles; guildId: string }> = ({
                     ) : (
                         <List dense>
                             {myData.map(member => (
-                                <ListItem>
+                                <ListItem key={member.user.id}>
                                     <ListItemAvatar>
                                         <Avatar>
                                             <DefaultProfilePic

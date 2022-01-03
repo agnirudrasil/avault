@@ -16,4 +16,4 @@ export const getMembers = async ({ queryKey }: { queryKey: string[] }) => {
     }>;
 };
 export const useGetMembers = (guildId: string) =>
-    useQuery(["members", guildId], getMembers);
+    useQuery(["members", guildId], getMembers, { staleTime: Infinity });

@@ -44,7 +44,11 @@ export const ServersBar: React.FC = () => {
                 selected={router.asPath === "/channels/@me"}
                 onClick={() => Router.replace("/channels/@me")}
             >
-                <img style={{ width: "90%" }} src="/logo-black.png" />
+                <img
+                    alt="logo"
+                    style={{ width: "90%" }}
+                    src="/logo-black.png"
+                />
             </ServerItems>
             <Separator />
             {Object.keys(guilds).map(key => {

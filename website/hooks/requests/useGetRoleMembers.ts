@@ -1,4 +1,4 @@
-import { useQueries, useQuery } from "react-query";
+import { useQuery } from "react-query";
 import { request } from "../../src/request";
 import { GuildMembers } from "../../stores/useUserStore";
 

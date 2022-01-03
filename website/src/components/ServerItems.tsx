@@ -43,6 +43,7 @@ export const ServerItems: React.FC<{
     return (
         <Tooltip title={title}>
             <Link
+                passHref
                 href={`/channels/${id}${
                     getFirstChannel(id.substring(0, id.length - 1))?.id ?? ""
                 }`}

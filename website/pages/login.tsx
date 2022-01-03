@@ -47,7 +47,7 @@ const LoginPage: NextPage = () => {
                     >
                         <Typography variant="h6">Welcome Back,</Typography>
                         <Typography variant="body1">
-                            We're so excited to see you again!
+                            We&apos;re so excited to see you again!
                         </Typography>
                     </div>
                     {status && (
@@ -92,7 +92,7 @@ const LoginPage: NextPage = () => {
                             color="textSecondary"
                             style={{ marginTop: "1rem" }}
                         >
-                            Don't have an account?{" "}
+                            Don&apos;t have an account?{" "}
                             <Link underline="hover" href="/register">
                                 Register
                             </Link>

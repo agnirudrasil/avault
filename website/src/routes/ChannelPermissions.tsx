@@ -1,4 +1,4 @@
-import { Clear, Done, FiberManualRecord, Lock } from "@mui/icons-material";
+import { Add, Clear, Done, FiberManualRecord, Lock } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import {
     Snackbar,
@@ -17,6 +17,7 @@ import {
     ToggleButton,
     ToggleButtonGroup,
     ListSubheader,
+    IconButton,
 } from "@mui/material";
 import produce from "immer";
 import { Permissions } from "../permissions";
@@ -217,13 +218,22 @@ export const ChannelPermissions = () => {
                 <Stack gap="1rem" direction={"row"}>
                     <List
                         subheader={
-                            <ListSubheader disableSticky>
-                                <Typography
-                                    sx={{ userSelect: "none" }}
-                                    variant="button"
+                            <ListSubheader sx={{ width: "100%" }} disableSticky>
+                                <Stack
+                                    direction="row"
+                                    justifyContent="space-between"
+                                    alignItems="center"
                                 >
-                                    Roles/Members
-                                </Typography>
+                                    <Typography
+                                        sx={{ userSelect: "none" }}
+                                        variant="button"
+                                    >
+                                        Roles/Members
+                                    </Typography>
+                                    <IconButton size="small">
+                                        <Add fontSize="small" />
+                                    </IconButton>
+                                </Stack>
                             </ListSubheader>
                         }
                         dense
@@ -251,23 +261,22 @@ export const ChannelPermissions = () => {
                                 )
                         )}
                     </List>
-                    <Divider />
                     <List style={{ width: "100%" }}>
-                        {permissions.map((permission: any) => (
+                        {permissions.map(({ title, value, permission }) => (
                             <ListItem disableGutters sx={{ width: "100%" }}>
                                 <ListItemText
-                                    primary={permission.title}
-                                    secondary={permission.description}
+                                    primary={title}
+                                    secondary={permission}
                                 />
                                 <ListItemSecondaryAction>
                                     <ToggleButtonGroup exclusive>
-                                        <ToggleButton>
+                                        <ToggleButton value={value}>
                                             <Clear />
                                         </ToggleButton>
-                                        <ToggleButton>
+                                        <ToggleButton value={value}>
                                             <FiberManualRecord />
                                         </ToggleButton>
-                                        <ToggleButton>
+                                        <ToggleButton value={value}>
                                             <Done />
                                         </ToggleButton>
                                     </ToggleButtonGroup>

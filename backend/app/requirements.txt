@@ -1,0 +1,177 @@
+aio-pika==6.8.0
+aiofiles==0.7.0
+aiohttp==3.8.1
+aioredis==2.0.0
+aiormq==3.3.1
+aiosignal==1.2.0
+alembic @ file:///home/agnirudra/.cache/pypoetry/artifacts/36/73/4b/1c8e8ac05902105a9f9e6cd2542958bbb439eba4f10065edbefd181256/alembic-1.7.4-py3-none-any.whl
+amqp @ file:///home/agnirudra/.cache/pypoetry/artifacts/18/43/b2/eaee4a771f7ab77a79588e16f98d1e67dd60915bfbf7b96694d4b67a13/amqp-2.6.1-py2.py3-none-any.whl
+aniso8601==9.0.1
+anyio==3.3.4
+appdirs @ file:///home/agnirudra/.cache/pypoetry/artifacts/47/cf/4f/4ef02fb715aa36daeebad18cc5570126159c659c41c7b5ec46a7387d9b/appdirs-1.4.4-py2.py3-none-any.whl
+argon2-cffi==21.1.0
+asgiref==3.4.1
+async-exit-stack==1.0.1
+async-generator==1.10
+async-timeout==4.0.1
+attrs @ file:///home/agnirudra/.cache/pypoetry/artifacts/6f/a9/ee/569c37f69a8c365ee41d2340aeac0214ee8c0086b8d8db43a21545204b/attrs-21.2.0-py2.py3-none-any.whl
+autoflake @ file:///home/agnirudra/.cache/pypoetry/artifacts/9d/ef/18/2c9428aab3653db5bd4ec0a20b439c8567980f145e0ecb74dbc7538438/autoflake-1.4.tar.gz
+autopep8==1.6.0
+avault==0.1.0
+backcall==0.2.0
+backports.entry-points-selectable==1.1.1
+bcrypt @ file:///home/agnirudra/.cache/pypoetry/artifacts/e1/8f/44/0adcd01881468523abd64d2c6666d8e74ee78d8ef417abbd7cf7d04287/bcrypt-3.2.0-cp36-abi3-manylinux2010_x86_64.whl
+billiard @ file:///home/agnirudra/.cache/pypoetry/artifacts/cf/59/06/55d38419b5aa6e1fe731cb9d5dfdc4fa930000cc089eb421e3d039cfc2/billiard-3.6.4.0-py3-none-any.whl
+black @ file:///home/agnirudra/.cache/pypoetry/artifacts/ab/ed/a4/580e95a1a72e4a7d51f61679241e23e191d0b281c514550c5ede72f717/black-19.10b0-py36-none-any.whl
+bleach==4.1.0
+CacheControl==0.12.10
+cachetools @ file:///home/agnirudra/.cache/pypoetry/artifacts/ab/92/05/de1deda089a4f18230cef3edfa7da0739da7e4482a5727422e9a5db078/cachetools-4.2.4-py3-none-any.whl
+cachy==0.3.0
+celery @ file:///home/agnirudra/.cache/pypoetry/artifacts/4c/9e/f8/dc9a16979fd25aa441d88e5f5e0e0a3e690ae0e57a740fc9b1c0f23aca/celery-4.4.7-py2.py3-none-any.whl
+certifi==2021.10.8
+cffi==1.15.0
+chardet @ file:///home/agnirudra/.cache/pypoetry/artifacts/11/63/f9/797eda27963177a6b75a340f62aa194d462ea69e6b0dbb77a651fa2b62/chardet-4.0.0-py2.py3-none-any.whl
+charset-normalizer==2.0.7
+cleo==0.8.1
+click @ file:///home/agnirudra/.cache/pypoetry/artifacts/e2/79/34/a23e9d2f683ed66be11ec3bd760dec3a2fe228cfdedf2071bcf0531b06/click-7.1.2-py2.py3-none-any.whl
+clikit==0.6.2
+coverage @ file:///home/agnirudra/.cache/pypoetry/artifacts/e2/56/c1/8d9bd4c9dd3a13ed3923d9da455f52886db0ad9c8c43fa85b38a83c961/coverage-6.1.2-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl
+crashtest==0.3.1
+cryptography==35.0.0
+cssselect @ file:///home/agnirudra/.cache/pypoetry/artifacts/4c/2a/b2/5de4d8089cc07c2ed1b3321b512d5dde8a37e561af056f21a64e690c10/cssselect-1.1.0-py2.py3-none-any.whl
+cssutils @ file:///home/agnirudra/.cache/pypoetry/artifacts/65/b2/79/a5933cf1b613459b65cc1b93a3b8064f6fd836f234d65c4238b9172a73/cssutils-2.3.0-py3-none-any.whl
+debugpy==1.5.1
+decorator==5.1.0
+defusedxml==0.7.1
+distlib==0.3.3
+dnspython==2.1.0
+ecdsa @ file:///home/agnirudra/.cache/pypoetry/artifacts/4c/85/92/313473c85e5cdbea10138cab1cbf64bcccc5a53a853242b50e6b24061a/ecdsa-0.17.0-py2.py3-none-any.whl
+email-validator==1.1.3
+emails @ file:///home/agnirudra/.cache/pypoetry/artifacts/52/dc/dc/7b4fc20341669bf10be186f33f28e24b3c771b108c7b4c4ac801aa281f/emails-0.5.15-py2.py3-none-any.whl
+entrypoints==0.3
+fastapi @ file:///home/agnirudra/.cache/pypoetry/artifacts/51/b3/87/580e54a1bbe39fbac7c3a0e5395af1219007b4712e09bf84d37949e143/fastapi-0.54.2-py3-none-any.whl
+filelock==3.3.2
+flake8 @ file:///home/agnirudra/.cache/pypoetry/artifacts/3f/57/d5/11722093c13092cc3bfc3dd7c88aef6f8e4d5ac97cfe5fd054d5aba412/flake8-3.9.2-py2.py3-none-any.whl
+frozenlist==1.2.0
+graphene==3.0
+graphql-core==3.1.6
+graphql-relay==3.1.0
+greenlet==1.1.2
+gunicorn @ file:///home/agnirudra/.cache/pypoetry/artifacts/d4/22/ea/fb991f1fdb4e8ae8fd30e0bce3c23ece991aa75df3f5a4c4f4d5aba6ae/gunicorn-20.1.0-py3-none-any.whl
+h11 @ file:///home/agnirudra/.cache/pypoetry/artifacts/4e/9a/c1/105ce3cfa6d9bef982914f53c4ede1c01a8d0294f5e0bd650d86e15909/h11-0.9.0-py2.py3-none-any.whl
+html5lib==1.1
+httptools @ file:///home/agnirudra/.cache/pypoetry/artifacts/b6/9c/82/911e8e75785bb772bf514d761af2e58ac5bd273c26f213abeab3c22247/httptools-0.1.2-cp39-cp39-manylinux1_x86_64.whl
+idna==3.3
+ipykernel==6.6.0
+ipython==7.30.1
+ipython-genutils==0.2.0
+ipywidgets==7.6.5
+isort @ file:///home/agnirudra/.cache/pypoetry/artifacts/e0/67/37/94408416330f6ba2a93f79f3a0768e2d46e6b96a902a0b34d888d131f6/isort-4.3.21-py2.py3-none-any.whl
+itsdangerous==2.0.1
+jedi==0.18.1
+jeepney==0.7.1
+Jinja2 @ file:///home/agnirudra/.cache/pypoetry/artifacts/c5/c3/19/5cf0bc7ff64d230dd7d23c044479d2b44dabe877ca4165c2d85cbe996d/Jinja2-2.11.3-py2.py3-none-any.whl
+jose==1.0.0
+jsonschema==4.3.2
+jupyter==1.0.0
+jupyter-client==7.1.0
+jupyter-console==6.4.0
+jupyter-core==4.9.1
+jupyterlab-pygments==0.1.2
+jupyterlab-widgets==1.0.2
+keyring==21.8.0
+kombu @ file:///home/agnirudra/.cache/pypoetry/artifacts/bb/fc/ab/b1e10e669757f0e6beca797d02417a99e7a5dd59474391aca47f01d7d4/kombu-4.6.11-py2.py3-none-any.whl
+lockfile==0.12.2
+lxml @ file:///home/agnirudra/.cache/pypoetry/artifacts/71/9f/af/bb6db64668ef6754d242c72616cbd050d11016729520a8de21ecf6b12b/lxml-4.6.4-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl
+Mako @ file:///home/agnirudra/.cache/pypoetry/artifacts/8b/da/61/7f0c9fd9a7e251becf1a152f63177bb386f586b0379aeb0cbfd00518a8/Mako-1.1.5-py2.py3-none-any.whl
+MarkupSafe==2.0.1
+matplotlib-inline==0.1.3
+mccabe @ file:///home/agnirudra/.cache/pypoetry/artifacts/96/5e/5f/21ae5296697ca7f94de4da6e21d4936d74029c352a35202e4c339a4253/mccabe-0.6.1-py2.py3-none-any.whl
+mistune==0.8.4
+more-itertools @ file:///home/agnirudra/.cache/pypoetry/artifacts/62/1d/f8/2d82ebba2a70dc505541c9d74d5dc28ad5d443aa0dc4c7a03e12678d9e/more_itertools-8.11.0-py3-none-any.whl
+msgpack==1.0.2
+multidict==5.2.0
+mypy==0.920
+mypy-extensions @ file:///home/agnirudra/.cache/pypoetry/artifacts/92/45/bf/1807ce854ff668d92602207a37bfa9316def2a3f257bd03c4c5be4bc9b/mypy_extensions-0.4.3-py2.py3-none-any.whl
+nbclient==0.5.9
+nbconvert==6.3.0
+nbformat==5.1.3
+nest-asyncio==1.5.4
+notebook==6.4.6
+orjson==3.6.4
+packaging @ file:///home/agnirudra/.cache/pypoetry/artifacts/06/bf/eb/bcc27fa136b1afb77ec927248bab4a9cf30fc28583d485ab13026d1997/packaging-21.2-py3-none-any.whl
+pamqp==2.3.0
+pandocfilters==1.5.0
+parso==0.8.3
+passlib==1.7.4
+pastel==0.2.1
+pathspec @ file:///home/agnirudra/.cache/pypoetry/artifacts/0a/67/21/620031f7f2938bad77b057a68a4c2a334542a7402a3214ed48690caf8c/pathspec-0.9.0-py2.py3-none-any.whl
+pexpect==4.8.0
+pickleshare==0.7.5
+pkginfo==1.7.1
+platformdirs==2.4.0
+pluggy @ file:///home/agnirudra/.cache/pypoetry/artifacts/29/58/fc/ed8b7451d3ef91a6465024f5656141da996e7aafd4d41a1659629a75e7/pluggy-0.13.1-py2.py3-none-any.whl
+poetry==1.1.11
+poetry-core==1.0.7
+premailer @ file:///home/agnirudra/.cache/pypoetry/artifacts/f5/70/9a/d66fc16cb751db8ff18b280c2e3787e7ad4433dbc06e5566e70f6fe316/premailer-3.10.0-py2.py3-none-any.whl
+prometheus-client==0.12.0
+prompt-toolkit==3.0.24
+psycopg2-binary @ file:///home/agnirudra/.cache/pypoetry/artifacts/0f/e3/7c/ecd8e9290396cf2b1cabba349ce60d96d83072c8934e287dbd7b904895/psycopg2_binary-2.9.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+ptyprocess==0.7.0
+py @ file:///home/agnirudra/.cache/pypoetry/artifacts/b3/5c/47/ba5a596e01a2b61fa2daa6a438252483ad8c04e6c99e5dc22eaf8a489a/py-1.11.0-py2.py3-none-any.whl
+pyasn1 @ file:///home/agnirudra/.cache/pypoetry/artifacts/7b/3a/54/42ce43b579bda01b9d79022fb733811594441e7a32e9f9a5a98f672bdc/pyasn1-0.4.8-py2.py3-none-any.whl
+pycodestyle @ file:///home/agnirudra/.cache/pypoetry/artifacts/4c/30/97/026c283ef67eb248e5b7e6fad1f8ffb99dae50c11fd93eb939fd7c1f46/pycodestyle-2.7.0-py2.py3-none-any.whl
+pycparser==2.21
+pydantic==1.8.2
+pyflakes @ file:///home/agnirudra/.cache/pypoetry/artifacts/eb/c4/2c/47fcc1b3f387b1f7033e85b3ac6ee7772338461a8de8ac3977c6a7dcc1/pyflakes-2.3.1-py2.py3-none-any.whl
+Pygments==2.10.0
+pylev==1.4.0
+pyparsing @ file:///home/agnirudra/.cache/pypoetry/artifacts/92/0f/cf/effdcd5d76a6186df0969f85b3b030284ff8058936d5016540b5258ea3/pyparsing-2.4.7-py2.py3-none-any.whl
+pyrsistent==0.18.0
+pytest @ file:///home/agnirudra/.cache/pypoetry/artifacts/e4/88/dd/3dbff42e3c4462dc3d027f5024025571166cb35edee215ce93852a968c/pytest-5.4.3-py3-none-any.whl
+pytest-cov @ file:///home/agnirudra/.cache/pypoetry/artifacts/f4/fe/91/424be7c04bf2c12dfadf29fb063c284c2f6d91d11d81d7d6f9ba135061/pytest_cov-2.12.1-py2.py3-none-any.whl
+python-dateutil @ file:///home/agnirudra/.cache/pypoetry/artifacts/53/f8/2a/7d63ce15df7386e9536e83413453f8aa845b47fb425f05c4ca2fb231c3/python_dateutil-2.8.2-py2.py3-none-any.whl
+python-dotenv==0.19.2
+python-jose @ file:///home/agnirudra/.cache/pypoetry/artifacts/fe/e8/75/0e20e3abcb4eb0055c7aa090fcfd583690050b04a813a6df50f0e480f2/python_jose-3.3.0-py2.py3-none-any.whl
+python-multipart==0.0.5
+pytz @ file:///home/agnirudra/.cache/pypoetry/artifacts/3e/f3/dd/6629bf5ed0a970a128e0a015f2af3b67280e749a56fdaabdaa06d5fc6b/pytz-2021.3-py2.py3-none-any.whl
+PyYAML==5.4.1
+pyzmq==22.3.0
+qtconsole==5.2.2
+QtPy==2.0.0
+raven @ file:///home/agnirudra/.cache/pypoetry/artifacts/1d/cc/2c/e22988db50d04fee540ef91631330d55e1fee6a653e7c2776e3bd19698/raven-6.10.0-py2.py3-none-any.whl
+regex @ file:///home/agnirudra/.cache/pypoetry/artifacts/69/3f/17/3188c9bca1e4732b00fb9bfcb2517add6231b3912ff2fc88e163377c06/regex-2021.11.10-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+requests==2.26.0
+requests-toolbelt==0.9.1
+rsa @ file:///home/agnirudra/.cache/pypoetry/artifacts/27/21/1f/fea99b1c1766c11c2c47dd961d7773ebab5c6acbf730200bd2e021b836/rsa-4.7.2-py3-none-any.whl
+SecretStorage==3.3.1
+Send2Trash==1.8.0
+shellingham==1.4.0
+six==1.16.0
+sniffio==1.2.0
+SQLAlchemy @ file:///home/agnirudra/.cache/pypoetry/artifacts/a8/5c/e8/613a51d8790133a87bbf1c0adccf38ec637e012beaf81466630526cf0a/SQLAlchemy-1.4.27.tar.gz
+sqlalchemy-stubs @ file:///home/agnirudra/.cache/pypoetry/artifacts/f9/eb/44/2801ec1478ce21f7681c8cf79b64bad7fc9554be5481d7fe095350ea01/sqlalchemy_stubs-0.3-py3-none-any.whl
+sqlalchemy2-stubs==0.0.2a19
+starlette @ file:///home/agnirudra/.cache/pypoetry/artifacts/12/a5/0b/e6fff0957dfbbcb0fd0b735aee663d7bf8cec5010db07f1c213b836911/starlette-0.13.2-py3-none-any.whl
+tenacity @ file:///home/agnirudra/.cache/pypoetry/artifacts/21/10/40/d46461cfc28f6273f951df7ee384035cb663bd3234dab6a54bd94704bb/tenacity-6.3.1-py2.py3-none-any.whl
+terminado==0.12.1
+testpath==0.5.0
+toml==0.10.2
+tomli==2.0.0
+tomlkit==0.7.2
+tornado==6.1
+traitlets==5.1.1
+typed-ast @ file:///home/agnirudra/.cache/pypoetry/artifacts/59/28/81/67daa4fcaa8d06f9e3fa6c476cc0594cb9c17adc966c324c29f92d8217/typed_ast-1.4.3-cp39-cp39-manylinux1_x86_64.whl
+typing-extensions==3.10.0.2
+ujson==4.2.0
+urllib3==1.26.7
+uvicorn @ file:///home/agnirudra/.cache/pypoetry/artifacts/7a/be/5b/4470ba571b30cf3866986b8e492f80a4b4f64b251bd99b95505bdc6c54/uvicorn-0.11.8-py3-none-any.whl
+uvloop==0.16.0
+vine @ file:///home/agnirudra/.cache/pypoetry/artifacts/45/d9/4d/9d8214a13203edd809dac1850d3fb95be97a96b0ca68b0eb0c9552eb56/vine-1.3.0-py2.py3-none-any.whl
+virtualenv==20.10.0
+watchgod==0.7
+wcwidth @ file:///home/agnirudra/.cache/pypoetry/artifacts/7d/f4/60/0737157bb9711fec72c70dff523aa54491eef317e0d586cf5388ff0908/wcwidth-0.2.5-py2.py3-none-any.whl
+webencodings==0.5.1
+websockets @ file:///home/agnirudra/.cache/pypoetry/artifacts/f5/4b/eb/5cfd043e0dbfe90c838bc1570b070131b9cc1f0ebf4a45a2c3e0fe9eb9/websockets-8.1.tar.gz
+widgetsnbextension==3.5.2
+yarl==1.7.2
