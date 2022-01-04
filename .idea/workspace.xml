@@ -5,51 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/Dockerfile.backend" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/Dockerfile.gateway" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/docker-compose.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/website/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/website/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/avault.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/avault.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/nginx.conf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/alembic/env.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/alembic/env.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/poetry.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/pyproject.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/gateway/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/gateway/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/gateway/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/gateway/src/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/.eslintrc.json" beforeDir="false" afterPath="$PROJECT_DIR$/website/.eslintrc.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/docker-compose.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/website/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useGetGuildMembers.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useGetGuildMembers.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useGetRoleMembers.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useGetRoleMembers.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useMessageDelete.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useMessageDelete.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/evil.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/gifs.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/login.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/login.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/markdown.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/marked.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/GifPicker/GifPicker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/GifPicker/GifPicker.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/MarkdownEditor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/MarkdownEditor.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/MessageBox.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/MessageBox.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/RoleMembers.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/RoleMembers.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ServerBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ServerBar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ServerItems.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ServerItems.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/code/highlightCode.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/code/highlightCode.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/code/importLanguage.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/code/importLanguage.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/emoji/convertEmojiToNames.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/emoji/convertEmojiToNames.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/codeBlock.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/codeBlock.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/mention.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/mention.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/routes/ChannelPermissions.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/routes/ChannelPermissions.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/stores/useGuildsStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useGuildsStore.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/next.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/website/next.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -240,14 +204,14 @@
     </configuration>
     <list>
       <item itemvalue="Docker.backend/docker-compose.yaml: Compose Deployment" />
-      <item itemvalue="FastAPI.Backend" />
-      <item itemvalue="npm.dev website" />
-      <item itemvalue="npm.watch" />
-      <item itemvalue="npm.dev" />
       <item itemvalue="Docker.backend/docker-compose.yaml.rabbit: Compose Deployment" />
       <item itemvalue="Docker.backend/docker-compose.yaml.postgres: Compose Deployment" />
       <item itemvalue="Docker.backend/Dockerfile.gateway" />
       <item itemvalue="Docker.backend/docker-compose.yaml.gateway: Compose Deployment" />
+      <item itemvalue="FastAPI.Backend" />
+      <item itemvalue="npm.dev website" />
+      <item itemvalue="npm.watch" />
+      <item itemvalue="npm.dev" />
     </list>
     <recent_temporary>
       <list>
@@ -326,7 +290,9 @@
       <workItem from="1641212691231" duration="3466000" />
       <workItem from="1641230042964" duration="360000" />
       <workItem from="1641230417578" duration="1036000" />
-      <workItem from="1641231463086" duration="4190000" />
+      <workItem from="1641231463086" duration="4565000" />
+      <workItem from="1641268375604" duration="2224000" />
+      <workItem from="1641278472845" duration="675000" />
     </task>
     <servers />
   </component>

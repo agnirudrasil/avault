@@ -82,7 +82,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
         );
 
     useEffect(() => {
-        const socket = io("http://localhost:8080" || "", {
+        const socket = io(process.env.NEXT_PUBLIC_GATEWAY_URL || "", {
             transports: ["websocket"],
             path: "/",
             parser,

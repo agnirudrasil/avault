@@ -1,4 +1,6 @@
-FROM node
+FROM node:17
+
+ENV NODE_OPTIONS=--openssl-legacy-provider
 
 COPY ./package.json .
 

@@ -28,6 +28,7 @@ aiohttp = "^3.8.1"
 aioredis = "^2.0.1"
 aio-pika = "^6.8.1"
 msgpack = "^1.0.3"
+argon2_cffi = "^21.3.0"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.770"

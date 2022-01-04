@@ -140,4 +140,4 @@ cython_debug/
 node_modules
 .next
 
-backend/data
+data/db

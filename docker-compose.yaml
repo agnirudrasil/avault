@@ -40,10 +40,18 @@ services:
       interval: 3s
       timeout: 10s
       retries: 3
-  gateway:
-    image: gateway
+  website:
+    image: agnirudrasil/avault-website
     build:
-      context: .
+      context: ./website
+      dockerfile: ./Dockerfile
+    ports:
+      - "3000:3000"
+  gateway:
+    image: agnirudrasil/avault-gateway
+    restart: on-failure
+    build:
+      context: ./backend
       dockerfile: ./Dockerfile.gateway
     ports:
       - "8080:8080"
@@ -53,12 +61,14 @@ services:
       - rabbit
       - redis
     depends_on:
+      - rabbit
+      - redis
       - api
   api:
-    image: fastapi-backend
+    image: agnirudrasil/avault-api
     build:
-      context: .
-      dockerfile: Dockerfile.backend
+      context: ./backend
+      dockerfile: ./Dockerfile.backend
     ports:
       - "8000:80"
     environment:
