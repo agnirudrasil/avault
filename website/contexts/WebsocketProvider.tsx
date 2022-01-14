@@ -1,7 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import io, { Socket } from "socket.io-client";
 import { asyncGetAccessToken } from "../src/access-token";
-import parser from "socket.io-msgpack-parser";
 import { useGuildsStore } from "../stores/useGuildsStore";
 import { useChannelsStore } from "../stores/useChannelsStore";
 import { Channel } from "../types/channels";
@@ -85,7 +84,6 @@ export const WebsocketProvider: React.FC = ({ children }) => {
         const socket = io(process.env.NEXT_PUBLIC_GATEWAY_URL || "", {
             transports: ["websocket"],
             path: "/",
-            parser,
         });
         setSocket(socket);
         return () => {
@@ -179,7 +177,10 @@ export const WebsocketProvider: React.FC = ({ children }) => {
             socket.on("MESSAGE_REACTION_REMOVE_EMOJI", data => {
                 messageReactionRemoveEmoji(data);
             });
-            socket.on("disconnect", () => {
+            socket.on("disconnect", reason => {
+                if (reason === "io server disconnect") {
+                    router.replace("/login");
+                }
                 console.log("Disconnected");
             });
             socket.on("connect_error", data => {

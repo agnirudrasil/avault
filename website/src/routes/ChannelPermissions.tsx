@@ -18,29 +18,142 @@ import {
     ToggleButtonGroup,
     ListSubheader,
     IconButton,
+    Menu,
+    MenuItem,
 } from "@mui/material";
 import produce from "immer";
 import { Permissions } from "../permissions";
 import { NextRouter, useRouter } from "next/router";
-import { Dispatch, SetStateAction, useMemo, useState } from "react";
-import { useChannelUpdate } from "../../hooks/requests/useUpdateChannel";
+import {
+    Dispatch,
+    SetStateAction,
+    useCallback,
+    useMemo,
+    useState,
+} from "react";
 import { useUnsaved } from "../../hooks/useUnsaved";
 import { useChannelsStore } from "../../stores/useChannelsStore";
 import { Android12Switch } from "../components/Form/AndroidSwitch";
 import { ChannelSettingsLayout } from "../components/layouts/ChannelSettingsLayout";
 import { checkPermissions } from "../compute-permissions";
-import { Channel } from "../../types/channels";
+import { Channel, Overwrites } from "../../types/channels";
 import { permissions } from "../permissions";
+import { useUpdateChannelPermissions } from "../../hooks/requests/useUpdateChannelPermissions";
+import isEqual from "lodash.isequal";
+import { Roles, useRolesStore } from "../../stores/useRolesStore";
+import { Guild, useGuildsStore } from "../../stores/useGuildsStore";
+import React from "react";
+import { useDeleteChannelPermissions } from "../../hooks/requests/useDeleteChannelPermissions";
 
 const TransitionComponent = (props: any) => {
     return <Slide {...props} direction="up" unmountOnExit />;
 };
 
+const RolesMembersPicker: React.FC<{ roles: Roles[]; guild: Guild }> = ({
+    roles,
+    guild,
+}) => {
+    const router = useRouter();
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const { mutateAsync } = useUpdateChannelPermissions(
+        router.query.channel as string
+    );
+
+    const handleClose = async (type?: 0 | 1, id?: string) => {
+        setAnchorEl(null);
+        if (type !== undefined && id !== undefined) {
+            await mutateAsync({
+                type,
+                id,
+                allow: "0",
+                deny: "0",
+            });
+        }
+    };
+
+    return (
+        <ListSubheader sx={{ width: "100%" }} disableSticky>
+            <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={() => handleClose()}
+                MenuListProps={{
+                    "aria-labelledby": "basic-button",
+                }}
+                PaperProps={{
+                    style: {
+                        maxHeight: 48 * 4.5,
+                        width: "17ch",
+                    },
+                }}
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                }}
+                transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                }}
+            >
+                <ListSubheader disableSticky>
+                    <Typography variant="button" sx={{ userSelect: "none" }}>
+                        Roles
+                    </Typography>
+                </ListSubheader>
+                {roles.map(
+                    role =>
+                        !(router.query.server_id === role.id) && (
+                            <MenuItem onClick={() => handleClose(0, role.id)}>
+                                <Typography
+                                    sx={{
+                                        color: `#${role.color.toString(16)}`,
+                                    }}
+                                >
+                                    {role.name}
+                                </Typography>
+                            </MenuItem>
+                        )
+                )}
+                <ListSubheader disableSticky>
+                    <Typography variant="button" sx={{ userSelect: "none" }}>
+                        Members
+                    </Typography>
+                </ListSubheader>
+                {guild.members.map(m => (
+                    <MenuItem onClick={() => handleClose(1, m.user.id)}>
+                        {m.nick || m.user.username}
+                    </MenuItem>
+                ))}
+            </Menu>
+            <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+            >
+                <Typography sx={{ userSelect: "none" }} variant="button">
+                    Roles/Members
+                </Typography>
+                <IconButton onClick={handleClick} size="small">
+                    <Add fontSize="small" />
+                </IconButton>
+            </Stack>
+        </ListSubheader>
+    );
+};
+
 const ToggleSwtich: React.FC<{
     isChannelPrivate: boolean;
+    data?: Channel;
     setOgdata: Dispatch<SetStateAction<Channel | undefined>>;
     router: NextRouter;
-}> = ({ isChannelPrivate, setOgdata, router }) => {
+}> = ({ isChannelPrivate, setOgdata, router, data }) => {
     return (
         <Android12Switch
             checked={isChannelPrivate}
@@ -76,15 +189,21 @@ const ToggleSwtich: React.FC<{
                             );
                             if (ov >= 0) {
                                 if (
-                                    draft.overwrites[ov].deny ===
-                                        Permissions.VIEW_CHANNEL &&
-                                    draft.overwrites[ov].allow === "0"
+                                    !data?.overwrites.find(
+                                        o =>
+                                            o.id ===
+                                            (router.query.server_id as string)
+                                    )
                                 ) {
-                                    draft.overwrites.splice(ov, 1);
+                                    draft.overwrites = draft.overwrites.filter(
+                                        o =>
+                                            o.id !==
+                                            (router.query.server_id as string)
+                                    );
                                 } else {
                                     draft.overwrites[ov].deny = (
                                         BigInt(draft.overwrites[ov].deny) &
-                                        BigInt(Permissions.VIEW_CHANNEL)
+                                        ~BigInt(Permissions.VIEW_CHANNEL)
                                     ).toString();
                                 }
                             }
@@ -98,6 +217,13 @@ const ToggleSwtich: React.FC<{
 
 export const ChannelPermissions = () => {
     const router = useRouter();
+
+    const roles = useRolesStore(
+        state => state[router.query.server_id as string]
+    );
+    const guild = useGuildsStore(
+        state => state[router.query.server_id as string]
+    );
     const [selected, setSelected] = useState(router.query.server_id as string);
     const channels = useChannelsStore(
         state => state[router.query.server_id as string]
@@ -105,9 +231,10 @@ export const ChannelPermissions = () => {
     const channel = channels?.find(
         c => c.id === (router.query.channel as string)
     );
+
     const { handleReset, unsaved, ogData, setOgdata } = useUnsaved(channel);
     const isChannelPrivate = useMemo(() => {
-        const overwrite = channel?.overwrites.find(
+        const overwrite = ogData?.overwrites?.find(
             o => o.id === (router.query.server_id as string)
         );
         if (
@@ -118,18 +245,148 @@ export const ChannelPermissions = () => {
         }
     }, [ogData]);
 
-    const { mutate, isLoading } = useChannelUpdate();
+    const { isLoading, mutateAsync } = useUpdateChannelPermissions(
+        router.query.channel as string
+    );
 
-    const saveFn = () => {
-        if (!ogData?.name) return;
+    const { isLoading: deleting, mutateAsync: deleteAsync } =
+        useDeleteChannelPermissions(router.query.channel as string);
 
-        mutate({
-            channelId: ogData.id,
-            data: {
-                name: ogData.name,
-                topic: ogData.topic || "",
-            },
+    const saveFn = async () => {
+        const actions = (ogData?.overwrites || []).map(ov => {
+            const overwrite = channel?.overwrites?.find(o => o.id === ov.id);
+            if (!isEqual(ov, overwrite)) {
+                return mutateAsync(ov);
+            }
         });
+
+        await Promise.all(actions);
+    };
+
+    const returnValue = useCallback(
+        (value: bigint): "allow" | "deny" | "none" => {
+            const ov = ogData?.overwrites?.find(o => o.id === selected);
+            if (ov) {
+                if ((BigInt(ov.allow) & value) === value) {
+                    return "allow";
+                }
+                if ((BigInt(ov.deny) & value) === value) {
+                    return "deny";
+                }
+            }
+
+            return "none";
+        },
+        [ogData, selected]
+    );
+
+    const handleOverwriteChange = (value: any | null, permission: bigint) => {
+        if (value !== null) {
+            setOgdata(p =>
+                produce(p, draft => {
+                    if (!draft) return;
+                    const ov = draft?.overwrites?.findIndex(
+                        o => o.id === selected
+                    );
+                    if (ov !== null && ov !== undefined) {
+                        switch (value) {
+                            case "allow":
+                                if (ov < 0) {
+                                    draft.overwrites.push({
+                                        id: selected,
+                                        type: 0,
+                                        allow: permission.toString(),
+                                        deny: "0",
+                                    });
+                                } else {
+                                    draft.overwrites[ov].allow = (
+                                        BigInt(draft.overwrites[ov].allow) |
+                                        permission
+                                    ).toString();
+                                    draft.overwrites[ov].deny = (
+                                        BigInt(draft.overwrites[ov].deny) &
+                                        ~permission
+                                    ).toString();
+                                }
+                                break;
+                            case "deny":
+                                if (ov < 0) {
+                                    draft.overwrites.push({
+                                        id: selected,
+                                        type: 0,
+                                        allow: "0",
+                                        deny: permission.toString(),
+                                    });
+                                } else {
+                                    draft.overwrites[ov].deny = (
+                                        BigInt(draft.overwrites[ov].deny) |
+                                        permission
+                                    ).toString();
+
+                                    draft.overwrites[ov].allow = (
+                                        BigInt(draft.overwrites[ov].allow) &
+                                        ~permission
+                                    ).toString();
+                                }
+                                break;
+                            case "none":
+                                if (ov < 0) {
+                                    draft.overwrites = draft.overwrites.filter(
+                                        o => o.id !== selected
+                                    );
+                                } else {
+                                    const allowBit =
+                                        BigInt(draft.overwrites[ov].allow) &
+                                        ~permission;
+                                    const denyBit =
+                                        BigInt(draft.overwrites[ov].deny) &
+                                        ~permission;
+                                    if (
+                                        allowBit === BigInt(0) &&
+                                        denyBit === BigInt(0) &&
+                                        selected === router.query.server_id
+                                    ) {
+                                        if (
+                                            !channel?.overwrites.find(
+                                                o => o.id === selected
+                                            )
+                                        ) {
+                                            draft.overwrites =
+                                                draft.overwrites.filter(
+                                                    o => o.id !== selected
+                                                );
+                                            break;
+                                        }
+                                    }
+                                    draft.overwrites[ov].allow =
+                                        allowBit.toString();
+
+                                    draft.overwrites[ov].deny =
+                                        denyBit.toString();
+                                }
+                                break;
+                        }
+                    }
+                })
+            );
+        }
+    };
+
+    const getLabel = (overwrite: Overwrites) => {
+        if (overwrite.type === 0) {
+            const role = roles?.find(r => r.id === overwrite.id);
+            return {
+                primary: role?.name || "",
+                sx: {
+                    color: `#${role?.color.toString(16)}`,
+                },
+            };
+        }
+        const member = guild.members.find(m => m.user.id === overwrite.id);
+        if (member) {
+            return { primary: member.nick || member.user.username };
+        }
+        return { primary: "" };
     };
 
     return (
@@ -196,6 +453,7 @@ export const ChannelPermissions = () => {
                     color="info"
                     action={
                         <ToggleSwtich
+                            data={channel}
                             setOgdata={setOgdata}
                             isChannelPrivate={Boolean(isChannelPrivate)}
                             router={router}
@@ -218,26 +476,25 @@ export const ChannelPermissions = () => {
                 <Stack gap="1rem" direction={"row"}>
                     <List
                         subheader={
-                            <ListSubheader sx={{ width: "100%" }} disableSticky>
-                                <Stack
-                                    direction="row"
-                                    justifyContent="space-between"
-                                    alignItems="center"
-                                >
-                                    <Typography
-                                        sx={{ userSelect: "none" }}
-                                        variant="button"
-                                    >
-                                        Roles/Members
-                                    </Typography>
-                                    <IconButton size="small">
-                                        <Add fontSize="small" />
-                                    </IconButton>
-                                </Stack>
-                            </ListSubheader>
+                            <RolesMembersPicker roles={roles} guild={guild} />
                         }
                         dense
                     >
+                        {channel?.overwrites.map(
+                            overwrite =>
+                                overwrite.id !== router.query.server_id && (
+                                    <ListItemButton
+                                        selected={selected === overwrite.id}
+                                        onClick={() =>
+                                            setSelected(overwrite.id)
+                                        }
+                                    >
+                                        <ListItemText
+                                            {...getLabel(overwrite)}
+                                        />
+                                    </ListItemButton>
+                                )
+                        )}
                         <ListItemButton
                             selected={selected === router.query.server_id}
                             onClick={() =>
@@ -246,20 +503,6 @@ export const ChannelPermissions = () => {
                         >
                             <ListItemText primary={"@everyone"} />
                         </ListItemButton>
-                        {channel?.overwrites.map(
-                            overwrite =>
-                                overwrite.id !==
-                                    (router.query.server_id as string) && (
-                                    <ListItemButton
-                                        selected={selected === overwrite.id}
-                                        onClick={() =>
-                                            setSelected(overwrite.id)
-                                        }
-                                    >
-                                        <ListItemText primary={"@everyone"} />
-                                    </ListItemButton>
-                                )
-                        )}
                     </List>
                     <List style={{ width: "100%" }}>
                         {permissions.map(({ title, value, permission }) => (
@@ -269,20 +512,67 @@ export const ChannelPermissions = () => {
                                     secondary={permission}
                                 />
                                 <ListItemSecondaryAction>
-                                    <ToggleButtonGroup exclusive>
-                                        <ToggleButton value={value}>
-                                            <Clear />
+                                    <ToggleButtonGroup
+                                        value={returnValue(BigInt(value))}
+                                        onChange={(_, v) => {
+                                            handleOverwriteChange(
+                                                v,
+                                                BigInt(value)
+                                            );
+                                        }}
+                                        exclusive
+                                        size="small"
+                                    >
+                                        <ToggleButton
+                                            color="error"
+                                            value="deny"
+                                        >
+                                            <Clear
+                                                color="error"
+                                                fontSize="small"
+                                            />
                                         </ToggleButton>
-                                        <ToggleButton value={value}>
-                                            <FiberManualRecord />
+                                        <ToggleButton color="info" value="none">
+                                            <FiberManualRecord
+                                                color="info"
+                                                fontSize="small"
+                                            />
                                         </ToggleButton>
-                                        <ToggleButton value={value}>
-                                            <Done />
+                                        <ToggleButton
+                                            color="success"
+                                            value="allow"
+                                        >
+                                            <Done
+                                                color="success"
+                                                fontSize="small"
+                                            />
                                         </ToggleButton>
                                     </ToggleButtonGroup>
                                 </ListItemSecondaryAction>
                             </ListItem>
                         ))}
+                        {router.query.server_id !== selected && (
+                            <ListItemButton
+                                onClick={async () => {
+                                    setSelected(
+                                        router.query.server_id as string
+                                    );
+                                    await deleteAsync(selected);
+                                }}
+                                disableGutters
+                                disabled={deleting}
+                                color="error"
+                            >
+                                <ListItemText
+                                    color="error"
+                                    primary={
+                                        <Typography color="error">
+                                            Delete Permission
+                                        </Typography>
+                                    }
+                                />
+                            </ListItemButton>
+                        )}
                     </List>
                 </Stack>
             </div>

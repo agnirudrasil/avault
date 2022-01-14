@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 
-from sqlalchemy import Column, ForeignKey, String, DateTime, Boolean, UniqueConstraint, func, BigInteger, Text
+from sqlalchemy import Column, ForeignKey, DateTime, Boolean, UniqueConstraint, func, BigInteger, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
@@ -17,7 +17,7 @@ class Reactions(Base):
         'messages.id', ondelete="CASCADE"))
     user_id = Column(BigInteger, ForeignKey(
         'users.id', ondelete="CASCADE"))
-    reaction = Column(String(1), nullable=False)
+    reaction = Column(Text, nullable=False)
     message = relationship('Message', back_populates='reactions')
     user = relationship('User')
     __table_args__ = (

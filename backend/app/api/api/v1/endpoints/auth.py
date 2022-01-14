@@ -2,10 +2,10 @@ from datetime import timedelta
 from typing import Any
 
 from fastapi import APIRouter, Cookie, Form, Depends, Response, HTTPException, status
-from pydantic import EmailStr, ValidationError
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
 from jose import jwt
+from pydantic import EmailStr, ValidationError
+from sqlalchemy.orm import Session
 
 from api import crud, models, schemas
 from api.api import deps
@@ -18,17 +18,18 @@ router = APIRouter()
 @router.post('/register')
 def register(
         response: Response,
-        email: EmailStr = Form(''),
-        username: str = Form('', min_length=3, max_length=80),
-        password: str = Form('', min_length=6, max_lenght=25,
-                             regex='^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'),
+        email: EmailStr = Form(...),
+        username: str = Form(..., min_length=3, max_length=80),
+        password: str = Form(..., min_length=8, max_length=25,
+                             regex="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"),
         db: Session = Depends(deps.get_db)):
     email = email.lower().strip()
-    username = username.lower().strip()
-    user = db.query(models.User).filter_by(email=email.lower()).first()
-    if (user):
+    username = username.strip()
+    user = db.query(models.User).filter_by(email=email).first()
+    print(user)
+    if user:
         response.status_code = 409
-        return {'error': 'User already exists'}
+        return {"error": "User Already Exists"}
     user = models.User(username, password, email, db)
     db.add(user)
     db.commit()
@@ -38,9 +39,9 @@ def register(
 
 @router.post("/access-token", response_model=schemas.Token)
 def login_access_token(
-    response: Response,
-    db: Session = Depends(deps.get_db),
-    form_data: OAuth2PasswordRequestForm = Depends()
+        response: Response,
+        db: Session = Depends(deps.get_db),
+        form_data: OAuth2PasswordRequestForm = Depends()
 ) -> Any:
     """
     OAuth2 compatible token login, get an access token for future requests

@@ -5,6 +5,7 @@ import aio_pika
 from api import models
 from api.api.deps import get_db
 from api.core import emitter
+from api.core.config import settings
 from api.core.security import verify_jwt
 from api.models.user import User
 from jose import jwt
@@ -16,19 +17,21 @@ async def handle_message(message):
     msgobj = json.loads(message)
     if msgobj["event"] == "IDENTIFY":
         try:
-            data = verify_jwt(msgobj.get("token", ""))
+            token = msgobj.get("token", "")
+            data = verify_jwt(token)
             socket_id = msgobj["id"]
             db: Session = next(get_db())
             user: User = db.query(models.User).filter_by(id=data.sub).first()
             if user:
-                await emitter.in_room(socket_id).sockets_join(str(user.id))
+                rooms = [str(user.id)]
                 guilds = user.guilds
                 guild_data = []
                 merged_members = []
                 for guild in guilds:
-                    await emitter.in_room(socket_id).sockets_join(str(guild.guild.id))
+                    rooms.append(str(guild.guild.id))
                     guild_data.append(guild.guild.serialize())
                     merged_members.append(guild.serialize())
+                await emitter.in_room(socket_id).sockets_join(rooms)
                 await emitter.in_room(socket_id).emit(
                     "READY", {"guilds": guild_data, "user": user.json(),
                               "private_channels": [channel.serialize() for channel in user.channel_members],
@@ -43,7 +46,7 @@ async def handle_message(message):
 
 async def consume(loop: AbstractEventLoop):
     connection = await aio_pika.connect_robust(
-        host="rabbit", loop=loop
+        host=settings.RABBITMQ_HOST, loop=loop
     )
 
     queue_name = "gateway_api_talks"

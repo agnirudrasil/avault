@@ -11,6 +11,12 @@ COPY ./app/pyproject.toml ./app/poetry.lock* /code/
 
 RUN poetry install
 
+ENV RABBITMQ_HOST rabbit
+
+ENV REDIS_HOST redis
+
+ENV POSTGRES_HOST postgres
+
 COPY ./app /code/app
 
 WORKDIR /code/app/

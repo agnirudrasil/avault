@@ -1,22 +1,23 @@
+from fastapi import APIRouter, Depends, Response
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+
 from api.api import deps
 from api.api.v1.endpoints import auth, channels, gifs, users, guilds, invites, default
+from api.core import emitter
 from api.core.events import Events, websocket_emitter
 from api.models.guilds import Guild, GuildMembers
 from api.models.invites import Invite
 from api.models.user import User
-from fastapi import APIRouter, Depends, BackgroundTasks, Response
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
 
 api_router = APIRouter()
 
 
 @api_router.get('/join/{code}')
-def join_guild(code: str,
-               background_task: BackgroundTasks,
-               response: Response,
-               current_user: User = Depends(deps.get_current_user_refresh_token),
-               db: Session = Depends(deps.get_db)):
+async def join_guild(code: str,
+                     response: Response,
+                     current_user: User = Depends(deps.get_current_user_refresh_token),
+                     db: Session = Depends(deps.get_db)):
     invite: Invite = db.query(Invite).filter_by(id=code).first()
     if invite:
         guild_id = invite.channel.guild_id
@@ -46,10 +47,11 @@ def join_guild(code: str,
                 db.add(invite)
                 db.commit()
                 response.status_code = 200
-                background_task.add_task(websocket_emitter, None, invite.channel.guild_id, Events.GUILD_MEMBER_ADD,
-                                         guild_member.serialize())
-                background_task.add_task(websocket_emitter, None, invite.channel.guild_id, Events.GUILD_CREATE,
-                                         guild.serialize())
+                await emitter.in_room(str(current_user.id)).sockets_join(str(guild_id))
+                await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_MEMBER_ADD,
+                                        guild_member.serialize())
+                await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_CREATE,
+                                        guild.serialize(), current_user.id)
                 return {"message": "Joined guild"}
             except IntegrityError:
                 response.status_code = 403

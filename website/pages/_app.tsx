@@ -9,6 +9,7 @@ import { useState } from "react";
 import { WebsocketProvider } from "../contexts/WebsocketProvider";
 import "emoji-mart/css/emoji-mart.css";
 import "../styles/styles.css";
+import { useRouter } from "next/router";
 
 const clientSideCache = createEmotionCache();
 
@@ -20,15 +21,21 @@ interface MyAppProps extends AppProps {
 const MyApp = (props: MyAppProps) => {
     const { Component, emotionCache = clientSideCache, pageProps } = props;
     const [queryClient] = useState(() => new QueryClient());
+    const router = useRouter();
 
     return (
         <QueryClientProvider client={queryClient}>
             <CacheProvider value={emotionCache}>
                 <ThemeProvider theme={theme}>
                     <CssBaseline />
-                    <WebsocketProvider>
+                    {router.asPath.startsWith("/login") ||
+                    router.asPath.startsWith("/register") ? (
                         <Component {...pageProps} />
-                    </WebsocketProvider>
+                    ) : (
+                        <WebsocketProvider>
+                            <Component {...pageProps} />
+                        </WebsocketProvider>
+                    )}
                 </ThemeProvider>
             </CacheProvider>
         </QueryClientProvider>

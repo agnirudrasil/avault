@@ -1,9 +1,9 @@
 import enum
 import json
-from typing import List, Any, Union
-from aioredis import Redis
+from typing import List, Union
 
 import msgpack
+from aioredis import Redis
 
 
 class RequestType(int, enum.Enum):
@@ -61,8 +61,8 @@ class Emitter:
     def volatile(self):
         return BroadcastOperator(self.redis_client, self.broadcast_options).volatile()
 
-    def compress(self, compress: bool):
-        return BroadcastOperator(self.redis_client, self.broadcast_options).compress(compress)
+    def compress(self, _compress: bool = True):
+        return BroadcastOperator(self.redis_client, self.broadcast_options).compress(_compress)
 
     async def sockets_join(self, rooms: Union[List[str], str]):
         return await BroadcastOperator(self.redis_client, self.broadcast_options).sockets_join(rooms)
@@ -145,8 +145,8 @@ class BroadcastOperator:
                                  except_rooms,
                                  self.flags)
 
-    def compress(self, compress: bool):
-        flags = {**self.flags, 'compress': compress}
+    def compress(self, _compress: bool = True):
+        flags = {**self.flags, 'compress': _compress}
         return BroadcastOperator(self.redis_client, self.broadcast_options, self.rooms, self.except_rooms, flags)
 
     def volatile(self):
@@ -175,8 +175,6 @@ class BroadcastOperator:
 
         msg = msgpack.packb([UID, packet, opts])
         channel = self.broadcast_options['broadcast_channel']
-        if self.rooms:
-            channel += next(iter(self.rooms)) + "#"
 
         await self.redis_client.publish(channel, msg)
 

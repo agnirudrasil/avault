@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, List, Optional, Union
 
 import sqlalchemy.exc
-from fastapi import APIRouter, Depends, Response, BackgroundTasks
+from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel, root_validator
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
@@ -67,17 +67,16 @@ def get_messages(channel_id: int,
 
 
 @router.post('/{channel_id}/messages')
-def create_message(channel_id: int,
-                   body: MessageCreate,
-                   background_task: BackgroundTasks,
-                   dependency: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES)),
-                   db: Session = Depends(deps.get_db)) -> dict:
+async def create_message(channel_id: int,
+                         body: MessageCreate,
+                         dependency: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES)),
+                         db: Session = Depends(deps.get_db)) -> dict:
     channel, current_user = dependency
     message = Message(body.content.strip(), channel_id, current_user.id)
     db.add(message)
     db.commit()
-    background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.MESSAGE_CREATE,
-                             message.serialize(current_user.id, db))
+    await websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_CREATE,
+                            message.serialize(current_user.id, db))
     return message.serialize(current_user.id, db)
 
 
@@ -101,7 +100,6 @@ def get_message(channel_id: int,
 async def delete_message(channel_id: int,
                          message_id: int,
                          response: Response,
-                         background_task: BackgroundTasks,
                          current_user: User = Depends(deps.get_current_user),
                          db: Session = Depends(deps.get_db)) -> Union[None, dict[str, str]]:
     perm_checker = deps.ChannelPerms(Permissions.MANAGE_MESSAGES)
@@ -113,9 +111,9 @@ async def delete_message(channel_id: int,
             db.delete(message)
             db.commit()
             response.status_code = 204
-            background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.MESSAGE_DELETE,
-                                     {"id": str(message.id), "channel_id": str(channel.id),
-                                      'guild_id': str(channel.guild_id)})
+            await websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_DELETE,
+                                    {"id": str(message.id), "channel_id": str(channel.id),
+                                     'guild_id': str(channel.guild_id)})
             return
         response.status_code = 401
         return {"message": "Not authorized"}
@@ -125,15 +123,15 @@ async def delete_message(channel_id: int,
 
 @router.delete('/{channel_id}/messages/bulk-delete', status_code=204,
                dependencies=[])
-def bulk_delete_messages(channel_id: int, body: MessageBulkDelete, background_task: BackgroundTasks,
-                         dependencies: Channel = Depends(deps.ChannelPerms(Permissions.MANAGE_MESSAGES)),
-                         db: Session = Depends(deps.get_db)):
+async def bulk_delete_messages(channel_id: int, body: MessageBulkDelete,
+                               dependencies: Channel = Depends(deps.ChannelPerms(Permissions.MANAGE_MESSAGES)),
+                               db: Session = Depends(deps.get_db)):
     db.query(Message).filter_by(channel_id=channel_id).filter(Message.id.in_(map(int, body.messages))).delete()
 
     channel, user = dependencies
-    background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.MESSAGE_DELETE_BULK,
+    await (websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_DELETE_BULK,
                              {"ids": map(str, body.messages), "channel_id": str(channel.id),
-                              'guild_id': str(channel.guild_id)})
+                              'guild_id': str(channel.guild_id)}))
     return
 
 
@@ -142,7 +140,6 @@ async def edit_message(channel_id: int,
                        message_id: int,
                        message: MessageCreate,
                        response: Response,
-                       background_task: BackgroundTasks,
                        current_user: User = Depends(deps.get_current_user),
                        db: Session = Depends(deps.get_db)) -> Union[dict, None]:
     perm_checker = deps.ChannelPerms(Permissions.MANAGE_MESSAGES)
@@ -156,8 +153,8 @@ async def edit_message(channel_id: int,
                 prev_message.content = message.content.strip()
                 prev_message.edited_timestamp = datetime.utcnow()
             db.commit()
-            background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.MESSAGE_UPDATE,
-                                     prev_message.serialize(current_user.id, db))
+            await (websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_UPDATE,
+                                     prev_message.serialize(current_user.id, db)))
             return prev_message.serialize(current_user.id, db)
         response.status_code = 403
         return {"message": "Not authorized"}
@@ -165,7 +162,7 @@ async def edit_message(channel_id: int,
     return
 
 
-async def create_reaction_with_perms(permission, channel, current_user, db, background_task, message, emoji):
+async def create_reaction_with_perms(permission, channel, current_user, db, message, emoji):
     perms_checker = deps.ChannelPerms(permission)
     if await perms_checker.is_valid(channel, current_user, db):
         try:
@@ -173,7 +170,7 @@ async def create_reaction_with_perms(permission, channel, current_user, db, back
             message.reactions.append(reaction)
             db.add(message)
             db.commit()
-            background_task.add_task(websocket_emitter, channel.id, channel.guild_id, Events.MESSAGE_REACTION_ADD, {
+            await websocket_emitter(channel.id, channel.guild_id, Events.MESSAGE_REACTION_ADD, {
                 'user_id': str(current_user.id),
                 'channel_id': str(channel.id),
                 'message_id': str(message.id),
@@ -188,7 +185,6 @@ async def create_reaction_with_perms(permission, channel, current_user, db, back
 
 @router.put('/{channel_id}/message/{message_id}/reactions/{emoji}/@me', status_code=204)
 async def create_reaction(channel_id: int, message_id: int, emoji: str,
-                          background_task: BackgroundTasks,
                           db: Session = Depends(deps.get_db),
                           current_user: User = Depends(deps.get_current_user)) -> Optional[Response]:
     message: Message = db.query(Message).filter_by(id=message_id).filter_by(channel_id=channel_id).first()
@@ -196,14 +192,14 @@ async def create_reaction(channel_id: int, message_id: int, emoji: str,
     if message:
         if len(message.reactions) == 0:
             try:
-                await create_reaction_with_perms(Permissions.ADD_REACTIONS, channel, current_user, db, background_task,
+                await create_reaction_with_perms(Permissions.ADD_REACTIONS, channel, current_user, db,
                                                  message, emoji)
                 return
             except ValueError:
                 return Response(status_code=403)
         else:
             try:
-                await create_reaction_with_perms(Permissions.VIEW_CHANNEL, channel, current_user, db, background_task,
+                await create_reaction_with_perms(Permissions.VIEW_CHANNEL, channel, current_user, db,
                                                  message, emoji)
                 return
             except ValueError:
@@ -213,10 +209,10 @@ async def create_reaction(channel_id: int, message_id: int, emoji: str,
 
 
 @router.delete('/{channel_id}/message/{message_id}/reactions/{emoji}/@me')
-def delete_reaction(channel_id: int, message_id: int, emoji: str, background_task: BackgroundTasks,
-                    db: Session = Depends(deps.get_db),
-                    dependencies: tuple[Channel, User] = Depends(
-                        deps.ChannelPerms(Permissions.VIEW_CHANNEL))) -> Response:
+async def delete_reaction(channel_id: int, message_id: int, emoji: str,
+                          db: Session = Depends(deps.get_db),
+                          dependencies: tuple[Channel, User] = Depends(
+                              deps.ChannelPerms(Permissions.VIEW_CHANNEL))) -> Response:
     channel, current_user = dependencies
     message: Message = db.query(Message).filter_by(
         id=message_id).filter_by(channel_id=channel_id).first()
@@ -226,26 +222,25 @@ def delete_reaction(channel_id: int, message_id: int, emoji: str, background_tas
             filter_by(user_id=current_user.id).first()
         if reaction:
             db.delete(reaction)
-            background_task.add_task(websocket_emitter, channel_id, message.channel.guild_id,
-                                     Events.MESSAGE_REACTION_REMOVE, {
-                                         'user_id': str(current_user.id),
-                                         'channel_id': str(channel_id),
-                                         'message_id': str(message_id),
-                                         'guild_id': str(channel.guild_id),
-                                         'emoji': emoji,
-                                     })
+            await websocket_emitter(channel_id, message.channel.guild_id,
+                                    Events.MESSAGE_REACTION_REMOVE, {
+                                        'user_id': str(current_user.id),
+                                        'channel_id': str(channel_id),
+                                        'message_id': str(message_id),
+                                        'guild_id': str(channel.guild_id),
+                                        'emoji': emoji,
+                                    })
         db.commit()
         return Response(status_code=204)
     return Response(status_code=404)
 
 
 @router.delete('/{channel_id}/message/{message_id}/reactions/{emoji}/{user_id}')
-def delete_reaction_by_user(channel_id: int, message_id: int, emoji: str,
-                            user_id: int,
-                            background_task: BackgroundTasks,
-                            dependencies: tuple[Channel, User] = Depends(
-                                deps.ChannelPerms(Permissions.MANAGE_MESSAGES)),
-                            db: Session = Depends(deps.get_db)) -> Response:
+async def delete_reaction_by_user(channel_id: int, message_id: int, emoji: str,
+                                  user_id: int,
+                                  dependencies: tuple[Channel, User] = Depends(
+                                      deps.ChannelPerms(Permissions.MANAGE_MESSAGES)),
+                                  db: Session = Depends(deps.get_db)) -> Response:
     channel, user = dependencies
     message: Message = db.query(Message).filter_by(
         id=message_id).filter_by(channel_id=channel_id).first()
@@ -255,14 +250,14 @@ def delete_reaction_by_user(channel_id: int, message_id: int, emoji: str,
             filter_by(user_id=user_id).first()
         if reaction:
             db.delete(reaction)
-            background_task.add_task(
-                websocket_emitter, channel_id, message.channel.guild_id, Events.MESSAGE_REACTION_REMOVE, {
-                    'user_id': str(user_id),
-                    'channel_id': str(channel_id),
-                    'message_id': str(message_id),
-                    'guild_id': str(channel.guild_id),
-                    'emoji': emoji,
-                })
+            await websocket_emitter(channel_id, message.channel.guild_id, Events.MESSAGE_REACTION_REMOVE,
+                                    {
+                                        'user_id': str(user_id),
+                                        'channel_id': str(channel_id),
+                                        'message_id': str(message_id),
+                                        'guild_id': str(channel.guild_id),
+                                        'emoji': emoji,
+                                    })
             db.commit()
         return Response(status_code=204)
     return Response(status_code=404)
@@ -270,77 +265,88 @@ def delete_reaction_by_user(channel_id: int, message_id: int, emoji: str,
 
 @router.get('/{channel_id}/message/{message_id}/reactions/{emoji}',
             dependencies=[Depends(deps.ChannelPerms([Permissions.VIEW_CHANNEL, Permissions.READ_MESSAGE_HISTORY]))])
-def get_reactions(channel_id: int, message_id: int, emoji: str,
-                  db: Session = Depends(deps.get_db)) -> Union[set[list], Response]:
+async def get_reactions(channel_id: int, message_id: int, emoji: str, limit: int = 3,
+                        db: Session = Depends(deps.get_db)) -> Union[set[list], Response]:
     message: Message = db.query(Message).filter_by(
         id=message_id).filter_by(channel_id=channel_id).first()
     if message:
         reactions: List[Reactions] = db.query(Reactions).filter_by(message_id=message_id). \
-            filter_by(reaction=emoji).limit(25).all()
-        return {[reaction.user.serialize() for reaction in reactions]}
+            filter_by(reaction=emoji).limit(limit).all()
+        return [reaction.user.serialize() for reaction in reactions]
     return Response(status_code=404)
 
 
 @router.delete('/{channel_id}/message/{message_id}/reactions')
-def delete_all_reactions(channel_id: int, message_id: int, background_task: BackgroundTasks,
-                         dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_MESSAGES)),
-                         db: Session = Depends(deps.get_db)) -> Response:
+async def delete_all_reactions(channel_id: int, message_id: int,
+                               dependencies: tuple[Channel, User] = Depends(
+                                   deps.ChannelPerms(Permissions.MANAGE_MESSAGES)),
+                               db: Session = Depends(deps.get_db)) -> Response:
     channel, _ = dependencies
     message: Message = db.query(Message).filter_by(
         id=message_id).filter_by(channel_id=channel_id).first()
     if message:
         db.query(Reactions).filter_by(
             message_id=message_id).delete(synchronize_session=False)
-        background_task.add_task(websocket_emitter, channel_id, message.channel.guild_id,
-                                 Events.MESSAGE_REACTION_REMOVE_ALL, {
-                                     'channel_id': str(channel_id),
-                                     'guild_id': str(channel.guild_id),
-                                     'message_id': str(message_id)
-                                 })
+        await websocket_emitter(channel_id, message.channel.guild_id,
+                                Events.MESSAGE_REACTION_REMOVE_ALL, {
+                                    'channel_id': str(channel_id),
+                                    'guild_id': str(channel.guild_id),
+                                    'message_id': str(message_id)
+                                })
         db.commit()
         return Response(status_code=204)
     return Response(status_code=404)
 
 
 @router.delete('/{channel_id}/message/{message_id}/reactions/{emoji}')
-def delete_all_reactions_with_same_emoji(channel_id: int, message_id: int, emoji: str, background_task: BackgroundTasks,
-                                         dependencies: tuple[Channel, User] = Depends(
-                                             deps.ChannelPerms(Permissions.MANAGE_MESSAGES)),
-                                         db: Session = Depends(deps.get_db)
-                                         ) -> Response:
+async def delete_all_reactions_with_same_emoji(channel_id: int, message_id: int, emoji: str,
+                                               dependencies: tuple[Channel, User] = Depends(
+                                                   deps.ChannelPerms(Permissions.MANAGE_MESSAGES)),
+                                               db: Session = Depends(deps.get_db)
+                                               ) -> Response:
     channel, user = dependencies
     message: Message = db.query(Message).filter_by(
         id=message_id).filter_by(channel_id=channel_id).first()
     if message:
         db.query(Reactions).filter_by(
             message_id=message_id).filter_by(reaction=emoji).delete(synchronize_session=False)
-        background_task.add_task(websocket_emitter, channel_id, message.channel.guild_id,
-                                 Events.MESSAGE_REACTION_REMOVE_EMOJI, {
-                                     'channel_id': str(channel_id),
-                                     'guild_id': str(channel.guild_id),
-                                     'message_id': str(message_id),
-                                     'emoji': emoji
-                                 })
+        await websocket_emitter(channel_id, message.channel.guild_id,
+                                Events.MESSAGE_REACTION_REMOVE_EMOJI, {
+                                    'channel_id': str(channel_id),
+                                    'guild_id': str(channel.guild_id),
+                                    'message_id': str(message_id),
+                                    'emoji': emoji
+                                })
         db.commit()
         return Response(status_code=204)
     return Response(status_code=404)
 
 
+@router.delete('/{channel_id}/permissions/{overwrite_id}')
+async def delete_permission(channel_id: int, overwrite_id: int,
+                            dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_ROLES)),
+                            db: Session = Depends(deps.get_db)) -> Response:
+    channel, _ = dependencies
+    db.query(Overwrite).filter_by(id=overwrite_id).filter_by(channel_id=channel_id).delete()
+    db.commit()
+    await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_UPDATE,
+                            channel.serialize())
+    return Response(status_code=204)
+
+
 # TODO optimize this
 @router.put('/{channel_id}/permissions/{overwrite_id}')
-def update_permissions(channel_id: int, overwrite_id: int,
-                       body: OverwriteSchema,
-                       background_task: BackgroundTasks,
-                       dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_ROLES)),
-                       db: Session = Depends(deps.get_db)) -> Response:
+async def update_permissions(channel_id: int, overwrite_id: int,
+                             body: OverwriteSchema,
+                             dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_ROLES)),
+                             db: Session = Depends(deps.get_db)) -> Response:
     channel, _ = dependencies
-    overwrite: Overwrite = db.query(Overwrite).filter_by(
+    existing_overwrite: Overwrite = db.query(Overwrite).filter_by(
         id=overwrite_id).filter_by(channel_id=channel_id).first()
-    if overwrite:
-        overwrite.allow = overwrite.allow
-        overwrite.deny = overwrite.deny
+    if existing_overwrite:
+        existing_overwrite.allow = body.allow
+        existing_overwrite.deny = body.deny
         db.commit()
-        return Response(status_code=204)
     else:
         if not channel.guild_id:
             return Response(status_code=400)
@@ -362,20 +368,19 @@ def update_permissions(channel_id: int, overwrite_id: int,
             allow=body.allow,
             deny=body.deny,
         )
-        db.add(overwrite)
+        channel.overwrites.append(overwrite)
         db.commit()
-    channel = db.query(Channel).filter_by(id=channel_id).first()
-    background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.CHANNEL_UPDATE,
-                             channel.serialize())
+    await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_UPDATE,
+                            channel.serialize())
     return Response(status_code=204)
 
 
 @router.post('/{channel_id}/invites')
-def create_invite(channel_id: int,
-                  data: ChannelInvite,
-                  background_task: BackgroundTasks,
-                  dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.CREATE_INSTANT_INVITE)),
-                  db: Session = Depends(deps.get_db)):
+async def create_invite(channel_id: int,
+                        data: ChannelInvite,
+                        dependencies: tuple[Channel, User] = Depends(
+                            deps.ChannelPerms(Permissions.CREATE_INSTANT_INVITE)),
+                        db: Session = Depends(deps.get_db)):
     channel, current_user = dependencies
     if not data.unique:
         invite = db.query(Invite).filter_by(channel_id=channel_id). \
@@ -388,7 +393,7 @@ def create_invite(channel_id: int,
                     data.max_age, data.max_uses, db)
     db.add(invite)
     db.commit()
-    background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.INVITE_CREATE, invite.serialize())
+    await websocket_emitter(channel_id, channel.guild_id, Events.INVITE_CREATE, invite.serialize())
     return invite.serialize()
 
 
@@ -406,11 +411,10 @@ def get_channel(dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(P
 
 
 @router.patch('/{channel_id}', dependencies=[Depends(deps.ChannelPerms(Permissions.MANAGE_CHANNELS))])
-def edit_channel(channel_id: int,
-                 body: ChannelEdit,
-                 response: Response,
-                 background_task: BackgroundTasks,
-                 db: Session = Depends(deps.get_db)):
+async def edit_channel(channel_id: int,
+                       body: ChannelEdit,
+                       response: Response,
+                       db: Session = Depends(deps.get_db)):
     channel = db.query(Channel).filter_by(id=channel_id).first()
     if channel:
         channel.name = body.name
@@ -419,33 +423,31 @@ def edit_channel(channel_id: int,
         if body.topic:
             channel.topic = body.topic
         db.commit()
-        background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.CHANNEL_UPDATE,
-                                 channel.serialize())
+        await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_UPDATE,
+                                channel.serialize())
         return channel.serialize()
     response.status_code = 404
     return {"message": "Channel not found"}
 
 
 @router.delete("/{channel_id}", dependencies=[Depends(deps.ChannelPerms(Permissions.MANAGE_CHANNELS))])
-def delete_channel(channel_id: int,
-                   background_task: BackgroundTasks,
-                   db: Session = Depends(deps.get_db)):
+async def delete_channel(channel_id: int,
+                         db: Session = Depends(deps.get_db)):
     channel = db.query(Channel).filter_by(id=channel_id).first()
     if channel:
         db.delete(channel)
         db.commit()
-        background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.CHANNEL_DELETE,
-                                 channel.serialize())
+        await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_DELETE,
+                                channel.serialize())
         return {"success": True}
     return {"success": False}
 
 
 @router.post("/{channel_id}/typing", status_code=204)
-def typing(channel_id: int,
-           background_task: BackgroundTasks,
-           dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES))):
+async def typing(channel_id: int,
+                 dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES))):
     channel, user = dependencies
-    background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.TYPING_START, {
+    await websocket_emitter(channel_id, channel.guild_id, Events.TYPING_START, {
         'channel_id': str(channel_id),
         'guild_id': str(channel.guild_id),
         'user_id': str(user.id),
@@ -463,14 +465,13 @@ def get_pins(channel_id: int,
         PinnedMessages).filter_by(channel_id=channel_id).all()
     if not pins:
         return []
-    return {[pin.message.serialize(user.id, db) for pin in pins]}
+    return [pin.message.serialize(user.id, db) for pin in pins]
 
 
 @router.put("/{channel_id}/pins/{message_id}")
-def pin_message(channel_id: int, message_id: int,
-                background_task: BackgroundTasks,
-                db: Session = Depends(deps.get_db),
-                dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_MESSAGES))):
+async def pin_message(channel_id: int, message_id: int,
+                      db: Session = Depends(deps.get_db),
+                      dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_MESSAGES))):
     channel, _ = dependencies
     message = db.query(Message).filter_by(
         id=message_id).filter_by(channel_id=channel.id).first()
@@ -478,7 +479,7 @@ def pin_message(channel_id: int, message_id: int,
         if len(channel.pinned_messages) < 50:
             channel.pinned_messages.append(message)
             db.commit()
-            background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.CHANNEL_PINS_UPDATE, {
+            await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_PINS_UPDATE, {
                 'guild_id': str(channel.guild_id),
                 'channel_id': str(channel.id),
             })
@@ -488,17 +489,16 @@ def pin_message(channel_id: int, message_id: int,
 
 
 @router.delete("/{channel_id}/pins/{message_id}")
-def unpin_message(channel_id: int, message_id: int,
-                  background_task: BackgroundTasks,
-                  db: Session = Depends(deps.get_db),
-                  dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_MESSAGES))):
+async def unpin_message(channel_id: int, message_id: int,
+                        db: Session = Depends(deps.get_db),
+                        dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_MESSAGES))):
     channel, _ = dependencies
     message = db.query(Message).filter_by(
         id=message_id).filter_by(channel_id=channel.id).first()
     if message:
         channel.pinned_messages.remove(message)
         db.commit()
-        background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.CHANNEL_PINS_UPDATE, {
+        await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_PINS_UPDATE, {
             'guild_id': str(channel.guild_id),
             'channel_id': str(channel.id),
         })
@@ -549,17 +549,16 @@ def get_webhooks(dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(
 
 
 @router.post('/{channel_id}/webhooks')
-def create_webhook(channel_id: int,
-                   data: WebhookCreate,
-                   background_task: BackgroundTasks,
-                   db: Session = Depends(deps.get_db),
-                   dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_WEBHOOKS))):
+async def create_webhook(channel_id: int,
+                         data: WebhookCreate,
+                         db: Session = Depends(deps.get_db),
+                         dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_WEBHOOKS))):
     channel, current_user = dependencies
     webhook = Webhook(1, channel_id, current_user.id,
                       data.name, data.avatar, guild_id=channel.guild_id)
     channel.webhooks.append(webhook)
     db.commit()
-    background_task.add_task(websocket_emitter, channel_id, channel.guild_id, Events.WEBHOOKS_UPDATE, {
+    await websocket_emitter(channel_id, channel.guild_id, Events.WEBHOOKS_UPDATE, {
         'guild_id': str(channel.guild_id),
         'channel_id': str(channel.id),
     })

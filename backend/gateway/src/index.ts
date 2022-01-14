@@ -1,20 +1,20 @@
 import Redis from "ioredis";
-import parser from "socket.io-msgpack-parser";
-import {connect} from "amqplib";
-import {Server} from "socket.io";
-import {createAdapter} from "@socket.io/redis-adapter";
-import {ClientToServerEvents, ServerToClientEvents} from "./types/events";
-import {sendMessage} from "./utils/sendMessage";
+import { connect } from "amqplib";
+import { Server } from "socket.io";
+import { createAdapter } from "@socket.io/redis-adapter";
+import { ClientToServerEvents, ServerToClientEvents } from "./types/events";
+import { sendMessage } from "./utils/sendMessage";
 
 (async () => {
-    const io = new Server<ClientToServerEvents, ServerToClientEvents>({
-        parser,
-    });
+    const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379/";
+    const RABBITMQ_URL =
+        process.env.RABBITMQ_URL || "amqp://guest:guest@127.0.0.1:5672/";
+    const io = new Server<ClientToServerEvents, ServerToClientEvents>();
 
-    const pubClient = new Redis("redis://redis:6379");
+    const pubClient = new Redis(REDIS_URL);
     const subClient = pubClient.duplicate();
 
-    const connection = await connect("amqp://guest:guest@rabbit/");
+    const connection = await connect(RABBITMQ_URL);
     const channel = await connection.createChannel();
     const queue = "gateway_api_talks";
 

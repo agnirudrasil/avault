@@ -1,3 +1,4 @@
+import os
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import AnyHttpUrl, BaseSettings, HttpUrl, PostgresDsn, validator
@@ -11,8 +12,10 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30
     SERVER_NAME: str = "localhost:5000"
     SERVER_HOST: AnyHttpUrl = "http://localhost:5000"
+    RABBITMQ_HOST: str = os.getenv("RABBITMQ_HOST", "127.0.0.1")
+    REDIS_HOST: str = os.getenv("REDIS_HOST", "127.0.0.1")
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ['http://localhost:3000']
-    TENOR_API_KEY: str = "ZXOQ05LGC2I9"
+    TENOR_API_KEY: str = ""
     TENOR_BASE_URL: str = "https://g.tenor.com/v1"
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
@@ -32,7 +35,7 @@ class Settings(BaseSettings):
             return None
         return v
 
-    POSTGRES_SERVER: str = "postgres:5432"
+    POSTGRES_SERVER: str = f"{os.getenv('POSTGRES_HOST', 'localhost')}:5432"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_DB: str = "avault"

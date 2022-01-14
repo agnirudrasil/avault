@@ -47,14 +47,14 @@ class Role(Base):
         return str(self.id)
 
     def __init__(self,
-                 guild_id,
-                 name,
-                 color,
-                 position,
-                 permissions,
-                 mentionable,
-                 id=None):
-        self.id = id if id is not None else next(snowflake_id)
+                 guild_id: int,
+                 name: str,
+                 color: int,
+                 position: int,
+                 permissions: int,
+                 mentionable: bool,
+                 role_id=None):
+        self.id = role_id if role_id is not None else next(snowflake_id)
         self.guild_id = guild_id
         self.name = name
         self.color = color

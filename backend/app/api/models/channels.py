@@ -119,7 +119,7 @@ class Channel(Base):
         'channels.id', ondelete="SET NULL"), nullable=True)
     members = relationship(
         'User', secondary=channel_members, backref='channel_members')
-    overwrites = relationship('Overwrite', back_populates='channel')
+    overwrites = relationship('Overwrite', back_populates='channel', cascade='all, delete-orphan')
     pinned_messages = relationship('PinnedMessages', back_populates='channel')
     thread_metadata = relationship('ThreadMetadata', back_populates='channel')
 
@@ -151,9 +151,9 @@ class Channel(Base):
     def is_member(self, user):
         return user in self.members
 
-    def __init__(self, channel_type,
-                 guild_id,
-                 name, topic="",
+    def __init__(self, channel_type: ChannelType,
+                 guild_id: str,
+                 name: str, topic="",
                  nsfw=False,
                  owner_id=None,
                  parent_id=None):
@@ -169,7 +169,7 @@ class Channel(Base):
         self.nsfw = bool(nsfw)
         self.owner_id = owner_id
         if parent_id:
-            if channel_type in valid_channel_types:
+            if channel_type == ChannelType.guild_text:
                 self.parent_id = parent_id
             else:
                 self.parent_id = None

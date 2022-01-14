@@ -5,15 +5,53 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/nginx.conf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/5c0893c7e844_.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/850cb8f85c77_.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/format.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/guild_members.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/avault.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/avault.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/poetry.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/pyproject.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/docker-compose.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/Dockerfile.backend" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Dockerfile.backend" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/Dockerfile.gateway" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Dockerfile.gateway" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/env.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/alembic/env.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/auth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/invites.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/invites.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/emitter.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/emitter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/events.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/events.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/messages.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/messages.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/roles.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/roles.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/gateway/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/gateway/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/website/.dockerignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/website/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useLogin.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useLogin.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useRegister.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useRegister.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/hooks/useUnsaved.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/useUnsaved.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/next.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/website/next.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/website/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/_app.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/login.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/login.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/register.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/register.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/Message.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/Message.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/layouts/AuthLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/layouts/AuthLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/layouts/ChannelSettingsLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/layouts/ChannelSettingsLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/routes/ChannelPermissions.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/routes/ChannelPermissions.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/test.html" beforeDir="false" afterPath="$PROJECT_DIR$/website/test.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/website/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,6 +86,13 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/nginx.conf" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/docker-compose.yaml" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/backend/app/api/db/base.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/backend/app/api/db/__init__.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/sql/permissions.csv" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -76,13 +121,13 @@
     <property name="add_unversioned_files" value="$PROJECT_DIR$/backend/app/.env" />
     <property name="database.data.extractors.current.export.id" value="JSON-Groovy.json.groovy" />
     <property name="database.data.extractors.current.id" value="JSON-Groovy.json.groovy" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/website/package.json" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/backend/app" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="yarn" />
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
-    <property name="settings.editor.selected.configurable" value="preferences.fileTypes" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="ts.external.directory.path" value="$PROJECT_DIR$/backend/gateway/node_modules/typescript/lib" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
@@ -101,7 +146,7 @@
       <command value="yarn run dev" />
     </option>
   </component>
-  <component name="RunManager" selected="Docker.backend/docker-compose.yaml.gateway: Compose Deployment">
+  <component name="RunManager" selected="FastAPI.Backend">
     <configuration name="Backend" type="Python.FastAPI">
       <option name="additionalOptions" value="--reload --reload-dir $PROJECT_DIR$/backend/app" />
       <option name="file" value="$PROJECT_DIR$/backend/app/api/main.py" />
@@ -109,7 +154,7 @@
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="$PROJECT_DIR$/backend/venv/bin/python" />
-      <option name="WORKING_DIRECTORY" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/backend/app" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
@@ -159,15 +204,10 @@
       </deployment>
       <method v="2" />
     </configuration>
-    <configuration name="backend/docker-compose.yaml.rabbit: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+    <configuration name="docker-compose.yaml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
       <deployment type="docker-compose.yml">
         <settings>
-          <option name="services">
-            <list>
-              <option value="rabbit" />
-            </list>
-          </option>
-          <option name="sourceFilePath" value="backend/docker-compose.yaml" />
+          <option name="sourceFilePath" value="docker-compose.yaml" />
         </settings>
       </deployment>
       <method v="2" />
@@ -204,10 +244,10 @@
     </configuration>
     <list>
       <item itemvalue="Docker.backend/docker-compose.yaml: Compose Deployment" />
-      <item itemvalue="Docker.backend/docker-compose.yaml.rabbit: Compose Deployment" />
       <item itemvalue="Docker.backend/docker-compose.yaml.postgres: Compose Deployment" />
       <item itemvalue="Docker.backend/Dockerfile.gateway" />
       <item itemvalue="Docker.backend/docker-compose.yaml.gateway: Compose Deployment" />
+      <item itemvalue="Docker.docker-compose.yaml: Compose Deployment" />
       <item itemvalue="FastAPI.Backend" />
       <item itemvalue="npm.dev website" />
       <item itemvalue="npm.watch" />
@@ -215,11 +255,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Docker.docker-compose.yaml: Compose Deployment" />
         <item itemvalue="Docker.backend/docker-compose.yaml.gateway: Compose Deployment" />
         <item itemvalue="Docker.backend/docker-compose.yaml: Compose Deployment" />
         <item itemvalue="Docker.backend/Dockerfile.gateway" />
         <item itemvalue="Docker.backend/docker-compose.yaml.postgres: Compose Deployment" />
-        <item itemvalue="Docker.backend/docker-compose.yaml.rabbit: Compose Deployment" />
       </list>
     </recent_temporary>
   </component>
@@ -292,7 +332,19 @@
       <workItem from="1641230417578" duration="1036000" />
       <workItem from="1641231463086" duration="4565000" />
       <workItem from="1641268375604" duration="2224000" />
-      <workItem from="1641278472845" duration="675000" />
+      <workItem from="1641278472845" duration="1276000" />
+      <workItem from="1641312833733" duration="596000" />
+      <workItem from="1641314212275" duration="288000" />
+      <workItem from="1641314567251" duration="405000" />
+      <workItem from="1641316555657" duration="4854000" />
+      <workItem from="1641364244295" duration="3190000" />
+      <workItem from="1641403541031" duration="5187000" />
+      <workItem from="1641537260268" duration="599000" />
+      <workItem from="1641919795948" duration="957000" />
+      <workItem from="1642141381830" duration="1046000" />
+      <workItem from="1642165182702" duration="4516000" />
+      <workItem from="1642174678451" duration="1474000" />
+      <workItem from="1642182015754" duration="7323000" />
     </task>
     <servers />
   </component>
@@ -321,6 +373,6 @@
     <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1641110716794" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1642182235539" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
   </component>
 </project>

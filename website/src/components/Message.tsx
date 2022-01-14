@@ -15,7 +15,7 @@ import {
     Grow,
 } from "@mui/material";
 import { DefaultProfilePic } from "./DefaultProfilePic";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { useEditMessage } from "../../hooks/requests/useMessageEdit";
 import { useDeleteMessage } from "../../hooks/requests/useMessageDelete";
@@ -160,144 +160,256 @@ export const EditMessageField: React.FC<{
     );
 };
 
-export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
-    ({ message, type }) => {
-        const [editing, setEditing] = useState(false);
-        const editRef = useRef<HTMLInputElement | null>(null);
-        const router = useRouter();
-        const { mutate } = useEditMessage(router.query.channel as string);
-        const { mutate: mutateDelete } = useDeleteMessage(
-            router.query.channel as string
-        );
-        const { mutateAsync } = useCreateReaction();
-        const { mutateAsync: deleteReaction } = useDeleteReaction();
-        const { permissions, guildMember } = usePermssions(
-            router.query.server_id as string,
-            router.query.channel as string
-        );
+export const Message: React.FC<{
+    type: "full" | "half";
+    message: Messages;
+}> = ({ message, type }) => {
+    const [editing, setEditing] = useState(false);
+    const router = useRouter();
+    const { mutate } = useEditMessage(router.query.channel as string);
+    const { mutate: mutateDelete } = useDeleteMessage(
+        router.query.channel as string
+    );
+    const { mutateAsync } = useCreateReaction();
+    const { mutateAsync: deleteReaction } = useDeleteReaction();
+    const { permissions, guildMember } = usePermssions(
+        router.query.server_id as string,
+        router.query.channel as string
+    );
 
-        const editFn = (messageId: string, content: string) => {
-            mutate({
-                messageId,
-                content,
-            } as any);
-            setEditing(false);
-        };
+    const editFn = (messageId: string, content: string) => {
+        mutate({
+            messageId,
+            content,
+        } as any);
+        setEditing(false);
+    };
 
-        const deleteFn = (messageId: string) => {
-            mutateDelete({ messageId });
-        };
+    const deleteFn = (messageId: string) => {
+        mutateDelete({ messageId });
+    };
 
-        const deleteReactionFn = async (emoji: string) => {
-            await deleteReaction({
-                message_id: message.id,
-                emoji,
-                channel_id: router.query.channel as string,
-            });
-        };
+    const deleteReactionFn = async (emoji: string) => {
+        await deleteReaction({
+            message_id: message.id,
+            emoji,
+            channel_id: router.query.channel as string,
+        });
+    };
 
-        const addReactionFn = async (emoji: string) => {
-            await mutateAsync({
-                emoji,
-                channel_id: router.query.channel as string,
-                message_id: message.id,
-            });
-        };
+    const addReactionFn = async (emoji: string) => {
+        await mutateAsync({
+            emoji,
+            channel_id: router.query.channel as string,
+            message_id: message.id,
+        });
+    };
 
-        return (
-            <>
-                {type === "full" ? (
-                    <ListItem
-                        sx={{
-                            "&:hover": {
-                                backgroundColor: "rgba(0, 0, 0, 0.05)",
-                            },
-                            "&:hover .time": {
-                                visibility: "visible",
-                            },
-                            "&:hover .toolbar": {
-                                visibility: "visible",
-                            },
-                            paddingTop: "0",
-                            paddingBottom: "0",
-                        }}
+    return (
+        <>
+            {type === "full" ? (
+                <ListItem
+                    sx={{
+                        "&:hover": {
+                            backgroundColor: "rgba(0, 0, 0, 0.05)",
+                        },
+                        "&:hover .time": {
+                            visibility: "visible",
+                        },
+                        "&:hover .toolbar": {
+                            visibility: "visible",
+                        },
+                        paddingTop: "0",
+                        paddingBottom: "0",
+                    }}
+                >
+                    <ToolBar
+                        editFn={() => setEditing(prev => !prev)}
+                        deleteFn={() => deleteFn(message.id)}
+                        addReactionFn={addReactionFn}
+                        permissions={permissions}
+                        guildMember={guildMember}
+                        message={message}
+                    />
+                    <ListItemAvatar
+                        sx={{ visibility: "hidden" }}
+                        className="time"
                     >
-                        <ToolBar
-                            editFn={() => setEditing(prev => !prev)}
-                            deleteFn={() => deleteFn(message.id)}
-                            addReactionFn={addReactionFn}
-                            permissions={permissions}
-                            guildMember={guildMember}
-                            message={message}
-                        />
-                        <ListItemAvatar
-                            sx={{ visibility: "hidden" }}
-                            className="time"
+                        <Typography
+                            variant="overline"
+                            color="textSecondary"
+                            sx={{
+                                marginLeft: "-0.25rem",
+                                userSelect: "none",
+                            }}
                         >
-                            <Typography
-                                variant="overline"
-                                color="textSecondary"
-                                sx={{
-                                    marginLeft: "-0.25rem",
-                                    userSelect: "none",
-                                }}
-                            >
-                                {new Intl.DateTimeFormat("en-US", {
-                                    hour: "numeric",
-                                    minute: "numeric",
-                                })
-                                    .format(message.timestamp)
-                                    .replaceAll(" ", "")}
+                            {new Intl.DateTimeFormat("en-US", {
+                                hour: "numeric",
+                                minute: "numeric",
+                            })
+                                .format(message.timestamp)
+                                .replaceAll(" ", "")}
+                        </Typography>
+                    </ListItemAvatar>
+                    {editing ? (
+                        <div style={{ width: "80%" }}>
+                            <EditMessageField
+                                disabled={
+                                    !checkPermissions(
+                                        permissions,
+                                        Permissions.SEND_MESSAGES
+                                    )
+                                }
+                                defaultValue={message.content}
+                                editFn={value => editFn(message.id, value)}
+                                setEditing={() => setEditing(false)}
+                            />
+                            <Typography component="div">
+                                escape to{" "}
+                                <Link
+                                    sx={{ cursor: "pointer" }}
+                                    underline="hover"
+                                    onClick={() => setEditing(false)}
+                                >
+                                    cancel
+                                </Link>{" "}
+                                {/* • enter to{" "}
+                                <Link
+                                    sx={{ cursor: "pointer" }}
+                                    underline="hover"
+                                    onClick={() => {
+                                        setEditing(false);
+                                    }}
+                                >
+                                    save
+                                </Link> */}
                             </Typography>
-                        </ListItemAvatar>
-                        {editing ? (
-                            <div style={{ width: "80%" }}>
-                                <EditMessageField
-                                    disabled={
-                                        !checkPermissions(
-                                            permissions,
-                                            Permissions.SEND_MESSAGES
-                                        )
-                                    }
-                                    defaultValue={message.content}
-                                    editFn={value => editFn(message.id, value)}
-                                    setEditing={() => setEditing(false)}
+                        </div>
+                    ) : (
+                        <ListItemText
+                            secondary={message.reactions.map(reaction => (
+                                <Reaction
+                                    reaction={reaction}
+                                    key={reaction.emoji}
+                                    addReactionFn={addReactionFn}
+                                    deleteFn={deleteReactionFn}
                                 />
-                                <Typography component="div">
-                                    escape to{" "}
-                                    <Link
-                                        sx={{ cursor: "pointer" }}
-                                        underline="hover"
-                                        onClick={() => setEditing(false)}
-                                    >
-                                        cancel
-                                    </Link>{" "}
-                                    • enter to{" "}
-                                    <Link
-                                        sx={{ cursor: "pointer" }}
-                                        underline="hover"
-                                        onClick={() => {
-                                            if (
-                                                checkPermissions(
-                                                    permissions,
-                                                    Permissions.SEND_MESSAGES
-                                                )
-                                            ) {
-                                                editFn(
-                                                    message.id,
-                                                    editRef.current!.value
-                                                );
-                                            }
-                                            setEditing(false);
-                                        }}
-                                    >
-                                        save
-                                    </Link>
+                            ))}
+                            primary={
+                                <Typography>
+                                    <Markdown content={message.content} />
+                                    {message.edited_timestamp && (
+                                        <Tooltip
+                                            title={new Date(
+                                                message.edited_timestamp
+                                            ).toString()}
+                                        >
+                                            <Typography
+                                                component="span"
+                                                variant="subtitle2"
+                                                color="GrayText"
+                                                style={{
+                                                    cursor: "default",
+                                                    userSelect: "none",
+                                                }}
+                                            >
+                                                {"  "}
+                                                (edited)
+                                            </Typography>
+                                        </Tooltip>
+                                    )}
                                 </Typography>
-                            </div>
-                        ) : (
-                            <ListItemText
-                                secondary={message.reactions.map(reaction => (
+                            }
+                        />
+                    )}
+                </ListItem>
+            ) : (
+                <ListItem
+                    sx={{
+                        "&:hover": {
+                            backgroundColor: "rgba(0, 0, 0, 0.05)",
+                        },
+                        "&:hover .toolbar": {
+                            visibility: "visible",
+                        },
+                    }}
+                    key={message.id}
+                    dense
+                >
+                    <ToolBar
+                        editFn={() => setEditing(prev => !prev)}
+                        deleteFn={() => deleteFn(message.id)}
+                        addReactionFn={addReactionFn}
+                        permissions={permissions}
+                        guildMember={guildMember}
+                        message={message}
+                    />
+                    <ListItemAvatar>
+                        <Avatar>
+                            <DefaultProfilePic tag={message.author.tag} />
+                        </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                        primary={
+                            <Typography
+                                style={{ userSelect: "none" }}
+                                variant="subtitle2"
+                            >
+                                {message.author.username}
+                            </Typography>
+                        }
+                        secondary={
+                            <div>
+                                {editing ? (
+                                    <div style={{ width: "80%" }}>
+                                        <Typography component="div">
+                                            <EditMessageField
+                                                disabled={
+                                                    !checkPermissions(
+                                                        permissions,
+                                                        Permissions.SEND_MESSAGES
+                                                    )
+                                                }
+                                                defaultValue={message.content}
+                                                editFn={value =>
+                                                    editFn(message.id, value)
+                                                }
+                                                setEditing={() =>
+                                                    setEditing(false)
+                                                }
+                                            />
+                                            escape to{" "}
+                                            <Link
+                                                sx={{ cursor: "pointer" }}
+                                                underline="hover"
+                                                onClick={() =>
+                                                    setEditing(false)
+                                                }
+                                            >
+                                                cancel
+                                            </Link>{" "}
+                                            {/* • enter to{" "}
+                                            <Link
+                                                sx={{ cursor: "pointer" }}
+                                                underline="hover"
+                                                onClick={() => {
+                                                    setEditing(false);
+                                                    editFn(
+                                                        message.id,
+                                                        editRef.current!.value
+                                                    );
+                                                }}
+                                            >
+                                                save
+                                            </Link> */}
+                                        </Typography>
+                                    </div>
+                                ) : (
+                                    <Typography color="ButtonText">
+                                        <Markdown content={message.content} />
+                                    </Typography>
+                                )}
+                                {message.reactions.map(reaction => (
                                     <Reaction
                                         reaction={reaction}
                                         key={reaction.emoji}
@@ -305,151 +417,14 @@ export const Message: React.FC<{ type: "full" | "half"; message: Messages }> =
                                         deleteFn={deleteReactionFn}
                                     />
                                 ))}
-                                primary={
-                                    <Typography>
-                                        <Markdown content={message.content} />
-                                        {message.edited_timestamp && (
-                                            <Tooltip
-                                                title={new Date(
-                                                    message.edited_timestamp
-                                                ).toString()}
-                                            >
-                                                <Typography
-                                                    component="span"
-                                                    variant="subtitle2"
-                                                    color="GrayText"
-                                                    style={{
-                                                        cursor: "default",
-                                                        userSelect: "none",
-                                                    }}
-                                                >
-                                                    {"  "}
-                                                    (edited)
-                                                </Typography>
-                                            </Tooltip>
-                                        )}
-                                    </Typography>
-                                }
-                            />
-                        )}
-                    </ListItem>
-                ) : (
-                    <ListItem
-                        sx={{
-                            "&:hover": {
-                                backgroundColor: "rgba(0, 0, 0, 0.05)",
-                            },
-                            "&:hover .toolbar": {
-                                visibility: "visible",
-                            },
-                        }}
-                        key={message.id}
-                        dense
-                    >
-                        <ToolBar
-                            editFn={() => setEditing(prev => !prev)}
-                            deleteFn={() => deleteFn(message.id)}
-                            addReactionFn={addReactionFn}
-                            permissions={permissions}
-                            guildMember={guildMember}
-                            message={message}
-                        />
-                        <ListItemAvatar>
-                            <Avatar>
-                                <DefaultProfilePic tag={message.author.tag} />
-                            </Avatar>
-                        </ListItemAvatar>
-                        <ListItemText
-                            primary={
-                                <Typography
-                                    style={{ userSelect: "none" }}
-                                    variant="subtitle2"
-                                >
-                                    {message.author.username}
-                                </Typography>
-                            }
-                            secondary={
-                                <div>
-                                    {editing ? (
-                                        <div style={{ width: "80%" }}>
-                                            <Typography component="div">
-                                                <EditMessageField
-                                                    disabled={
-                                                        !checkPermissions(
-                                                            permissions,
-                                                            Permissions.SEND_MESSAGES
-                                                        )
-                                                    }
-                                                    defaultValue={
-                                                        message.content
-                                                    }
-                                                    editFn={value =>
-                                                        editFn(
-                                                            message.id,
-                                                            value
-                                                        )
-                                                    }
-                                                    setEditing={() =>
-                                                        setEditing(false)
-                                                    }
-                                                />
-                                                escape to{" "}
-                                                <Link
-                                                    sx={{ cursor: "pointer" }}
-                                                    underline="hover"
-                                                    onClick={() =>
-                                                        setEditing(false)
-                                                    }
-                                                >
-                                                    cancel
-                                                </Link>{" "}
-                                                • enter to{" "}
-                                                <Link
-                                                    sx={{ cursor: "pointer" }}
-                                                    underline="hover"
-                                                    onClick={() => {
-                                                        if (
-                                                            checkPermissions(
-                                                                permissions,
-                                                                Permissions.SEND_MESSAGES
-                                                            )
-                                                        ) {
-                                                            editFn(
-                                                                message.id,
-                                                                editRef.current!
-                                                                    .value
-                                                            );
-                                                        }
-                                                        setEditing(false);
-                                                    }}
-                                                >
-                                                    save
-                                                </Link>
-                                            </Typography>
-                                        </div>
-                                    ) : (
-                                        <Typography color="ButtonText">
-                                            <Markdown
-                                                content={message.content}
-                                            />
-                                        </Typography>
-                                    )}
-                                    {message.reactions.map(reaction => (
-                                        <Reaction
-                                            reaction={reaction}
-                                            key={reaction.emoji}
-                                            addReactionFn={addReactionFn}
-                                            deleteFn={deleteReactionFn}
-                                        />
-                                    ))}
-                                </div>
-                            }
-                        />
-                    </ListItem>
-                )}
-            </>
-        );
-    };
+                            </div>
+                        }
+                    />
+                </ListItem>
+            )}
+        </>
+    );
+};
 
 const Reaction: React.FC<{
     reaction: Reactions;

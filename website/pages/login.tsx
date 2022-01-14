@@ -19,21 +19,15 @@ const LoginPage: NextPage = () => {
             ) => {
                 setStatus("");
                 const data = await mutateAsync(values);
-                if (data.errors) {
-                    const errorMap: any = {};
-                    for (const [key, error] of Object.entries(data.errors)) {
-                        errorMap[key as string] = error;
-                    }
-                    setErrors(errorMap);
-                    setSubmitting(false);
-                    return;
-                } else if (data.error) {
-                    setStatus(data.error);
-                    setSubmitting(false);
-                    return;
+                if (data.detail) {
+                    setErrors({
+                        username: "Incorrect email or password",
+                        password: "Incorrect email or password",
+                    });
+                } else {
+                    setAccessToken(data.access_token);
+                    Router.replace("/channels/@me");
                 }
-                setAccessToken(data.access_token);
-                Router.replace("/channels/@me");
                 setSubmitting(false);
             }}
         >

@@ -13,12 +13,14 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
+import { useDeleteChannel } from "../../../hooks/requests/useDeleteChannel";
 import { usePermssions } from "../../../hooks/usePermissions";
 import { useChannelsStore } from "../../../stores/useChannelsStore";
 import { useRoutesStore } from "../../../stores/useRoutesStore";
 import { checkPermissions } from "../../compute-permissions";
 import { Permissions } from "../../permissions";
 import { PrivateChannelIcon, ChannelIcon } from "../ChannelIcon";
+import shallow from "zustand/shallow";
 
 const Container = styled.div`
     width: 100%;
@@ -32,8 +34,16 @@ const ListItemButton = styled(MuiListItemButton)`
 
 export const ChannelSettingsLayout: React.FC = ({ children }) => {
     const router = useRouter();
-    const channels = useChannelsStore(
-        state => state[router.query.server_id as string]
+    const { channels, getFirstGuildChannel } = useChannelsStore(
+        state => ({
+            channels: state[router.query.server_id as string],
+            getFirstGuildChannel: state.getFirstGuildChannel,
+        }),
+        shallow
+    );
+
+    const { isLoading, mutateAsync } = useDeleteChannel(
+        router.query.channel as string
     );
     const { setRoute, route } = useRoutesStore();
     const { permissions } = usePermssions(
@@ -131,7 +141,12 @@ export const ChannelSettingsLayout: React.FC = ({ children }) => {
                             Permissions.MANAGE_CHANNELS
                         ) && (
                             <ListItemButton
-                                onClick={() => setRoute("/")}
+                                onClick={async () => {
+                                    await mutateAsync();
+                                    setRoute("/");
+                                    router.replace(`/channels/@me`);
+                                }}
+                                disabled={isLoading}
                                 sx={{ width: "100%" }}
                             >
                                 <ListItemText

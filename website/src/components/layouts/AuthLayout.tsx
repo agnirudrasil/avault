@@ -1,18 +1,17 @@
-import { Formik, FormikConfig, FormikValues } from "formik";
+import { Formik, FormikConfig, FormikProps, FormikValues } from "formik";
 import { AuthContainer, StyledForm } from "../../../styles/auth-pages/styles";
 
 export interface AuthLayoutProps extends FormikConfig<FormikValues> {
-    children: React.ReactNode;
+    children: (props: FormikProps<FormikValues>) => React.ReactNode;
 }
 
 export const AuthLayout: React.FC<AuthLayoutProps> = ({
     children,
-    onSubmit,
-    initialValues,
+    ...props
 }) => {
     return (
         <AuthContainer>
-            <Formik initialValues={initialValues} onSubmit={onSubmit}>
+            <Formik {...props}>
                 {props => (
                     <StyledForm>
                         <div>

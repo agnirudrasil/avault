@@ -1,6 +1,7 @@
 import random
 
 from sqlalchemy import BigInteger, Column, String, Text, UniqueConstraint
+from sqlalchemy.orm import Session
 
 from api.core.security import get_password_hash, verify_password, snowflake_id
 from api.db.base_class import Base
@@ -41,7 +42,7 @@ class User(Base):
             "email": self.email,
         }
 
-    def __init__(self, username, password, email, db):
+    def __init__(self, username: str, password: str, email: str, db: Session):
         self.id = next(snowflake_id)
         self.username = username
         self.email = email

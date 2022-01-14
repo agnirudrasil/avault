@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, BackgroundTasks
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from api.api import deps
@@ -21,12 +21,12 @@ def get_invite(code: str,
 
 
 @router.delete('/{code}')
-def delete_invite(code: str, background_tasks: BackgroundTasks, invite: Invite = Depends(
+async def delete_invite(code: str, invite: Invite = Depends(
     deps.InvitePerms(Permissions.MANAGE_CHANNELS)),
-                  db: Session = Depends(deps.get_db)):
+                        db: Session = Depends(deps.get_db)):
     db.delete(invite)
     db.commit()
-    background_tasks.add_task(websocket_emitter, invite.channel_id, invite.channel.guild_id, Events.INVITE_DELETE, {
+    await websocket_emitter(invite.channel_id, invite.channel.guild_id, Events.INVITE_DELETE, {
         'channel_id': str(invite.channel_id),
         'guild': str(invite.channel.guild_id),
         'code': code

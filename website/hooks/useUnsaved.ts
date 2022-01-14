@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import isEqual from "lodash.isequal";
 
 export const useUnsaved = <T>(data: T) => {
     const [ogData, setOgdata] = useState<T>({} as T);
     const [unsaved, setUnsaved] = useState(false);
 
     useEffect(() => {
-        if (JSON.stringify(ogData) === JSON.stringify(data)) {
+        if (isEqual(data, ogData)) {
             setUnsaved(false);
         } else {
             if (!unsaved) {
