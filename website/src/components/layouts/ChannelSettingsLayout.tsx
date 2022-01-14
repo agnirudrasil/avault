@@ -34,10 +34,9 @@ const ListItemButton = styled(MuiListItemButton)`
 
 export const ChannelSettingsLayout: React.FC = ({ children }) => {
     const router = useRouter();
-    const { channels, getFirstGuildChannel } = useChannelsStore(
+    const { channels } = useChannelsStore(
         state => ({
             channels: state[router.query.server_id as string],
-            getFirstGuildChannel: state.getFirstGuildChannel,
         }),
         shallow
     );
