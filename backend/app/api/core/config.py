@@ -15,8 +15,9 @@ class Settings(BaseSettings):
     RABBITMQ_HOST: str = os.getenv("RABBITMQ_HOST", "127.0.0.1")
     REDIS_HOST: str = os.getenv("REDIS_HOST", "127.0.0.1")
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ['http://localhost:3000']
-    TENOR_API_KEY: str = ""
+    TENOR_API_KEY: str = os.getenv("TENOR_API_KEY", "")
     TENOR_BASE_URL: str = "https://g.tenor.com/v1"
+    FERNET_KEY: str = os.getenv("FERNET_KEY", "")
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
@@ -54,7 +55,7 @@ class Settings(BaseSettings):
         )
 
     class Config:
-        # env_file = ".env"
+        env_file = ".env"
         case_sensitive = True
 
 

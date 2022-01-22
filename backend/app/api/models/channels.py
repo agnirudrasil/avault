@@ -9,7 +9,7 @@ from api.core.security import snowflake_id
 from api.db.base_class import Base
 
 
-class ChannelType(enum.Enum):
+class ChannelType(str, enum.Enum):
     guild_text = 'GUILD_TEXT'
     dm = 'DM'
     guild_category = 'GUILD_CATEGORY'
@@ -169,7 +169,7 @@ class Channel(Base):
         self.nsfw = bool(nsfw)
         self.owner_id = owner_id
         if parent_id:
-            if channel_type == ChannelType.guild_text:
+            if channel_type.upper() == ChannelType.guild_text:
                 self.parent_id = parent_id
             else:
                 self.parent_id = None

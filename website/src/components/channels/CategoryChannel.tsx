@@ -80,7 +80,7 @@ export const CategoryChannel: React.FC<{
                                                         guild_id: router.query
                                                             .server_id as string,
                                                         parent_id: id,
-                                                        type: "guild_text",
+                                                        type: "GUILD_TEXT",
                                                     });
                                                 }}
                                             >

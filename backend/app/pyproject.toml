@@ -29,6 +29,7 @@ aioredis = "^2.0.1"
 aio-pika = "^6.8.1"
 msgpack = "^1.0.3"
 argon2_cffi = "^21.3.0"
+python-dotenv = "^0.19.2"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.770"

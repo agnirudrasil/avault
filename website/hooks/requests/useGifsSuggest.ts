@@ -10,4 +10,8 @@ export const gifsSuggest = async ({ queryKey }: { queryKey: string[] }) => {
 };
 
 export const useGifsSuggest = (query: string) =>
-    useQuery(query, gifsSuggest, { enabled: false });
+    useQuery(query, gifsSuggest, {
+        enabled: false,
+        cacheTime: Infinity,
+        staleTime: Infinity,
+    });

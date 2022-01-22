@@ -29,6 +29,7 @@ import { checkPermissions } from "../compute-permissions";
 import { Permissions } from "../permissions";
 import { GuildMembers } from "../../stores/useUserStore";
 import { Markdown } from "./markdown/Markdown";
+import { Embeds } from "./Embeds";
 
 const ToolBar: React.FC<{
     editFn: () => any;
@@ -287,14 +288,21 @@ export const Message: React.FC<{
                         </div>
                     ) : (
                         <ListItemText
-                            secondary={message.reactions.map(reaction => (
-                                <Reaction
-                                    reaction={reaction}
-                                    key={reaction.emoji}
-                                    addReactionFn={addReactionFn}
-                                    deleteFn={deleteReactionFn}
-                                />
-                            ))}
+                            secondary={
+                                <div>
+                                    {message.embeds?.map((e, i) => (
+                                        <Embeds embed={e} key={i} />
+                                    ))}
+                                    {message.reactions.map(reaction => (
+                                        <Reaction
+                                            reaction={reaction}
+                                            key={reaction.emoji}
+                                            addReactionFn={addReactionFn}
+                                            deleteFn={deleteReactionFn}
+                                        />
+                                    ))}
+                                </div>
+                            }
                             primary={
                                 <Typography>
                                     <Markdown content={message.content} />
@@ -409,14 +417,19 @@ export const Message: React.FC<{
                                         <Markdown content={message.content} />
                                     </Typography>
                                 )}
-                                {message.reactions.map(reaction => (
-                                    <Reaction
-                                        reaction={reaction}
-                                        key={reaction.emoji}
-                                        addReactionFn={addReactionFn}
-                                        deleteFn={deleteReactionFn}
-                                    />
-                                ))}
+                                <div>
+                                    {message.embeds?.map((e, i) => (
+                                        <Embeds embed={e} key={i} />
+                                    ))}
+                                    {message.reactions.map(reaction => (
+                                        <Reaction
+                                            reaction={reaction}
+                                            key={reaction.emoji}
+                                            addReactionFn={addReactionFn}
+                                            deleteFn={deleteReactionFn}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         }
                     />

@@ -24,6 +24,7 @@ import { useQuery } from "react-query";
 import { request } from "../../request";
 import { useGifsSuggest } from "../../../hooks/requests/useGifsSuggest";
 import { useGifsShare } from "../../../hooks/requests/useGifsShare";
+import { useDebounce } from "use-debounce";
 
 const Item: React.FC<{
     isLoading: boolean;
@@ -120,15 +121,26 @@ const fetchFn = async (key: any) => {
     return data.json();
 };
 
-export const GifPicker: React.FC<{ onShare: (url: string) => any }> = ({
-    onShare,
-}) => {
+export const GifPicker: React.FC<{
+    onShare: (stuff: {
+        url: string;
+        src: string;
+        width: number;
+        height: number;
+    }) => any;
+}> = ({ onShare }) => {
     const [search, setSearch] = useState("");
     const [view, setView] = useState("");
     const { mutateAsync } = useGifsShare();
-    const { data, isLoading } = useQuery(["gifs", search, view], fetchFn, {
-        cacheTime: Infinity,
-    });
+    const [debouncedSearch] = useDebounce(search, 500);
+    const { data, isLoading } = useQuery(
+        ["gifs", debouncedSearch, view],
+        fetchFn,
+        {
+            cacheTime: Infinity,
+            staleTime: Infinity,
+        }
+    );
     const { data: suggest, refetch } = useGifsSuggest(search);
     const ref = useRef<HTMLDivElement | null>(null);
 
@@ -229,7 +241,12 @@ export const GifPicker: React.FC<{ onShare: (url: string) => any }> = ({
                                             search,
                                             id: i?.id || "",
                                         });
-                                        await onShare(i?.url || "");
+                                        await onShare({
+                                            url: i?.url || "",
+                                            src: i?.gif_src || "",
+                                            width: i.width,
+                                            height: i.height,
+                                        });
                                     } else {
                                         setSearch(i?.name);
                                     }

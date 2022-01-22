@@ -134,6 +134,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
             });
             socket.on("GUILD_DELETE", data => {
                 removeGuilds(data.id);
+                router.replace("/channels/@me");
             });
             socket.on("GUILD_CREATE", data => {
                 addGuilds(data);

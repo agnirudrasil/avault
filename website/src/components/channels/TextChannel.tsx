@@ -7,6 +7,7 @@ import {
     ListItemText,
     SvgIcon,
 } from "@mui/material";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
 import { Draggable } from "react-beautiful-dnd";
@@ -59,6 +60,11 @@ export const TextChannel: React.FC<{
                     }}
                     selected={router.query.channel === id}
                 >
+                    {router.query.channel === id && (
+                        <Head>
+                            <title>{name}</title>
+                        </Head>
+                    )}
                     <ListItemIcon sx={{ minWidth: "30px" }}>
                         <SvgIcon>
                             {isChannelPrivate ? (

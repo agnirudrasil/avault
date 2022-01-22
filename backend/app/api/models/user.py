@@ -1,6 +1,6 @@
 import random
 
-from sqlalchemy import BigInteger, Column, String, Text, UniqueConstraint
+from sqlalchemy import BigInteger, Column, String, Text, UniqueConstraint, Boolean
 from sqlalchemy.orm import Session
 
 from api.core.security import get_password_hash, verify_password, snowflake_id
@@ -13,6 +13,7 @@ class User(Base):
     username = Column(String(80), nullable=False)
     password = Column(Text, nullable=False)
     tag = Column(String(5), nullable=False)
+    bot = Column(Boolean, nullable=False, default=True)
     email = Column(String(120), unique=True, nullable=False)
     __table_args__ = (UniqueConstraint("username", "tag"),)
 
@@ -42,12 +43,13 @@ class User(Base):
             "email": self.email,
         }
 
-    def __init__(self, username: str, password: str, email: str, db: Session):
-        self.id = next(snowflake_id)
+    def __init__(self, username: str, password: str, email: str, db: Session, bot=False, user_id=None):
+        self.id = user_id if user_id is not None else next(snowflake_id)
         self.username = username
         self.email = email
         self.password = get_password_hash(password)
         self.tag = "#" + str(self.generate_tag(username, db)).zfill(4)
+        self.bot = bot
 
     def __repr__(self):
         return "<User %r>" % self.username + self.tag

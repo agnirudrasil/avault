@@ -1,5 +1,5 @@
 import enum
-from typing import Optional
+from typing import Optional, Union
 
 from sqlalchemy import func, or_, and_
 
@@ -85,6 +85,7 @@ def get_recipients(event: Events, guild_id: Optional[int] = None, channel_id: Op
         return get_dm_channel_recipients(db, channel_id)
 
 
-async def websocket_emitter(channel_id: int, guild_id: int, event: Events, args, user_id: int = None):
+async def websocket_emitter(channel_id: Optional[int], guild_id: Optional[Union[int, str]], event: Events, args,
+                            user_id: int = None):
     my_recipients = get_recipients(event, guild_id, channel_id, user_id)
     await emitter.to(my_recipients).emit(event, args)

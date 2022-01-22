@@ -2,17 +2,18 @@ import functools
 import operator
 from typing import Generator, List, Union, Optional
 
+from fastapi import Depends, HTTPException, status, Request, Cookie
+from fastapi.security import OAuth2PasswordBearer
+from jose import jwt
+from pydantic import ValidationError
+from sqlalchemy.orm import Session
+
 from api import models, schemas, crud
 from api.core import security
 from api.core.compute_permissions import compute_overwrites
 from api.core.config import settings
 from api.core.permissions import Permissions
 from api.db.session import SessionLocal
-from fastapi import Depends, HTTPException, status, Request, Cookie
-from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
-from pydantic import ValidationError
-from sqlalchemy.orm import Session
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/auth/access-token"

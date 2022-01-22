@@ -4,7 +4,7 @@ import { CreateChannelDialog } from "../src/components/dialogs/CreateChannelDial
 export interface CreateChannelConfig {
     guild_id?: string;
     parent_id?: string;
-    type: "guild_text" | "guild_category";
+    type: "GUILD_TEXT" | "GUILD_CATEGORY";
 }
 
 export const CreateChannelDialogContext = createContext<{
@@ -14,7 +14,7 @@ export const CreateChannelDialogContext = createContext<{
 export const CreateChannelDialogProvider: React.FC = ({ children }) => {
     const [open, setOpen] = useState(false);
     const [dialogConfig, setDialogConfig] = useState<CreateChannelConfig>({
-        type: "guild_text",
+        type: "GUILD_TEXT",
     });
 
     const openDialog = (config: CreateChannelConfig) => {

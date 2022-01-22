@@ -72,7 +72,7 @@ async def create_message(channel_id: int,
                          dependency: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES)),
                          db: Session = Depends(deps.get_db)) -> dict:
     channel, current_user = dependency
-    message = Message(body.content.strip(), channel_id, current_user.id)
+    message = Message(body.content.strip(), channel_id, current_user.id, embeds=body.embeds)
     db.add(message)
     db.commit()
     await websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_CREATE,
@@ -266,7 +266,7 @@ async def delete_reaction_by_user(channel_id: int, message_id: int, emoji: str,
 @router.get('/{channel_id}/message/{message_id}/reactions/{emoji}',
             dependencies=[Depends(deps.ChannelPerms([Permissions.VIEW_CHANNEL, Permissions.READ_MESSAGE_HISTORY]))])
 async def get_reactions(channel_id: int, message_id: int, emoji: str, limit: int = 3,
-                        db: Session = Depends(deps.get_db)) -> Union[set[list], Response]:
+                        db: Session = Depends(deps.get_db)) -> Union[list, Response]:
     message: Message = db.query(Message).filter_by(
         id=message_id).filter_by(channel_id=channel_id).first()
     if message:

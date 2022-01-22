@@ -11,7 +11,6 @@ import {
 import { Formik, Form, Field } from "formik";
 import { useState } from "react";
 import { useGuildCreate } from "../../../hooks/requests/useGuildCreate";
-import { useGuildsStore } from "../../../stores/useGuildsStore";
 import { CustomTextField } from "../CustomTextField";
 
 export interface CreateServerDialogProps {
@@ -22,7 +21,6 @@ export interface CreateServerDialogProps {
 export const CreateServerDialog: React.FC<CreateServerDialogProps> = props => {
     const { onClose, open } = props;
     const { mutateAsync } = useGuildCreate();
-    const addGuilds = useGuildsStore(state => state.addGuilds);
 
     const handleClose = () => {
         onClose();
@@ -37,7 +35,7 @@ export const CreateServerDialog: React.FC<CreateServerDialogProps> = props => {
             onClose={handleClose}
             open={open}
         >
-            <DialogTitle>Create a dialog</DialogTitle>
+            <DialogTitle>Create a server</DialogTitle>
             <DialogContent>
                 <DialogContentText>
                     Give your new server a personality with a name and an icon.
@@ -53,8 +51,7 @@ export const CreateServerDialog: React.FC<CreateServerDialogProps> = props => {
                     const form = new FormData();
                     form.append("name", values.name);
                     if (values.icon) form.append("icon", values.icon);
-                    const data = await mutateAsync(form);
-                    addGuilds(data.guild);
+                    await mutateAsync(form);
                     setSubmitting(false);
                     handleClose();
                 }}
@@ -133,6 +130,7 @@ export const CreateServerDialog: React.FC<CreateServerDialogProps> = props => {
                                 id="icon-button-file"
                                 type="file"
                                 name="icon"
+                                disabled
                                 onChange={event => {
                                     const file = (event as any).target.files[0];
                                     setFieldValue("icon", file);

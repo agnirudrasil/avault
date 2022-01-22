@@ -4,7 +4,7 @@ import { combine } from "zustand/middleware";
 import { Channel } from "../types/channels";
 import { useChannelsStore } from "./useChannelsStore";
 import { Roles, useRolesStore } from "./useRolesStore";
-import { GuildMembers } from "./useUserStore";
+import { GuildMembers, useUserStore } from "./useUserStore";
 
 export interface Guild {
     id: string;
@@ -32,11 +32,19 @@ export const useGuildsStore = create(
                 })
             );
         },
-        addGuilds: (guild: Guild) => {
+        addGuilds: ({
+            guild,
+            member,
+        }: {
+            guild: Guild;
+            member: GuildMembers;
+        }) => {
             const addGuild = useChannelsStore.getState().addGuild;
             const addRoles = useRolesStore.getState().addGuild;
+            const addMember = useUserStore.getState().addGuildMembers;
             addGuild(guild.id, guild.channels);
             addRoles(guild.id, guild.roles);
+            addMember(member);
             return set(state =>
                 produce(state, draft => {
                     draft[guild.id] = guild;
@@ -47,8 +55,10 @@ export const useGuildsStore = create(
             set(state => {
                 const deleteGuild = useChannelsStore.getState().deleteGuild;
                 const deleteRoles = useRolesStore.getState().deleteGuild;
+                const deleteMember = useUserStore.getState().removeGuildMembers;
                 deleteGuild(guildId);
                 deleteRoles(guildId);
+                deleteMember(guildId);
                 return produce(state, draft => {
                     delete draft[guildId];
                 });

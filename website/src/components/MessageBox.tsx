@@ -74,7 +74,7 @@ export const MessageBox: React.FC = () => {
             onSubmit={async ({ content }, { setSubmitting, setValues }) => {
                 content = content.trim();
                 if (!content) return;
-                await mutateAsync(content);
+                await mutateAsync({ content });
                 setValues({ content: "" });
                 setSubmitting(false);
             }}
@@ -118,8 +118,28 @@ export const MessageBox: React.FC = () => {
                                 </Paper>
                             ) : (
                                 <GifPicker
-                                    onShare={async url => {
-                                        setFieldValue("content", url);
+                                    onShare={async ({
+                                        url,
+                                        src,
+                                        width,
+                                        height,
+                                    }) => {
+                                        await mutateAsync({
+                                            content: url,
+                                            embeds: [
+                                                {
+                                                    title: "",
+                                                    url,
+                                                    type: "image",
+                                                    image: {
+                                                        url: src,
+                                                        width,
+                                                        height,
+                                                    },
+                                                },
+                                            ],
+                                        });
+                                        setFieldValue("content", "");
                                         await submitForm();
                                         setOpen(null);
                                     }}

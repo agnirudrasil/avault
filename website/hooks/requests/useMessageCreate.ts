@@ -1,12 +1,12 @@
 import { useMutation } from "react-query";
 import { request } from "../../src/request";
 
-export const createMessage = async (channelId: string, content: string) => {
+export const createMessage = async (channelId: string, content: any) => {
     const data = await request(
         `${process.env.NEXT_PUBLIC_API_URL}/channels/${channelId}/messages`,
         {
             method: "POST",
-            body: JSON.stringify({ content }),
+            body: JSON.stringify({ ...content }),
             credentials: "include",
         }
     );
@@ -14,4 +14,4 @@ export const createMessage = async (channelId: string, content: string) => {
 };
 
 export const useMessageCreate = (channelId: string) =>
-    useMutation((content: string) => createMessage(channelId, content));
+    useMutation((content: any) => createMessage(channelId, content));

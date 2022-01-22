@@ -46,7 +46,7 @@ export const ServersBar: React.FC = () => {
             >
                 <img
                     alt="logo"
-                    style={{ width: "90%" }}
+                    style={{ width: "48px", height: "48px" }}
                     src="/logo-black.png"
                 />
             </ServerItems>

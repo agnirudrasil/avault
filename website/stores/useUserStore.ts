@@ -32,6 +32,18 @@ export const useUserStore = create(
                     return { user, members: membersMap };
                 });
             },
+            addGuildMembers: (m: GuildMembers) => {
+                set(state =>
+                    produce(state, draft => {
+                        draft.members[m.guild_id] = m;
+                    })
+                );
+            },
+            removeGuildMembers: (guildId: string) => {
+                set(state => {
+                    delete state.members[guildId];
+                });
+            },
             updateGuildMembers: (guildMembers: GuildMembers) => {
                 set(state =>
                     produce(state, draft => {

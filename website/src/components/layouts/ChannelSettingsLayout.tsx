@@ -21,6 +21,7 @@ import { checkPermissions } from "../../compute-permissions";
 import { Permissions } from "../../permissions";
 import { PrivateChannelIcon, ChannelIcon } from "../ChannelIcon";
 import shallow from "zustand/shallow";
+import Head from "next/head";
 
 const Container = styled.div`
     width: 100%;
@@ -67,6 +68,9 @@ export const ChannelSettingsLayout: React.FC = ({ children }) => {
 
     return (
         <Container>
+            <Head>
+                <title>{channel?.name}</title>
+            </Head>
             <div
                 style={{
                     display: "flex",

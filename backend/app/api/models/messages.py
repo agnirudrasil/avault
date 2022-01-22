@@ -121,5 +121,5 @@ class Message(Base):
         self.mention = self.mention()
         self.mention_role = self.mentions_roles()
         self.mention_channel = self.mentions_channels()
-        self.embeds = embeds
+        self.embeds = [embed.json() for embed in embeds] if embeds else None
         self.attachments = attachments

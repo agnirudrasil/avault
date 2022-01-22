@@ -26,6 +26,7 @@
         "immer": "^9.0.6",
         "is-hotkey": "^0.2.0",
         "jwt-decode": "^3.1.2",
+        "lodash.debounce": "^4.0.8",
         "lodash.isequal": "^4.5.0",
         "marked": "^4.0.5",
         "next": "12.0.2",
@@ -42,12 +43,14 @@
         "socket.io-client": "^4.3.2",
         "socket.io-msgpack-parser": "^3.0.1",
         "twemoji": "^13.1.0",
+        "use-debounce": "^7.0.1",
         "yup": "^0.32.11",
         "zustand": "^3.6.4"
     },
     "devDependencies": {
         "@types/emoji-mart": "^3.0.8",
         "@types/is-hotkey": "^0.1.5",
+        "@types/lodash.debounce": "^4.0.6",
         "@types/marked": "^4.0.1",
         "@types/prismjs": "^1.16.6",
         "@types/react-beautiful-dnd": "^13.1.2",

@@ -18,10 +18,7 @@ import {
     RadioGroup,
     TextField,
 } from "@mui/material";
-import produce from "immer";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useQueryClient } from "react-query";
 import { useCreateChannel } from "../../../hooks/requests/useCreateChannel";
 import { ChannelIcon } from "../ChannelIcon";
 import { Android12Switch } from "../Form/AndroidSwitch";
@@ -30,7 +27,7 @@ export interface CreateChannelDialogProps {
     guild_id?: string;
     parent_id?: string;
     open: boolean;
-    type: "guild_text" | "guild_category";
+    type: "GUILD_TEXT" | "GUILD_CATEGORY";
     handleClose: () => void;
 }
 
@@ -41,37 +38,34 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
     type: channel_type,
     handleClose,
 }) => {
-    const [type, setType] = useState<"guild_text" | "guild_category">(
+    const [type, setType] = useState<"GUILD_TEXT" | "GUILD_CATEGORY">(
         channel_type
     );
     const [name, setName] = useState("");
     const [privateChannel, setPrivateChannel] = useState(false);
-    const queryClient = useQueryClient();
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setType((event.target as HTMLInputElement).value as any);
     };
-    const { mutate, isLoading } = useCreateChannel();
-
-    const router = useRouter();
+    const { mutateAsync, isLoading } = useCreateChannel();
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         switch (type) {
-            case "guild_text":
+            case "GUILD_TEXT":
                 return setName(
                     e.target.value.replaceAll(" ", "-").toLowerCase()
                 );
-            case "guild_category":
+            case "GUILD_CATEGORY":
                 return setName(e.target.value.toUpperCase());
         }
     };
 
     useEffect(() => {
         switch (type) {
-            case "guild_text":
+            case "GUILD_TEXT":
                 return setName(prevName =>
                     prevName.replaceAll(" ", "-").toLowerCase()
                 );
-            case "guild_category":
+            case "GUILD_CATEGORY":
                 return setName(prevName => prevName.toUpperCase());
         }
     }, [type]);
@@ -79,7 +73,7 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
     return (
         <Dialog fullWidth maxWidth="xs" open={open} onClose={handleClose}>
             <DialogTitle>
-                {type === "guild_text"
+                {type === "GUILD_TEXT"
                     ? "Create Text Channel"
                     : "Create Category"}
             </DialogTitle>
@@ -107,7 +101,7 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
                             control={<Radio />}
                             label={
                                 <ListItemButton
-                                    selected={type === "guild_text"}
+                                    selected={type === "GUILD_TEXT"}
                                     sx={{ borderRadius: "5px" }}
                                 >
                                     <ListItemIcon>
@@ -128,7 +122,7 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
                             label={
                                 <ListItemButton
                                     sx={{ borderRadius: "5px" }}
-                                    selected={type === "guild_category"}
+                                    selected={type === "GUILD_CATEGORY"}
                                 >
                                     <ListItemIcon>
                                         <SvgIcon>
@@ -185,37 +179,18 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
                     disableElevation
                     variant="contained"
                     loading={isLoading}
-                    onClick={() => {
-                        mutate(
-                            {
-                                guild_id,
-                                parent_id,
-                                name,
-                                type,
-                                privateChannel,
-                            },
-                            {
-                                onSettled: data => {
-                                    queryClient.setQueryData(
-                                        ["guild", router.query.server_id],
-                                        old => {
-                                            return produce(
-                                                old,
-                                                (draft: any) => {
-                                                    draft.guild.channels.push(
-                                                        data.channel
-                                                    );
-                                                }
-                                            );
-                                        }
-                                    );
-                                    handleClose();
-                                },
-                            }
-                        );
+                    onClick={async () => {
+                        await mutateAsync({
+                            guild_id,
+                            parent_id,
+                            name,
+                            type,
+                            privateChannel,
+                        });
+                        handleClose();
                     }}
                 >
-                    Create {type === "guild_category" ? "Category" : "Channel"}
+                    Create {type === "GUILD_CATEGORY" ? "Category" : "Channel"}
                 </LoadingButton>
             </DialogActions>
         </Dialog>

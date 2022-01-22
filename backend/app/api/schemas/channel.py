@@ -46,7 +46,7 @@ class ChannelValidate(BaseModel):
 
     @validator("type")
     def validate_type(cls, field):
-        if field not in ChannelType.__members__:
+        if field not in ChannelType.__members__ and field not in ChannelType.__members__.values():
             raise ValueError("Invalid channel type")
         return field
 

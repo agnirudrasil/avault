@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from api.api import deps
-from api.api.v1.endpoints import auth, channels, gifs, users, guilds, invites, default
+from api.api.v1.endpoints import auth, channels, gifs, users, guilds, invites, default, oauth2, webhooks
 from api.core import emitter
 from api.core.events import Events, websocket_emitter
 from api.models.guilds import Guild, GuildMembers
@@ -51,7 +51,8 @@ async def join_guild(code: str,
                 await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_MEMBER_ADD,
                                         guild_member.serialize())
                 await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_CREATE,
-                                        guild.serialize(), current_user.id)
+                                        {"guild": guild.serialize(), "member": guild_member.serialize()},
+                                        current_user.id)
                 return {"message": "Joined guild"}
             except IntegrityError:
                 response.status_code = 403
@@ -70,4 +71,5 @@ api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(guilds.router, prefix="/guilds", tags=["guilds"])
 api_router.include_router(invites.router, prefix='/invites', tags=["invites"])
 api_router.include_router(
-    invites.router, prefix='/webhooks', tags=["webhooks"])
+    webhooks.router, prefix='/webhooks', tags=["webhooks"])
+api_router.include_router(oauth2.router, prefix='/oauth2', tags=["oauth2"])

@@ -16,7 +16,9 @@ const ServerButton = styled.button<{ hoverColor?: string; selected?: boolean }>`
     padding: 10px;
     width: 48px;
     height: 48px;
+    overflow: hidden;
     display: flex;
+    object-fit: contain;
     justify-content: center;
     align-items: center;
     box-shadow: 0 1px 0 rgba(6, 6, 7, 0.1), 0 1.5px 0 rgba(6, 6, 7, 0.025),
