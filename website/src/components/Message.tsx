@@ -30,6 +30,9 @@ import { Permissions } from "../permissions";
 import { GuildMembers } from "../../stores/useUserStore";
 import { Markdown } from "./markdown/Markdown";
 import { Embeds } from "./Embeds";
+import { useGuildsStore } from "../../stores/useGuildsStore";
+import shallow from "zustand/shallow";
+import { GuildMember } from "./GuildMember";
 
 const ToolBar: React.FC<{
     editFn: () => any;
@@ -171,6 +174,11 @@ export const Message: React.FC<{
     const { mutate: mutateDelete } = useDeleteMessage(
         router.query.channel as string
     );
+    const members = useGuildsStore(
+        state => state[router.query.server_id as string].members,
+        shallow
+    );
+
     const { mutateAsync } = useCreateReaction();
     const { mutateAsync: deleteReaction } = useDeleteReaction();
     const { permissions, guildMember } = usePermssions(
@@ -359,12 +367,21 @@ export const Message: React.FC<{
                     </ListItemAvatar>
                     <ListItemText
                         primary={
-                            <Typography
-                                style={{ userSelect: "none" }}
-                                variant="subtitle2"
+                            <Link
+                                sx={{ color: "inherit", cursor: "pointer" }}
+                                underline="hover"
                             >
-                                {message.author.username}
-                            </Typography>
+                                <GuildMember id={message.author.id}>
+                                    <Typography
+                                        style={{ userSelect: "none" }}
+                                        variant="subtitle2"
+                                    >
+                                        {(members &&
+                                            members[message.author.id].nick) ||
+                                            message.author.username}
+                                    </Typography>
+                                </GuildMember>
+                            </Link>
                         }
                         secondary={
                             <div>

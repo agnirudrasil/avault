@@ -23,21 +23,23 @@ type MentionsElement = {
 type EmojiElement = {
     type: "emoji";
     id: string;
-    emoji: EmojiData;
+    emoji: string;
     name: string;
+    src: string;
     children: CustomText[];
 };
 
 type CustomText = {
     text: string;
     strong?: boolean;
-    em?: boolean;
-    code?: boolean;
+    emphasis?: boolean;
+    inlineCode?: boolean;
     underline?: boolean;
-    link?: boolean;
+    url?: boolean;
     blockquote?: boolean;
-    del?: boolean;
+    strikethrough?: boolean;
     spoiler?: boolean;
+    emoji?: boolean;
 };
 
 declare module "slate" {

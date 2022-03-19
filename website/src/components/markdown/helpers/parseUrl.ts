@@ -1,20 +1,24 @@
-import type { ParseFunction } from "simple-markdown"
-import { depunycodeUrl } from "./depunycodeUrl"
+import type { ParseFunction } from "simple-markdown";
+import { depunycodeUrl } from "./depunycodeUrl";
 
 export const parseUrl: ParseFunction = capture => {
-  const [, content] = capture
+    const [, content] = capture;
 
-  const url = depunycodeUrl(content)
+    let url = depunycodeUrl(content);
 
-  if (!url) {
-    return {
-      type: "text",
-      content,
+    if (!content.endsWith("/")) {
+        url = url?.slice(0, url.length - 1);
     }
-  }
 
-  return {
-    content: [{ type: "text", content: url }],
-    target: url,
-  }
-}
+    if (!url) {
+        return {
+            type: "text",
+            content,
+        };
+    }
+
+    return {
+        content: [{ type: "text", content: url }],
+        target: url,
+    };
+};

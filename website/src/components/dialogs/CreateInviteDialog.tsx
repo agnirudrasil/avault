@@ -94,7 +94,7 @@ export const CreateInviteDialog: React.FC<CreateInviteDialogProps> = ({
                     disabled={!data}
                     value={
                         data
-                            ? `${process.env.NEXT_PUBLIC_API_URL}/join/${
+                            ? `${window.location.host}/invite/${
                                   (data as any)?.id
                               }`
                             : ""
@@ -104,9 +104,9 @@ export const CreateInviteDialog: React.FC<CreateInviteDialogProps> = ({
                             <InputAdornment position="end">
                                 <CopyButton
                                     disabled={!data}
-                                    text={`${
-                                        process.env.NEXT_PUBLIC_API_URL
-                                    }/join/${(data as any)?.id}`}
+                                    text={`${window.location.host}/invite/${
+                                        (data as any)?.id
+                                    }`}
                                 />
                             </InputAdornment>
                         ),

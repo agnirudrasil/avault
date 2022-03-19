@@ -6,11 +6,11 @@ authors = ["Agnirudra Sil <agnirudra.sil@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-uvicorn = "^0.11.3"
+uvicorn = "^0.17.6"
 fastapi = "^0.54.1"
 python-multipart = "^0.0.5"
 email-validator = "^1.0.5"
-requests = "^2.23.0"
+requests = "^2.27.1"
 celery = "^4.4.2"
 passlib = {extras = ["bcrypt"], version = "^1.7.2"}
 tenacity = "^6.1.0"

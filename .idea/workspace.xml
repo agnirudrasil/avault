@@ -5,51 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/0826551d71a7_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/13a88dff9b9f_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/3098303fea63_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/applications.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/oauth2.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/api/models/applications.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/deps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/deps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/events.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/events.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/channels.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/messages.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/messages.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/schemas/channel.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/schemas/channel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/poetry.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/pyproject.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/contexts/CreateChannelContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/contexts/CreateChannelContext.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useGifsSuggest.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useGifsSuggest.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useMessageCreate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useMessageCreate.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/website/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/public/Discord-Logo-Color.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/public/favicon.ico" beforeDir="false" afterPath="$PROJECT_DIR$/website/public/favicon.ico" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/public/logo-black.png" beforeDir="false" afterPath="$PROJECT_DIR$/website/public/logo-black.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/public/logo-color.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/public/logo.png" beforeDir="false" afterPath="$PROJECT_DIR$/website/public/logo.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/public/vercel.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/search.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/DefaultProfilePic.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/DefaultProfilePic.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/GifPicker/GifPicker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/GifPicker/GifPicker.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/Message.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/Message.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/MessageBox.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/MessageBox.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ServerBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ServerBar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ServerItems.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ServerItems.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/channels/CategoryChannel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/channels/CategoryChannel.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/dialogs/CreateChannelDialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/dialogs/CreateChannelDialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/dialogs/CreateServerDialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/dialogs/CreateServerDialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/stores/useGuildsStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useGuildsStore.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/stores/useUserStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useUserStore.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/_app.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/slate.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/slate.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/MarkdownEditor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/MarkdownEditor.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/helpers/parseUrl.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/helpers/parseUrl.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/parsers/createParser.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/parsers/createParser.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/parsers/parseMessageContent.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/parsers/parseMessageContent.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/autolink.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/autolink.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/emoji.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/emoji.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/escape.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/escape.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/website/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -120,7 +86,7 @@
     <property name="add_unversioned_files" value="$PROJECT_DIR$/backend/app/.env" />
     <property name="database.data.extractors.current.export.id" value="JSON-Groovy.json.groovy" />
     <property name="database.data.extractors.current.id" value="JSON-Groovy.json.groovy" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/backend/app" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/backend" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
@@ -352,6 +318,7 @@
       <workItem from="1642339709853" duration="4723000" />
       <workItem from="1642655979018" duration="6180000" />
       <workItem from="1642824146603" duration="138000" />
+      <workItem from="1646573372609" duration="52000" />
     </task>
     <servers />
   </component>

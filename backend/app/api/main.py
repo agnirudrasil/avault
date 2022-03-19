@@ -11,7 +11,9 @@ from api.core.emitter import Emitter
 from api.core.rabbitmq import consume
 
 app = FastAPI(
-    title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    docs_url=f"{settings.API_V1_STR}/docs",
+    redoc_url=None
 )
 
 # Set all CORS enabled origins

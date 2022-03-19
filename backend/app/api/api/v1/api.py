@@ -13,10 +13,10 @@ from api.models.user import User
 api_router = APIRouter()
 
 
-@api_router.get('/join/{code}')
+@api_router.post('/join/{code}')
 async def join_guild(code: str,
                      response: Response,
-                     current_user: User = Depends(deps.get_current_user_refresh_token),
+                     current_user: User = Depends(deps.get_current_user),
                      db: Session = Depends(deps.get_db)):
     invite: Invite = db.query(Invite).filter_by(id=code).first()
     if invite:
@@ -35,28 +35,29 @@ async def join_guild(code: str,
         #                               'channel_id': invite.channel_id})
         #     return {"message": "Invite has expired"}
         if guild_id:
-            try:
-                guild: Guild = db.query(Guild).filter_by(id=guild_id).first()
-                user = db.query(User).filter_by(id=current_user.id).first()
-                guild_member = GuildMembers()
-                guild_member.member = user
-                guild_member.guild = guild
-                guild.members.append(guild_member)
-                db.add(guild)
-                invite.count += 1
-                db.add(invite)
-                db.commit()
-                response.status_code = 200
-                await emitter.in_room(str(current_user.id)).sockets_join(str(guild_id))
-                await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_MEMBER_ADD,
-                                        guild_member.serialize())
-                await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_CREATE,
-                                        {"guild": guild.serialize(), "member": guild_member.serialize()},
-                                        current_user.id)
-                return {"message": "Joined guild"}
-            except IntegrityError:
+            guild_member = db.query(GuildMembers).filter_by(guild_id=guild_id).filter_by(
+                user_id=current_user.id).first()
+            if guild_member:
                 response.status_code = 403
-                return {"message": "Already in guild"}
+                return {"id": str(guild_id)}
+            guild: Guild = db.query(Guild).filter_by(id=guild_id).first()
+            user = db.query(User).filter_by(id=current_user.id).first()
+            guild_member = GuildMembers()
+            guild_member.member = user
+            guild_member.guild = guild
+            guild.members.append(guild_member)
+            db.add(guild)
+            invite.count += 1
+            db.add(invite)
+            db.commit()
+            response.status_code = 200
+            await emitter.in_room(str(current_user.id)).sockets_join(str(guild_id))
+            await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_MEMBER_ADD,
+                                    guild_member.serialize())
+            await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_CREATE,
+                                    {"guild": guild.serialize(), "member": guild_member.serialize()},
+                                    current_user.id)
+            return guild.serialize()
         return "Success"
     response.status_code = 404
     return ""

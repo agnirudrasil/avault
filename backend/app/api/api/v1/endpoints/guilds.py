@@ -3,7 +3,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Form, Response, UploadFile
 from pydantic import BaseModel
-from sqlalchemy import asc, desc
+from sqlalchemy import asc, desc, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -203,7 +203,8 @@ async def create_role(guild_id: int,
                       data: RoleCreate,
                       db: Session = Depends(deps.get_db)):
     everyone_role = db.query(Role).filter_by(id=guild_id).first()
-    role = Role(guild_id, data.name, data.color, 1,
+    max_position, = db.query(func.max(Role.position)).filter_by(guild_id=guild_id).first()
+    role = Role(guild_id, data.name, data.color, max_position + 1,
                 data.permissions or everyone_role.permissions,
                 data.mentionable)
     db.add(role)
@@ -214,18 +215,36 @@ async def create_role(guild_id: int,
 
 
 # TODO: Add code to update role order
-@router.patch('/{guild_id}/roles', dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
+@router.patch('/{guild_id}/roles', status_code=204, dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
 async def update_role_positions(guild_id: int,
                                 data: RolePositionUpdate,
                                 db: Session = Depends(deps.get_db)):
-    role_id = data.id
-    position = data.position
-    if position:
+    if data.position:
         role = db.query(Role).filter_by(
-            id=role_id).filter_by(guild_id=guild_id).first()
+            id=data.id).filter_by(guild_id=guild_id).first()
+        original_position = role.position
         if role:
+            if role.position == data.position:
+                return
+            if role.position < data.position:
+                db.query(Role).filter_by(guild_id=guild_id).filter(Role.position <= data.position,
+                                                                   Role.position > role.position).update(
+                    {Role.position: Role.position - 1})
+            else:
+                db.query(Role).filter_by(guild_id=guild_id).filter(Role.position >= data.position,
+                                                                   Role.position < role.position).update(
+                    {Role.position: Role.position + 1})
+            role.position = data.position
             db.commit()
-            return '', 204
+            update_roles = db.query(Role).filter_by(guild_id=guild_id).filter(Role.position <= data.position,
+                                                                              Role.position >= original_position) \
+                .all() if original_position < data.position else db.query(
+                Role).filter_by(guild_id=guild_id).filter(Role.position >= data.position,
+                                                          Role.position <= original_position).all()
+            for role in update_roles:
+                await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_UPDATE,
+                                         {'role': role.serialize(), 'guild_id': str(guild_id)}))
+            return
         return {'success': False, 'error': 'Role not found'}, 404
     return {'success': False, 'error': 'No position provided'}, 404
 

@@ -11,10 +11,10 @@ from api.models.invites import Invite
 router = APIRouter()
 
 
-@router.get('/{code}', dependencies=[Depends(deps.get_current_user)])
+@router.get('/{code}')
 def get_invite(code: str,
                db: Session = Depends(deps.get_db)):
-    invite: Optional[Invite] = db.query(Invite).filter_by(code=code).first()
+    invite: Optional[Invite] = db.query(Invite).filter_by(id=code).first()
     if invite:
         return {**invite.serialize()}
     return {'error': 'Invite not found'}, 404

@@ -19,10 +19,25 @@ interface MyAppProps extends AppProps {
     dehydratedState: any;
 }
 
-const MyApp = (props: MyAppProps) => {
-    const { Component, emotionCache = clientSideCache, pageProps } = props;
-    const [queryClient] = useState(() => new QueryClient());
+const MyComponent: React.FC<MyAppProps & { overwrites: string[] }> = props => {
+    const { Component, overwrites, pageProps } = props;
     const router = useRouter();
+
+    return overwrites.includes(router.asPath) ||
+        router.asPath.startsWith("/invite") ||
+        router.asPath.startsWith("/login") ||
+        router.asPath.startsWith("/register") ? (
+        <Component {...pageProps} />
+    ) : (
+        <WebsocketProvider>
+            <Component {...pageProps} />
+        </WebsocketProvider>
+    );
+};
+
+const MyApp = (props: MyAppProps) => {
+    const { emotionCache = clientSideCache } = props;
+    const [queryClient] = useState(() => new QueryClient());
 
     return (
         <QueryClientProvider client={queryClient}>
@@ -50,14 +65,17 @@ const MyApp = (props: MyAppProps) => {
             <CacheProvider value={emotionCache}>
                 <ThemeProvider theme={theme}>
                     <CssBaseline />
-                    {router.asPath.startsWith("/login") ||
-                    router.asPath.startsWith("/register") ? (
-                        <Component {...pageProps} />
-                    ) : (
-                        <WebsocketProvider>
-                            <Component {...pageProps} />
-                        </WebsocketProvider>
-                    )}
+                    <MyComponent
+                        {...props}
+                        overwrites={[
+                            "/markdown",
+                            "/login",
+                            "/register",
+                            "/firebase",
+                            "/invite",
+                            "/firebase-messaging-sw.js",
+                        ]}
+                    />
                 </ThemeProvider>
             </CacheProvider>
         </QueryClientProvider>

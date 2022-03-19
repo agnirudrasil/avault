@@ -33,13 +33,15 @@ import {
 import { useCreateRoles } from "../../hooks/requests/useCreateRole";
 import { useDeleteRole } from "../../hooks/requests/useDeleteRole";
 import { useEditRole } from "../../hooks/requests/useEditRole";
-import { useGetPermissions } from "../../hooks/requests/useGetPermissions";
+import { useUpdateRolePosition } from "../../hooks/requests/useUpdateRolePosition";
 import { useUnsaved } from "../../hooks/useUnsaved";
 import { Roles, useRolesStore } from "../../stores/useRolesStore";
 import { ColorPicker } from "../components/ColorPicker";
 import { Android12Switch } from "../components/Form/AndroidSwitch";
 import { SettingsLayout } from "../components/layouts/SettingsLayout";
 import { RoleMembers } from "../components/RoleMembers";
+import { permissions } from "../permissions";
+import { rolesSort } from "../sort-roles";
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -50,23 +52,23 @@ interface TabPanelProps {
 export const SettingsRoles = () => {
     const router = useRouter();
     const { mutateAsync, isLoading: isCreating } = useCreateRoles();
-    const roles = useRolesStore(
+    const { mutateAsync: update, isLoading } = useUpdateRolePosition();
+    const ogData = useRolesStore(
         state => state[router.query.server_id as string]
     );
     const [selected, setSelected] = useState<string>(
         router.query.server_id as string
     );
-    const { handleReset, ogData, setOgdata, unsaved } = useUnsaved(roles);
 
-    const onDragEnd = (result: DropResult) => {
+    const onDragEnd = async (result: DropResult) => {
         if (!result.destination) return;
-        const dragCard = ogData[result.source.index];
-        setOgdata(data =>
-            produce(data, draft => {
-                draft.splice(result.source.index, 1);
-                draft.splice(result.destination!.index, 0, dragCard);
-            })
-        );
+        const endIndex = ogData.length - result.destination.index;
+
+        await update({
+            guildId: router.query.server_id as string,
+            id: result.draggableId,
+            position: endIndex,
+        });
     };
 
     const createRole = async () => {
@@ -75,38 +77,6 @@ export const SettingsRoles = () => {
 
     return (
         <SettingsLayout>
-            <Snackbar
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-                open={unsaved}
-                TransitionComponent={TransitionComponent}
-            >
-                <Alert
-                    severity="warning"
-                    action={
-                        <div>
-                            <Button
-                                size="small"
-                                variant="text"
-                                onClick={handleReset}
-                            >
-                                Reset
-                            </Button>
-                            <LoadingButton
-                                // loading={isUpdating}
-                                variant="contained"
-                                size="small"
-                                onClick={() => {
-                                    // saveFn(ogData);
-                                }}
-                            >
-                                Save
-                            </LoadingButton>
-                        </div>
-                    }
-                >
-                    You have unsaved changes!
-                </Alert>
-            </Snackbar>
             <div
                 style={{
                     minWidth: "740px",
@@ -167,15 +137,16 @@ export const SettingsRoles = () => {
                                                     i.id !==
                                                     router.query.server_id
                                             )
-                                            .map((role: any, index: number) => (
+                                            .sort(rolesSort)
+                                            .map((role: any) => (
                                                 <Draggable
                                                     draggableId={role.id}
-                                                    index={index}
-                                                    key={role.id}
-                                                    isDragDisabled={
-                                                        role.id ===
-                                                        router.query.server_id
+                                                    index={
+                                                        ogData.length -
+                                                        role.position
                                                     }
+                                                    key={role.id}
+                                                    isDragDisabled={isLoading}
                                                 >
                                                     {provided => (
                                                         <ListItemButton
@@ -223,7 +194,8 @@ export const SettingsRoles = () => {
                                                                         ),
                                                                 }}
                                                                 primary={
-                                                                    role.name
+                                                                    role.name +
+                                                                    `${role.position}`
                                                                 }
                                                             />
                                                         </ListItemButton>
@@ -260,7 +232,7 @@ export const SettingsRoles = () => {
                     </List>
                 </DragDropContext>
                 <RolesDisplay
-                    role={roles.find(r => r.id === selected)!}
+                    role={ogData.find(r => r.id === selected)!}
                     setSelected={setSelected}
                     key={selected}
                     roleId={selected}
@@ -282,7 +254,6 @@ export const RolesDisplay: React.FC<{
     setSelected: (id: string) => any;
 }> = ({ roleId, guildId, setSelected, role }) => {
     const updateRole = useRolesStore(state => state.updateRole);
-    const { data: permissions } = useGetPermissions();
     const [permsQuery, setPermsQuery] = useState<string>("");
     const { mutateAsync, isLoading: isUpdating } = useEditRole(guildId, roleId);
     const { mutateAsync: deleteRole, isLoading: deleteing } = useDeleteRole(

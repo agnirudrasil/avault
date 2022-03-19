@@ -38,8 +38,8 @@ class Guild(Base):
     icon = Column(Text, nullable=True)
     owner_id = Column(BigInteger, ForeignKey("users.id"))
     owner = relationship("User", backref="owner")
-    channels = relationship("Channel", order_by="asc(Channel.position)")
-    roles = relationship("Role", back_populates="guild", order_by="Role.position, Role.id")
+    channels = relationship("Channel", backref="guild", order_by="asc(Channel.position)")
+    roles = relationship("Role", back_populates="guild", order_by="Role.position, Role.id.desc()")
 
     def is_owner(self, user):
         return user == self.owner_id

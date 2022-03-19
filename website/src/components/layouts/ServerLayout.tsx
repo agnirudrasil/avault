@@ -15,6 +15,7 @@ import { useMessagesStore } from "../../../stores/useMessagesStore";
 import { ChannelBar } from "../ChannelBar";
 import { ChannelLayout } from "../ChannelLayout";
 import { DefaultProfilePic } from "../DefaultProfilePic";
+import { GuildMember } from "../GuildMember";
 import { MembersBar } from "../MembersBar";
 import { Message } from "../Message";
 import { MessageBox } from "../MessageBox";
@@ -111,18 +112,25 @@ export const ServerLayout: React.FC = () => {
                 <MessageBox />
             </div>
             <MembersBar>
-                {guild?.members.map((member: any) => (
-                    <ListItemButton key={member.id}>
-                        <ListItemAvatar>
-                            <Avatar>
-                                <DefaultProfilePic tag={member.user.tag} />
-                            </Avatar>
-                        </ListItemAvatar>
-                        <ListItemText
-                            primary={member.nickname || member.user.username}
-                        />
-                    </ListItemButton>
-                ))}
+                {Object.keys(guild?.members ?? {}).map((member_id: any) => {
+                    const member = guild?.members[member_id];
+                    return (
+                        <ListItemButton key={member_id}>
+                            <ListItemAvatar>
+                                <Avatar>
+                                    <DefaultProfilePic tag={member.user.tag} />
+                                </Avatar>
+                            </ListItemAvatar>
+                            <ListItemText
+                                primary={
+                                    <GuildMember id={member_id}>
+                                        {member.nick || member.user.username}
+                                    </GuildMember>
+                                }
+                            />
+                        </ListItemButton>
+                    );
+                })}
             </MembersBar>
         </Container>
     );

@@ -31,7 +31,8 @@ class Role(Base):
     mentionable = Column(Boolean, nullable=False)
     guild = relationship('Guild', back_populates="roles")
     members = relationship('GuildMembers', secondary=role_members,
-                           lazy='subquery', backref=backref('roles', lazy=True))
+                           lazy='subquery', backref=backref('roles', order_by="Role.position.desc(), Role.id.desc()",
+                                                            lazy=True))
 
     def serialize(self):
         return {

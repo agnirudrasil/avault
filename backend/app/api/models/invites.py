@@ -22,16 +22,21 @@ class Invite(Base):
     max_uses = Column(Integer, default=0)
     count = Column(Integer, default=0)
     channel: Channel = relationship('Channel')
+    inviter = relationship('User')
 
     def serialize(self):
-        return {
+        my_invite = {
             'id': str(self.id),
-            'channel_id': str(self.channel_id),
-            'user_id': self.user_id,
+            'inviter': self.inviter.serialize(),
             'expires_at': str(datetime.timedelta(seconds=self.max_age) + self.created_at),
             'count': self.count,
             'max_uses': self.max_uses
         }
+        if self.channel.guild_id:
+            my_invite['guild'] = self.channel.guild.preview()
+        elif self.channel.guild_id:
+            my_invite['channel'] = self.channel.serialize()
+        return my_invite
 
     def gen_id(self, db):
         invite_id = generate(size=randint(8, 21))

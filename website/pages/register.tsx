@@ -29,7 +29,7 @@ const ValidationSchema = yup.object().shape({
         ),
 });
 
-const RegisterPage: NextPage = () => {
+const RegisterPage: NextPage<{ next?: string }> = ({ next }) => {
     const { mutateAsync } = useRegister();
     const router = useRouter();
 
@@ -44,7 +44,11 @@ const RegisterPage: NextPage = () => {
                         email: "User with that email already exists. Please login.",
                     });
                 } else {
-                    router.push("/login");
+                    router.push(
+                        `/login${
+                            next ? "?next=" + encodeURIComponent(next) : ""
+                        }`
+                    );
                 }
                 setSubmitting(false);
             }}
@@ -85,7 +89,12 @@ const RegisterPage: NextPage = () => {
                         >
                             Register
                         </LoadingButton>
-                        <Link underline="hover" href="/login">
+                        <Link
+                            underline="hover"
+                            href={`/login${
+                                next ? "?next=" + encodeURIComponent(next) : ""
+                            }`}
+                        >
                             Already have an account?
                         </Link>
                     </div>
@@ -94,5 +103,7 @@ const RegisterPage: NextPage = () => {
         </AuthLayout>
     );
 };
+
+RegisterPage.getInitialProps = ({ query }) => ({ next: query.next as string });
 
 export default RegisterPage;

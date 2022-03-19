@@ -10,6 +10,7 @@ import { useUserStore } from "../stores/useUserStore";
 import { useMessagesStore } from "../stores/useMessagesStore";
 import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/router";
+import { setUserId } from "../src/user-cache";
 
 export const WebsocketContext = createContext<{ socket: Socket | null }>({
     socket: null as any,
@@ -19,12 +20,23 @@ export const WebsocketProvider: React.FC = ({ children }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const router = useRouter();
     const [loading, setLoading] = useState(true);
-    const { setGuilds, addGuilds, removeGuilds, updateGuilds } = useGuildsStore(
+    const {
+        setGuilds,
+        addGuilds,
+        removeGuilds,
+        updateGuilds,
+        updateMember,
+        addMember,
+        removeMember,
+    } = useGuildsStore(
         state => ({
             setGuilds: state.setGuilds,
             addGuilds: state.addGuilds,
             removeGuilds: state.removeGuild,
             updateGuilds: state.updateGuild,
+            updateMember: state.updateMember,
+            addMember: state.addMember,
+            removeMember: state.removeMember,
         }),
         shallow
     );
@@ -60,7 +72,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
         shallow
     );
 
-    const { setUser, isUserMe, updateGuildMember } = useUserStore(
+    const { setUser } = useUserStore(
         state => ({
             setUser: state.setUser,
             isUserMe: state.isUserMe,
@@ -115,6 +127,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                     ...guildChannels,
                     privateChannels: data.private_channels,
                 });
+                setUserId(data.user.id);
                 setUser(data.user, data.merged_members);
                 setRoles(guildsRoles);
                 setGuilds(data.guilds);
@@ -142,6 +155,9 @@ export const WebsocketProvider: React.FC = ({ children }) => {
             socket.on("GUILD_ROLE_CREATE", data => {
                 addRole(data.guild_id, data.role);
             });
+            socket.on("GUILD_ROLE_POSITION_UPDATE", data => {
+                addRole(data.guild_id, data.role);
+            });
             socket.on("GUILD_ROLE_UPDATE", data => {
                 updateRole(data.guild_id, data.role);
             });
@@ -149,9 +165,13 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 deleteRole(data.guild_id, data.role.id);
             });
             socket.on("GUILD_MEMBER_UPDATE", data => {
-                if (isUserMe(data.user.id)) {
-                    updateGuildMember(data);
-                }
+                updateMember(data);
+            });
+            socket.on("GUILD_MEMBER_ADD", data => {
+                addMember(data);
+            });
+            socket.on("GUILD_MEMBER_REMOVE", data => {
+                removeMember(data);
             });
             socket.on("MESSAGE_CREATE", data => {
                 console.log(data);

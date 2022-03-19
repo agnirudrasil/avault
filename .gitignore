@@ -141,3 +141,4 @@ node_modules
 .next
 
 data/db
+firebase.*

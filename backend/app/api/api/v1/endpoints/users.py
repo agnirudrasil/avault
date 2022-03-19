@@ -107,6 +107,9 @@ async def leave_guild(guild_id: int, response: Response, background_task: Backgr
     guild_member = db.query(GuildMembers).filter_by(
         user_id=current_user.id, guild_id=guild_id).first()
     if guild_member:
+        if guild_member.is_owner:
+            response.status_code = 403
+            return {"message": "Cannot leave guild, you are the owner"}
         db.delete(guild_member)
         db.commit()
         await emitter.in_room(str(current_user.id)).sockets_leave(str(guild_id))

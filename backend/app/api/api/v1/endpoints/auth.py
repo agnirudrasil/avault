@@ -68,8 +68,14 @@ def login_access_token(
     }
 
 
+@router.post("/logout", status_code=204)
+def logout(response: Response):
+    response.delete_cookie(key="jid")
+    return
+
+
 @router.post("/refresh-token", response_model=schemas.Token)
-def refresh_token(response: Response, jid: str = Cookie(None)):
+def refresh_token(response: Response, jid: str = Cookie(None), db: Session = Depends(deps.get_db)):
     """
     OAuth2 compatible token refresh, get an access token for future requests
     """
@@ -79,6 +85,13 @@ def refresh_token(response: Response, jid: str = Cookie(None)):
         )
         token_data = schemas.TokenPayload(**payload)
     except (jwt.JWTError, ValidationError):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials",
+        )
+    user = db.query(models.User).filter_by(id=token_data.sub).first()
+    if not user:
+        response.delete_cookie(key="jid")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",

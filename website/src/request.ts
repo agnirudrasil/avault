@@ -1,7 +1,9 @@
 import jwtDecode from "jwt-decode";
 import { getAccessToken, setAccessToken } from "./access-token";
 
-export const refetchToken = async (): Promise<string | undefined> => {
+export const refetchToken = async (
+    onError?: () => {}
+): Promise<string | undefined> => {
     const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
         {
@@ -9,16 +11,30 @@ export const refetchToken = async (): Promise<string | undefined> => {
             method: "POST",
         }
     );
+    if (res.status === 403) {
+        if (onError) {
+            onError();
+        }
+    }
     try {
         const data = await res.json();
         setAccessToken(data.access_token);
         return data.access_token;
-    } catch (e) {}
+    } catch (e) {
+        if (onError) {
+            console.log("error");
+            onError();
+        }
+    }
 };
 
-export const request = async (input: RequestInfo, init?: RequestInit) => {
+export const request = async (
+    input: RequestInfo,
+    init?: RequestInit,
+    onError?: () => {}
+) => {
     if (!getAccessToken()) {
-        await refetchToken();
+        await refetchToken(onError);
     } else {
         try {
             const { exp } = jwtDecode(getAccessToken()) as any;
@@ -26,9 +42,10 @@ export const request = async (input: RequestInfo, init?: RequestInit) => {
                 await refetchToken();
             }
         } catch {
-            await refetchToken();
+            await refetchToken(onError);
         }
     }
+
     return fetch(input, {
         credentials: "include",
         headers: {

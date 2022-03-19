@@ -14,7 +14,9 @@ import {
     Descendant,
     BaseRange,
     Range,
+    Element as SlateElement,
     Editor,
+    Node,
 } from "slate";
 import { withHistory } from "slate-history";
 import styled from "@emotion/styled";
@@ -29,9 +31,16 @@ import {
     Typography,
 } from "@mui/material";
 import { AddCircle, EmojiEmotions, GifRounded } from "@mui/icons-material";
-import { Emoji, EmojiData, emojiIndex, Picker } from "emoji-mart";
-import Prism from "prismjs";
+import { Emoji as EmojiPicker, emojiIndex, Picker } from "emoji-mart";
 import { Mention, MentionIcon, MentionTypes } from "../../types/mentions";
+import {
+    extraSpaces,
+    parseEmoji,
+    syntaxTree,
+} from "./markdown/parsers/parseMessageContent";
+import { SingleASTNode } from "simple-markdown";
+import { Emoji } from "./markdown/styles/Emoji";
+import { getEmojiUrl } from "./markdown/emoji/getEmojiUrl";
 
 const Container = styled.div`
     width: 100%;
@@ -87,27 +96,42 @@ const withMentions = (editor: Editor) => {
 };
 
 const withEmoji = (editor: Editor) => {
-    const { isVoid, isInline } = editor;
+    const { isVoid, isInline, normalizeNode } = editor;
+
+    editor.normalizeNode = entry => {
+        const [node, path] = entry;
+
+        console.log(node);
+        if (SlateElement.isElement(node)) {
+            for (const [child, childPath] of Node.children(editor, path)) {
+                if (SlateElement.isElement(child) && Text.isText(node)) {
+                    Transforms.insertNodes(
+                        editor,
+                        [
+                            {
+                                type: "paragraph",
+                                children: [{ text: "Hello World" }],
+                            },
+                        ],
+                        { at: childPath }
+                    );
+                    return;
+                }
+            }
+        }
+
+        normalizeNode(entry);
+    };
 
     editor.isInline = element =>
-        ["link", "button", "emoji"].includes(element.type) || isInline(element);
+        ["link", "button", "emoji"].includes(element.type) ||
+        element.emoji ||
+        isInline(element);
 
-    editor.isVoid = element => element.type === "emoji" || isVoid(element);
+    editor.isVoid = element =>
+        element.type === "emoji" || element.emoji || isVoid(element);
 
     return editor;
-};
-
-const insertEmoji = (editor: Editor, emoji: EmojiData) => {
-    const text = { text: "" };
-    const image = {
-        type: "emoji" as "emoji",
-        id: emoji.id,
-        name: emoji.name,
-        emoji,
-        children: [text],
-    };
-    Transforms.insertNodes(editor, image as any);
-    Transforms.move(editor);
 };
 
 const InlineChromiumBugfix = () => (
@@ -135,41 +159,18 @@ const Element: React.FC<RenderElementProps> = props => {
         case "emoji":
             return (
                 <span {...attributes}>
-                    <InlineChromiumBugfix />
-                    {(element.emoji as any).custom ? (
-                        <span
-                            style={{
-                                display: "inline-block",
-                                objectFit: "contain",
-                                verticalAlign: "middle",
-                            }}
-                        >
-                            <img
-                                className="emoji"
-                                alt={`:${element.emoji.name}:`}
-                                src={(element.emoji as any).imageUrl}
-                            />
-                        </span>
-                    ) : (
-                        <span
-                            style={{
-                                display: "inline-block",
-                                objectFit: "cover",
-                                verticalAlign: "middle",
-                            }}
-                            className="emoji"
-                            dangerouslySetInnerHTML={{
-                                __html: Emoji({
-                                    html: true,
-                                    set: "twitter",
-                                    emoji: element.emoji,
-                                    size: 22,
-                                }) as unknown as string,
-                            }}
-                        />
-                    )}
+                    <Emoji
+                        style={{
+                            cursor: "text",
+                        }}
+                        contentEditable={false}
+                        src={element.src}
+                        alt={element.emoji}
+                        title={element.name}
+                        draggable={false}
+                        big={false}
+                    />
                     {children}
-                    <InlineChromiumBugfix />
                 </span>
             );
         default:
@@ -200,7 +201,11 @@ export const MarkdownEditor = () => {
     const [value, setValue] = useState<Descendant[]>([
         {
             type: "paragraph",
-            children: [{ text: "" }],
+            children: [
+                {
+                    text: "**bold** *em* ||spoiler|| :rofl::rofl: `code` https://google.com Hello? https://google.com",
+                },
+            ],
         },
     ]);
     const [index, setIndex] = useState(0);
@@ -262,23 +267,6 @@ export const MarkdownEditor = () => {
 
     const onKeyDown = useCallback(
         event => {
-            // const { selection } = editor;
-
-            // if (selection && Range.isCollapsed(selection)) {
-            //     const { nativeEvent } = event;
-            //     if (isKeyHotkey("left", nativeEvent)) {
-            //         event.preventDefault();
-            //         Transforms.move(editor, {
-            //             unit: "offset",
-            //             reverse: true,
-            //         });
-            //     }
-            //     if (isKeyHotkey("right", nativeEvent)) {
-            //         event.preventDefault();
-            //         Transforms.move(editor, { unit: "offset" });
-            //     }
-            // }
-
             if (target) {
                 switch (event.key) {
                     case "ArrowDown":
@@ -331,29 +319,58 @@ export const MarkdownEditor = () => {
             return ranges;
         }
 
-        const getLength = (token: string | Prism.Token) => {
-            if (typeof token === "string") {
-                return token.length;
-            } else if (typeof token.content === "string") {
+        const getLength = (token: SingleASTNode) => {
+            if (token.type === "text") {
                 return token.content.length;
+            } else if (typeof token.content === "string") {
+                return (
+                    (extraSpaces[
+                        token.type as keyof typeof extraSpaces
+                    ] as number) + token.content.length
+                );
             } else {
-                return (token.content as any).reduce(
-                    (l: any, t: any) => l + getLength(t),
-                    0
+                return (
+                    extraSpaces[token.type as keyof typeof extraSpaces] +
+                    (token.content as any).reduce(
+                        (l: any, t: any) => l + getLength(t),
+                        0
+                    )
                 );
             }
         };
 
-        const tokens = Prism.tokenize(node.text, Prism.languages.markdown);
+        const tokens = syntaxTree(node.text);
         let start = 0;
 
         for (const token of tokens) {
             const length = getLength(token);
             const end = start + length;
 
-            if (typeof token !== "string") {
+            // if (token.type === "emoji") {
+            //     Transforms.insertFragment(
+            //         editor,
+            //         [
+            //             {
+            //                 type: "emoji",
+            //                 id: token.name,
+            //                 src: token.src,
+            //                 name: token.name,
+            //                 emoji: token.emoji,
+            //                 children: [{ text: "" }],
+            //             },
+            //         ],
+            //         {
+            //             at: {
+            //                 anchor: { path, offset: start },
+            //                 focus: { path, offset: end },
+            //             },
+            //         }
+            //     );
+            // }
+            if (token.type !== "text") {
                 ranges.push({
                     [token.type]: true,
+                    emoji: token.emoji,
                     anchor: { path, offset: start },
                     focus: { path, offset: end },
                 });
@@ -488,7 +505,7 @@ export const MarkdownEditor = () => {
                                                         />
                                                     </span>
                                                 ) : (
-                                                    <Emoji
+                                                    <EmojiPicker
                                                         set="twitter"
                                                         emoji={emoji}
                                                         size={22}
@@ -552,7 +569,7 @@ export const MarkdownEditor = () => {
                     emojiTooltip
                     custom={customEmojis}
                     onSelect={emoji => {
-                        insertEmoji(editor, emoji);
+                        Transforms.insertText(editor, (emoji as any).native);
                         setAnchorEl(null);
                     }}
                 />
@@ -565,10 +582,11 @@ const Leaf: React.FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
     if (leaf.strong) {
         return <strong {...attributes}>{children}</strong>;
     }
-    if (leaf.em) {
+    if (leaf.emphasis) {
         return <em {...attributes}>{children}</em>;
     }
-    if (leaf.link) {
+
+    if (leaf.url) {
         return (
             <span
                 style={{ color: "blue", textDecoration: "underline" }}
@@ -579,7 +597,7 @@ const Leaf: React.FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
         );
     }
 
-    if (leaf.code) {
+    if (leaf.inlineCode) {
         return (
             <code
                 style={{ background: "grey", borderRadius: "3px" }}
@@ -590,9 +608,38 @@ const Leaf: React.FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
         );
     }
 
-    if (leaf.del) {
+    if (leaf.emoji) {
+        let emojiStr = getEmojiUrl(leaf.emoji);
+
+        return (
+            <span {...attributes}>
+                <Emoji
+                    style={{
+                        cursor: "text",
+                    }}
+                    contentEditable={false}
+                    src={emojiStr}
+                    alt={leaf.emoji}
+                    draggable={false}
+                    big={false}
+                />
+                <span style={{ display: "none" }}>{children}</span>
+            </span>
+        );
+    }
+
+    if (leaf.strikethrough) {
         return <del {...attributes}>{children}</del>;
     }
+
+    if (leaf.underline) {
+        return (
+            <span style={{ textDecoration: "underline" }} {...attributes}>
+                {children}
+            </span>
+        );
+    }
+
     if (leaf.spoiler) {
         return (
             <span

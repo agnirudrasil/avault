@@ -1,6 +1,7 @@
 import produce from "immer";
 import create from "zustand";
 import { combine } from "zustand/middleware";
+import { rolesSort } from "../src/sort-roles";
 
 export interface Roles {
     id: string;
@@ -41,6 +42,7 @@ export const useRolesStore = create(
                             0,
                             role
                         );
+                        draft[guildId].sort(rolesSort).reverse();
                     })
                 ),
             deleteRole: (guildId: string, roleId: string) =>
@@ -50,6 +52,7 @@ export const useRolesStore = create(
                             draft[guildId] = draft[guildId].filter(
                                 r => r.id !== roleId
                             );
+                            draft[guildId].sort(rolesSort).reverse();
                         }
                     })
                 ),
@@ -61,6 +64,7 @@ export const useRolesStore = create(
                                 r => r.id === role.id
                             );
                             draft[guildId][index] = role;
+                            draft[guildId].sort(rolesSort).reverse();
                         }
                     })
                 ),

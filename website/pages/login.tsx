@@ -8,7 +8,7 @@ import { useLogin } from "../hooks/requests/useLogin";
 import Router from "next/router";
 import { setAccessToken } from "../src/access-token";
 
-const LoginPage: NextPage = () => {
+const LoginPage: NextPage<{ next?: string }> = ({ next }) => {
     const { mutateAsync } = useLogin();
     return (
         <AuthLayout
@@ -26,7 +26,11 @@ const LoginPage: NextPage = () => {
                     });
                 } else {
                     setAccessToken(data.access_token);
-                    Router.replace("/channels/@me");
+                    if (next) {
+                        Router.replace(next);
+                    } else {
+                        Router.replace("/channels/@me");
+                    }
                 }
                 setSubmitting(false);
             }}
@@ -87,7 +91,14 @@ const LoginPage: NextPage = () => {
                             style={{ marginTop: "1rem" }}
                         >
                             Don&apos;t have an account?{" "}
-                            <Link underline="hover" href="/register">
+                            <Link
+                                underline="hover"
+                                href={`/register${
+                                    !next
+                                        ? ""
+                                        : "?next=" + encodeURIComponent(next)
+                                }`}
+                            >
                                 Register
                             </Link>
                         </Typography>
@@ -97,5 +108,9 @@ const LoginPage: NextPage = () => {
         </AuthLayout>
     );
 };
+
+LoginPage.getInitialProps = async ({ query }) => ({
+    next: query.next as string,
+});
 
 export default LoginPage;
