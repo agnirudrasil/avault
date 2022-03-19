@@ -27,14 +27,13 @@ export const GuildMember: React.FC<{ id: string }> = ({ id, children }) => {
         return [];
     }, [roles, member]);
 
-    console.log(memberRoles);
-
     return (
         <span
             style={{
-                color: memberRoles[0]?.color
-                    ? `#${memberRoles[0]?.color.toString(16)}`
-                    : "inherit",
+                color: `#${
+                    memberRoles.find(a => a.color !== 0)?.color.toString(16) ||
+                    "000"
+                }`,
             }}
         >
             {children}

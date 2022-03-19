@@ -34,6 +34,7 @@ import { useCreateRoles } from "../../hooks/requests/useCreateRole";
 import { useDeleteRole } from "../../hooks/requests/useDeleteRole";
 import { useEditRole } from "../../hooks/requests/useEditRole";
 import { useUpdateRolePosition } from "../../hooks/requests/useUpdateRolePosition";
+import { usePermssions } from "../../hooks/usePermissions";
 import { useUnsaved } from "../../hooks/useUnsaved";
 import { Roles, useRolesStore } from "../../stores/useRolesStore";
 import { ColorPicker } from "../components/ColorPicker";
@@ -51,6 +52,10 @@ interface TabPanelProps {
 
 export const SettingsRoles = () => {
     const router = useRouter();
+    const { memberRoles } = usePermssions(
+        router.query.server_id as string,
+        router.query.channel as string
+    );
     const { mutateAsync, isLoading: isCreating } = useCreateRoles();
     const { mutateAsync: update, isLoading } = useUpdateRolePosition();
     const ogData = useRolesStore(
@@ -146,10 +151,20 @@ export const SettingsRoles = () => {
                                                         role.position
                                                     }
                                                     key={role.id}
-                                                    isDragDisabled={isLoading}
+                                                    isDragDisabled={
+                                                        isLoading ||
+                                                        memberRoles[0]
+                                                            .position <
+                                                            role.position
+                                                    }
                                                 >
                                                     {provided => (
                                                         <ListItemButton
+                                                            disabled={
+                                                                memberRoles[0]
+                                                                    .position <
+                                                                role.position
+                                                            }
                                                             disableRipple
                                                             ref={
                                                                 provided.innerRef

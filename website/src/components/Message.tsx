@@ -377,7 +377,7 @@ export const Message: React.FC<{
                                         variant="subtitle2"
                                     >
                                         {(members &&
-                                            members[message.author.id].nick) ||
+                                            members[message.author.id]?.nick) ||
                                             message.author.username}
                                     </Typography>
                                 </GuildMember>

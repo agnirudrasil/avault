@@ -10,6 +10,7 @@ import {
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { useGetInvite } from "../../hooks/requests/useGetInvite";
 import { useJoinInvite } from "../../hooks/requests/useJoinInvite";
 import { getGuildInitials } from "../../src/get-guild-intials";
@@ -17,6 +18,7 @@ import { AuthContainer } from "../../styles/auth-pages/styles";
 
 const InvitePage: NextPage<{ code: string }> = ({ code }) => {
     const { data } = useGetInvite(code);
+    const [banned, setBanned] = useState(false);
     const router = useRouter();
     const { mutateAsync } = useJoinInvite();
 
@@ -30,10 +32,12 @@ const InvitePage: NextPage<{ code: string }> = ({ code }) => {
                     <CardContent sx={{ flex: "1 0 auto" }}>
                         <Typography
                             variant="button"
-                            color="text.secondary"
+                            color={banned ? "red" : "text.secondary"}
                             component="div"
                         >
-                            {data?.inviter.username} HAS INVITED YOU TO JOIN
+                            {!banned
+                                ? `${data?.inviter.username} HAS INVITED YOU TO JOIN`
+                                : "YOU ARE BANNED FROM"}
                         </Typography>
                         <Typography component="div" variant="h5">
                             {data?.guild?.name}
@@ -48,30 +52,35 @@ const InvitePage: NextPage<{ code: string }> = ({ code }) => {
                             pb: 1,
                         }}
                     >
-                        <Button
-                            onClick={async () => {
-                                const data = await mutateAsync({
-                                    code,
-                                    onError: () => {
-                                        const path = `/login?next=${encodeURIComponent(
-                                            router.asPath
-                                        )}`;
-                                        console.log(path);
-                                        router.push(path);
-                                        return {};
-                                    },
-                                });
-                                if (data.id) {
-                                    router.push("/channels/@me");
-                                }
-                            }}
-                            disableElevation
-                            variant="contained"
-                        >
-                            ACCEPT INVITE
-                        </Button>
+                        {!banned && (
+                            <Button
+                                onClick={async () => {
+                                    const data = await mutateAsync({
+                                        code,
+                                        onError: () => {
+                                            const path = `/login?next=${encodeURIComponent(
+                                                router.asPath
+                                            )}`;
+                                            console.log(path);
+                                            router.push(path);
+                                            return {};
+                                        },
+                                    });
+                                    if (data.error) {
+                                        setBanned(true);
+                                    }
+                                    if (data.id) {
+                                        router.push("/channels/@me");
+                                    }
+                                }}
+                                disableElevation
+                                variant="contained"
+                            >
+                                ACCEPT INVITE
+                            </Button>
+                        )}
                         <Link href="/" underline="hover" color="inherit">
-                            No, Thanks
+                            {banned ? "Return Home" : "No, Thanks"}
                         </Link>
                     </Box>
                 </Box>
@@ -86,7 +95,9 @@ const InvitePage: NextPage<{ code: string }> = ({ code }) => {
                         sx={theme => ({
                             width: "60px",
                             height: "60px",
-                            background: theme.palette.primary.main,
+                            background: banned
+                                ? theme.palette.error.main
+                                : theme.palette.primary.main,
                         })}
                     >
                         {getGuildInitials(data?.guild?.name ?? "")}

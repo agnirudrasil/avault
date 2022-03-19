@@ -6,7 +6,7 @@ from api.api import deps
 from api.api.v1.endpoints import auth, channels, gifs, users, guilds, invites, default, oauth2, webhooks
 from api.core import emitter
 from api.core.events import Events, websocket_emitter
-from api.models.guilds import Guild, GuildMembers
+from api.models.guilds import Guild, GuildMembers, GuildBans
 from api.models.invites import Invite
 from api.models.user import User
 
@@ -26,17 +26,13 @@ async def join_guild(code: str,
             db.commit()
             response.status_code = 403
             return {"message": "Invite has been used"}
-        # if invite.max_age != 0 and (invite.created_at + timedelta(seconds=invite.max_age)) >= datetime.now():
-        #     db.delete(invite)
-        #     db.commit()
-        #     response.status_code = 403
-        #     background_task.add_task(websocket_emitter, None, invite.channel.guild_id, Events.INVITE_DELETE,
-        #                              {'guild_id': invite.channel.guild_id, 'code': invite.id,
-        #                               'channel_id': invite.channel_id})
-        #     return {"message": "Invite has expired"}
         if guild_id:
             guild_member = db.query(GuildMembers).filter_by(guild_id=guild_id).filter_by(
                 user_id=current_user.id).first()
+            guild_ban = db.query(GuildBans).filter_by(guild_id=guild_id).filter_by(user_id=current_user.id).first()
+            if guild_ban:
+                response.status_code = 403
+                return {"error": "You are banned from this server"}
             if guild_member:
                 response.status_code = 403
                 return {"id": str(guild_id)}

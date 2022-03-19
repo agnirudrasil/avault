@@ -103,8 +103,9 @@ async def get_guild(guild_id: int,
 @router.patch('/{guild_id}')
 async def edit_guild(body: GuildEdit,
                      db: Session = Depends(deps.get_db),
-                     dependencies: tuple[Guild, User] = Depends(deps.GuildPerms(Permissions.MANAGE_GUILD))):
-    guild, user = dependencies
+                     dependencies: tuple[Guild, User, GuildMembers] = Depends(
+                         deps.GuildPerms(Permissions.MANAGE_GUILD))):
+    guild, user, member = dependencies
     guild.name = body.name
     db.commit()
     await (websocket_emitter(None, guild.id, Events.GUILD_UPDATE, guild.serialize()))
@@ -126,38 +127,48 @@ async def delete_guild(guild_id: int,
     return {"error": "Guild not found"}
 
 
-@router.put('/{guild_id}/members/{user_id}/roles/{role_id}', status_code=204,
-            dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
+@router.put('/{guild_id}/members/{user_id}/roles/{role_id}', status_code=204)
 async def add_user_role(guild_id: int,
                         user_id: int,
                         role_id: int,
+                        dependencies: tuple[Guild, User, GuildMembers] = Depends(
+                            deps.GuildPerms(Permissions.MANAGE_ROLES)),
                         db: Session = Depends(deps.get_db)):
+    *_, member = dependencies
     guild_member = db.query(GuildMembers).filter_by(
         user_id=user_id).filter_by(guild_id=guild_id).first()
     if guild_member:
         role = db.query(Role).filter_by(id=role_id).first()
-        guild_member.roles.append(role)
-        db.commit()
-        await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE,
-                                 guild_member.serialize()))
-        return ''
+        if member.is_owner or role.position < member.roles[0].position:
+            guild_member.roles.append(role)
+            db.commit()
+
+            await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE,
+                                     guild_member.serialize()))
+            return ''
+        return Response(status_code=403)
+    return Response(status_code=404)
 
 
 @router.delete('/{guild_id}/members/{user_id}/roles/{role_id}', status_code=204,
-               dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
+               dependencies=[])
 async def delete_user_role(guild_id: int,
                            user_id: int,
                            role_id: int,
+                           dependencies: tuple[Guild, User, GuildMembers] = Depends(
+                               deps.GuildPerms(Permissions.MANAGE_ROLES)),
                            db: Session = Depends(deps.get_db)):
+    *_, member = dependencies
     guild_member = db.query(GuildMembers).filter_by(
         user_id=user_id, guild_id=guild_id).first()
     if guild_member:
         try:
             role = db.query(Role).filter_by(id=role_id).first()
-            guild_member.roles.remove(role)
-            db.commit()
-            await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE,
-                                     guild_member.serialize()))
+            if member.is_owner or role.position < member.roles[0].position:
+                guild_member.roles.remove(role)
+                db.commit()
+                await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE,
+                                         guild_member.serialize()))
         except ValueError:
             pass
         return ''
@@ -177,10 +188,10 @@ async def get_roles(guild_id: int,
 
 
 @router.get('/{guild_id}/roles/{role_id}')
-async def get_roles(guild_id: int,
-                    role_id: int,
-                    current_user: User = Depends(deps.get_current_user),
-                    db: Session = Depends(deps.get_db)):
+async def get_role(guild_id: int,
+                   role_id: int,
+                   current_user: User = Depends(deps.get_current_user),
+                   db: Session = Depends(deps.get_db)):
     guild = db.query(Guild).filter_by(id=guild_id).first()
     if guild and guild.is_member(db, current_user.id):
         role = db.query(Role).filter_by(
@@ -215,14 +226,24 @@ async def create_role(guild_id: int,
 
 
 # TODO: Add code to update role order
-@router.patch('/{guild_id}/roles', status_code=204, dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
+@router.patch('/{guild_id}/roles', status_code=204, dependencies=[])
 async def update_role_positions(guild_id: int,
                                 data: RolePositionUpdate,
+                                dependencies: tuple[Guild, User, GuildMembers] = Depends(
+                                    deps.GuildPerms(Permissions.MANAGE_ROLES)),
                                 db: Session = Depends(deps.get_db)):
+    *_, member = dependencies
     if data.position:
         role = db.query(Role).filter_by(
             id=data.id).filter_by(guild_id=guild_id).first()
+        if not member.is_owner and member.roles[0].position < role.position:
+            return Response(status_code=403)
+        if not member.is_owner and data.position > member.roles[0].position:
+            return Response(status_code=403)
         original_position = role.position
+        max_position = db.query(func.max(Role.position)).filter_by(guild_id=guild_id).first()[0]
+        if data.position > max_position:
+            data.position = max_position
         if role:
             if role.position == data.position:
                 return
@@ -249,12 +270,17 @@ async def update_role_positions(guild_id: int,
     return {'success': False, 'error': 'No position provided'}, 404
 
 
-@router.patch('/{guild_id}/roles/{role_id}', dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
+@router.patch('/{guild_id}/roles/{role_id}', dependencies=[])
 async def update_role(guild_id: int, role_id: int,
                       data: RoleUpdate,
+                      dependencies: tuple[Guild, User, GuildMembers] = Depends(
+                          deps.GuildPerms(Permissions.MANAGE_ROLES)),
                       db: Session = Depends(deps.get_db)):
+    *_, member = dependencies
     role = db.query(Role).filter_by(
         id=role_id).filter_by(guild_id=guild_id).first()
+    if not member.is_owner and member.roles[0].position < role.position:
+        return Response(status_code=403)
     if data.name:
         role.name = data.name
     if data.color:
@@ -269,15 +295,26 @@ async def update_role(guild_id: int, role_id: int,
     return role.serialize()
 
 
-@router.delete('/{guild_id}/roles/{role_id}', dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_ROLES))])
+@router.delete('/{guild_id}/roles/{role_id}', dependencies=[])
 async def delete_role(guild_id: int, role_id: int,
+                      dependencies: tuple[Guild, User, GuildMembers] = Depends(
+                          deps.GuildPerms(Permissions.MANAGE_ROLES)),
                       db: Session = Depends(deps.get_db)):
+    *_, member = dependencies
     role = db.query(Role).filter_by(id=role_id, guild_id=guild_id).first()
+    if not member.is_owner and member.roles[0].position < role.position:
+        return Response(status_code=403)
     if role:
+        position = role.position
         db.delete(role)
-        db.commit()
+        db.query(Role).filter_by(guild_id=guild_id).filter(Role.position > position).update({Role.position: Role.position - 1})
         await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_DELETE,
                                  {'role': role.serialize(), 'guild_id': str(guild_id)}))
+        update_roles = db.query(Role).filter_by(guild_id=guild_id).filter(Role.position >= position).all()
+        for role in update_roles:
+            await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_UPDATE,
+                                     {'role': role.serialize(), 'guild_id': str(guild_id)}))
+        db.commit()
         return ''
     return Response(status_code=404)
 
@@ -370,10 +407,10 @@ async def get_guild_members(guild_id: int, response: Response,
 
 @router.patch('/{guild_id}/members/@me')
 async def update_guild_member_me(guild_id: int, data: GuildMemberUpdate,
-                                 dependencies: tuple[Guild, User] = Depends(
+                                 dependencies: tuple[Guild, User, GuildMembers] = Depends(
                                      deps.GuildPerms(Permissions.CHANGE_NICKNAME)),
                                  db: Session = Depends(deps.get_db)):
-    _, user = dependencies
+    _, user, member = dependencies
     member = db.query(GuildMembers).filter_by(
         guild_id=guild_id).filter_by(user_id=user.id).first()
     if member:
@@ -386,41 +423,51 @@ async def update_guild_member_me(guild_id: int, data: GuildMemberUpdate,
     return Response(status_code=404)
 
 
-@router.patch('/{guild_id}/members/{user_id}', dependencies=[Depends(deps.GuildPerms(Permissions.MANAGE_NICKNAMES))])
+@router.patch('/{guild_id}/members/{user_id}', dependencies=[])
 async def update_guild_member(guild_id: int, user_id: int, data: GuildMemberUpdate,
+                              dependencies: tuple[Guild, User, GuildMembers] = Depends(
+                                  deps.GuildPerms(Permissions.MANAGE_NICKNAMES)),
                               db: Session = Depends(deps.get_db)):
+    *_, my_member = dependencies
     member = db.query(GuildMembers).filter_by(
         guild_id=guild_id).filter_by(user_id=user_id).first()
     if member:
         if data.nick:
-            member.nickname = data.nick
-            db.commit()
-            await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE, member.serialize()))
-        return member.serialize()
+            if not member.is_owner and (my_member.is_owner or my_member.roles[0].position > member.roles[0].position):
+                member.nickname = data.nick
+                db.commit()
+                await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE, member.serialize()))
+                return member.serialize()
+            return Response(status_code=403)
     return Response(status_code=404)
 
 
 @router.delete('/{guild_id}/members/{user_id}', status_code=204,
-               dependencies=[Depends(deps.GuildPerms(Permissions.KICK_MEMBERS))])
+               dependencies=[])
 async def delete_guild_member(guild_id: int, user_id: int,
+                              dependencies: tuple[Guild, User, GuildMembers] = Depends(
+                                  deps.GuildPerms(Permissions.KICK_MEMBERS)),
                               db: Session = Depends(deps.get_db)):
+    *_, my_member = dependencies
     member = db.query(GuildMembers).filter_by(
         guild_id=guild_id).filter_by(user_id=user_id).first()
     if member:
-        db.delete(member)
-        db.commit()
-        await emitter.in_room(str(user_id)).sockets_leave(str(guild_id))
-        await websocket_emitter(None, guild_id, Events.GUILD_MEMBER_REMOVE, member.serialize())
-        await websocket_emitter(None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
-                                user_id)
-        return ''
-
+        if not member.is_owner and (my_member.is_owner or my_member.roles[0].position > member.roles[0].position):
+            await websocket_emitter(None, guild_id, Events.GUILD_MEMBER_REMOVE, member.serialize())
+            db.delete(member)
+            db.commit()
+            await emitter.in_room(str(user_id)).sockets_leave(str(guild_id))
+            await websocket_emitter(None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
+                                    user_id)
+            return ''
+        return Response(status_code=403)
     return Response(status_code=404)
 
 
 @router.get('/{guild_id}/bans')
-async def get_guild_bans(dependencies: tuple[Guild, User] = Depends((deps.GuildPerms(Permissions.BAN_MEMBERS)))):
-    guild, _ = dependencies
+async def get_guild_bans(
+        dependencies: tuple[Guild, User, GuildMembers] = Depends((deps.GuildPerms(Permissions.BAN_MEMBERS)))):
+    guild, *_ = dependencies
     return [ban.serialize() for ban in guild.bans]
 
 
@@ -436,36 +483,29 @@ async def get_guild_ban(guild_id: int, user_id: int,
 
 @router.put('/{guild_id}/bans/{user_id}')
 async def add_guild_ban(guild_id: int, user_id: int, body: CreateGuildBan,
-                        dependencies: tuple[Guild, User] = Depends(deps.GuildPerms(Permissions.BAN_MEMBERS)),
+                        dependencies: tuple[Guild, User, GuildMembers] = Depends(
+                            deps.GuildPerms(Permissions.BAN_MEMBERS)),
                         db: Session = Depends(deps.get_db)):
-    guild, user = dependencies
+    guild, user, my_member = dependencies
     try:
         ban = GuildBans(body.reason)
         guild.bans.append(ban)
         member = db.query(GuildMembers).filter_by(
-            guild_id=guild_id).filter_by(user_id=user_id)
+            guild_id=guild_id).filter_by(user_id=user_id).first()
         if member:
-            await emitter.in_room(str(member.user_id)).sockets_leave(str(guild_id))
-            db.delete(member)
-            await websocket_emitter(None, guild_id, Events.GUILD_MEMBER_REMOVE,
-                                    member.serialize())
-            await websocket_emitter(None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
-                                    user_id)
-        # TODO : delete previous messages
-        # filter_after = datetime.now() + timedelta(days=body.delete_message_days)
-        # messages = db.query(Message).filter_by(guild_id=guild_id).filter_by(
-        #     author_id=user_id).filter(Message.timestamp >= filter_after).order_by(Message.channel_id).all()
-        # if messages:
-        #     prev_channel = 0
-        #     for index, message in enumerate(messages):
-        #
-        #     db.delete(messages)
-        #     background_task.add_task(websocket_emitter, user_id, guild_id, Events.MESSAGE_DELETE_BULK,
-        #                              {'ids': [message.id for message in messages]})
-        db.add(ban)
-        db.commit()
-        await websocket_emitter(None, guild_id, Events.GUILD_BAN_ADD, ban.serialize())
-        return ban.serialize()
+            if not member.is_owner and (my_member.is_owner or my_member.roles[0].position > member.roles[0].position):
+                ban.user = member.member
+                await emitter.in_room(str(member.user_id)).sockets_leave(str(guild_id))
+                await websocket_emitter(None, guild_id, Events.GUILD_MEMBER_REMOVE,
+                                        member.serialize())
+                db.delete(member)
+                await websocket_emitter(None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
+                                        user_id)
+                db.add(ban)
+                db.commit()
+                await websocket_emitter(None, guild_id, Events.GUILD_BAN_ADD, ban.serialize())
+                return ban.serialize()
+            return Response(status_code=403)
     except IntegrityError:
         return
 
@@ -484,6 +524,7 @@ async def delete_guild_ban(guild_id: int, user_id: int,
 
 
 @router.get('/{guild_id}/webhooks')
-async def get_guild_webhooks(dependencies: tuple[Guild, User] = Depends(deps.GuildPerms(Permissions.MANAGE_WEBHOOKS))):
-    guild, _ = dependencies
+async def get_guild_webhooks(
+        dependencies: tuple[Guild, User, GuildMembers] = Depends(deps.GuildPerms(Permissions.MANAGE_WEBHOOKS))):
+    guild, *_ = dependencies
     return [webhook.serialize() for webhook in guild.webhooks]

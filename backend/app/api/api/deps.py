@@ -150,7 +150,7 @@ class GuildPerms:
             guild_id: int,
             current_user: models.User = Depends(get_current_user),
             db: Session = Depends(get_db),
-    ) -> tuple[models.Guild, models.User]:
+    ) -> tuple[models.Guild, models.User, models.GuildMembers]:
         guild: models.Guild = db.query(models.Guild).filter_by(id=guild_id).first()
         if not guild:
             raise HTTPException(status_code=404, detail="Guild not found")
@@ -162,12 +162,12 @@ class GuildPerms:
             raise HTTPException(status_code=403, detail="Not Authorized")
 
         if member.is_owner:
-            return guild, current_user
+            return guild, current_user, member
 
         if member.permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR:
-            return guild, current_user
+            return guild, current_user, member
 
         if not member.permissions & self.permission == self.permission:
             raise HTTPException(status_code=403, detail="Not Authorized")
 
-        return guild, current_user
+        return guild, current_user, member

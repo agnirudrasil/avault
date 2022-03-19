@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { LooksOne } from "@mui/icons-material";
 import {
     Avatar,
     CircularProgress,
@@ -8,13 +9,25 @@ import {
     ListItemText,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import shallow from "zustand/shallow";
+import { useBanMember } from "../../../hooks/requests/useBanMember";
+import { useKickMember } from "../../../hooks/requests/useKickMember";
+import { useContextMenu } from "../../../hooks/useContextMenu";
+import { usePermssions } from "../../../hooks/usePermissions";
 import { useGuildsStore } from "../../../stores/useGuildsStore";
 import { useMessagesStore } from "../../../stores/useMessagesStore";
+import { Roles, useRolesStore } from "../../../stores/useRolesStore";
+import { checkPermissions } from "../../compute-permissions";
+import { copyToClipboard } from "../../copy";
+import { Permissions } from "../../permissions";
+import { rolesSort } from "../../sort-roles";
+import { getUser } from "../../user-cache";
 import { ChannelBar } from "../ChannelBar";
 import { ChannelLayout } from "../ChannelLayout";
+import { ContextMenu } from "../ContextMenu";
 import { DefaultProfilePic } from "../DefaultProfilePic";
+import { EditServerProfileDialog } from "../dialogs/EditServerProfileDialog";
 import { GuildMember } from "../GuildMember";
 import { MembersBar } from "../MembersBar";
 import { Message } from "../Message";
@@ -115,23 +128,135 @@ export const ServerLayout: React.FC = () => {
                 {Object.keys(guild?.members ?? {}).map((member_id: any) => {
                     const member = guild?.members[member_id];
                     return (
-                        <ListItemButton key={member_id}>
-                            <ListItemAvatar>
-                                <Avatar>
-                                    <DefaultProfilePic tag={member.user.tag} />
-                                </Avatar>
-                            </ListItemAvatar>
-                            <ListItemText
-                                primary={
-                                    <GuildMember id={member_id}>
-                                        {member.nick || member.user.username}
-                                    </GuildMember>
-                                }
-                            />
-                        </ListItemButton>
+                        <MemberDisplay member={member} member_id={member_id} />
                     );
                 })}
             </MembersBar>
         </Container>
+    );
+};
+
+const MemberDisplay = ({ member_id, member }: any) => {
+    const { contextMenu, handleClose, handleContextMenu } = useContextMenu();
+    const router = useRouter();
+    const [open, setOpen] = useState(false);
+    const { mutate: kick } = useKickMember();
+    const { mutate: ban } = useBanMember();
+    const roles = useRolesStore(
+        state => state[router.query.server_id as string]
+    );
+
+    const permissions = usePermssions(
+        router.query.server_id as string,
+        router.query.channel as string
+    );
+
+    const otherMember = useMemo(() => {
+        if (member) {
+            const myRoles = member.roles?.map(r =>
+                roles.find(role => role.id === r)
+            ) as Roles[];
+
+            myRoles.sort(rolesSort);
+
+            return myRoles;
+        }
+        return [];
+    }, [roles, member]);
+
+    return (
+        <ListItemButton onContextMenu={handleContextMenu} key={member_id}>
+            <EditServerProfileDialog
+                onClose={() => setOpen(false)}
+                open={open}
+                id={member_id === getUser() ? undefined : member_id}
+            />
+            <ListItemAvatar>
+                <Avatar>
+                    <DefaultProfilePic tag={member.user.tag} />
+                </Avatar>
+            </ListItemAvatar>
+            <ListItemText
+                primary={
+                    <GuildMember id={member_id}>
+                        {member.nick || member.user.username}
+                    </GuildMember>
+                }
+            />
+            <ContextMenu
+                contextMenuItems={
+                    [
+                        {
+                            title: "Change Nickname",
+                            color: "info",
+                            disabled:
+                                member_id === getUser()
+                                    ? !checkPermissions(
+                                          permissions.permissions,
+                                          Permissions.CHANGE_NICKNAME
+                                      )
+                                    : permissions.memberRoles[0]?.position <
+                                          otherMember[0].position ||
+                                      !checkPermissions(
+                                          permissions.permissions,
+                                          Permissions.MANAGE_NICKNAMES
+                                      ),
+                            onClick: () => {
+                                setOpen(true);
+                            },
+                        },
+                        "divider",
+                        {
+                            title: "Ban",
+                            color: "error",
+                            disabled:
+                                member_id === getUser() ||
+                                permissions.memberRoles[0]?.position <
+                                    otherMember[0].position ||
+                                !checkPermissions(
+                                    permissions.permissions,
+                                    Permissions.BAN_MEMBERS
+                                ),
+                            onClick: () => {
+                                ban({
+                                    guildId: router.query.server_id as string,
+                                    memberId: member_id,
+                                });
+                            },
+                        },
+                        {
+                            title: "Kick",
+                            color: "error",
+                            disabled:
+                                member_id === getUser() ||
+                                permissions.memberRoles[0]?.position <
+                                    otherMember[0].position ||
+                                !checkPermissions(
+                                    permissions.permissions,
+                                    Permissions.KICK_MEMBERS
+                                ),
+                            onClick: () => {
+                                kick({
+                                    guildId: router.query.server_id as string,
+                                    memberId: member_id,
+                                });
+                            },
+                        },
+                        "divider",
+                        {
+                            title: "Copy ID",
+                            color: "info",
+                            disabled: false,
+                            onClick: () => {
+                                copyToClipboard(member_id);
+                            },
+                            icon: <LooksOne />,
+                        },
+                    ] as any
+                }
+                contextMenu={contextMenu}
+                handleClose={handleClose}
+            />
+        </ListItemButton>
     );
 };
