@@ -153,7 +153,7 @@ const MemberDisplay = ({ member_id, member }: any) => {
 
     const otherMember = useMemo(() => {
         if (member) {
-            const myRoles = member.roles?.map(r =>
+            const myRoles = member.roles.map((r: any) =>
                 roles.find(role => role.id === r)
             ) as Roles[];
 
