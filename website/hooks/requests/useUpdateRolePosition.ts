@@ -8,14 +8,13 @@ interface Payload {
 }
 
 export const updateRolePosition = async ({ guildId, ...payload }: Payload) => {
-    const res = await request(
+    return request(
         `${process.env.NEXT_PUBLIC_API_URL}/guilds/${guildId}/roles`,
         {
             method: "PATCH",
             body: JSON.stringify(payload),
         }
     );
-    return res.json();
 };
 
 export const useUpdateRolePosition = () => useMutation(updateRolePosition);

@@ -41,6 +41,7 @@ import { ColorPicker } from "../components/ColorPicker";
 import { Android12Switch } from "../components/Form/AndroidSwitch";
 import { SettingsLayout } from "../components/layouts/SettingsLayout";
 import { RoleMembers } from "../components/RoleMembers";
+import { checkPermissions } from "../compute-permissions";
 import { permissions } from "../permissions";
 import { rolesSort } from "../sort-roles";
 
@@ -52,7 +53,11 @@ interface TabPanelProps {
 
 export const SettingsRoles = () => {
     const router = useRouter();
-    const { memberRoles } = usePermssions(
+    const {
+        memberRoles,
+        guildMember,
+        permissions: permsInt,
+    } = usePermssions(
         router.query.server_id as string,
         router.query.channel as string
     );
@@ -153,17 +158,21 @@ export const SettingsRoles = () => {
                                                     key={role.id}
                                                     isDragDisabled={
                                                         isLoading ||
-                                                        memberRoles[0]
-                                                            .position <
-                                                            role.position
+                                                        (!guildMember.is_owner &&
+                                                            (memberRoles[0]
+                                                                ?.position ||
+                                                                0) <=
+                                                                role.position)
                                                     }
                                                 >
                                                     {provided => (
                                                         <ListItemButton
                                                             disabled={
-                                                                memberRoles[0]
-                                                                    .position <
-                                                                role.position
+                                                                !guildMember.is_owner &&
+                                                                (memberRoles[0]
+                                                                    ?.position ||
+                                                                    0) <=
+                                                                    role.position
                                                             }
                                                             disableRipple
                                                             ref={
@@ -209,8 +218,7 @@ export const SettingsRoles = () => {
                                                                         ),
                                                                 }}
                                                                 primary={
-                                                                    role.name +
-                                                                    `${role.position}`
+                                                                    role.name
                                                                 }
                                                             />
                                                         </ListItemButton>
@@ -227,6 +235,10 @@ export const SettingsRoles = () => {
                             selected={selected === router.query.server_id}
                             onClick={() =>
                                 setSelected(router.query.server_id as string)
+                            }
+                            disabled={
+                                !(memberRoles[0]?.position > 0) &&
+                                !guildMember.is_owner
                             }
                             sx={{
                                 borderRadius: "10px",
@@ -247,6 +259,7 @@ export const SettingsRoles = () => {
                     </List>
                 </DragDropContext>
                 <RolesDisplay
+                    permissionsInt={permsInt}
                     role={ogData.find(r => r.id === selected)!}
                     setSelected={setSelected}
                     key={selected}
@@ -266,8 +279,9 @@ export const RolesDisplay: React.FC<{
     roleId: string;
     guildId: string;
     role: Roles;
+    permissionsInt: any;
     setSelected: (id: string) => any;
-}> = ({ roleId, guildId, setSelected, role }) => {
+}> = ({ roleId, guildId, setSelected, role, permissionsInt }) => {
     const updateRole = useRolesStore(state => state.updateRole);
     const [permsQuery, setPermsQuery] = useState<string>("");
     const { mutateAsync, isLoading: isUpdating } = useEditRole(guildId, roleId);
@@ -449,6 +463,12 @@ export const RolesDisplay: React.FC<{
                                             BigInt(ogData?.permissions || "0") &
                                                 BigInt(permission.value)
                                         )}
+                                        disabled={
+                                            !checkPermissions(
+                                                permissionsInt,
+                                                permission.value
+                                            )
+                                        }
                                         onChange={e => {
                                             setOgdata(prev =>
                                                 produce(prev, draft => {

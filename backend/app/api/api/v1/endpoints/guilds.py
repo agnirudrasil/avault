@@ -139,7 +139,7 @@ async def add_user_role(guild_id: int,
         user_id=user_id).filter_by(guild_id=guild_id).first()
     if guild_member:
         role = db.query(Role).filter_by(id=role_id).first()
-        if member.is_owner or role.position < member.roles[0].position:
+        if member.is_owner or (member.roles and role.position < member.roles[0].position):
             guild_member.roles.append(role)
             db.commit()
 
@@ -164,7 +164,7 @@ async def delete_user_role(guild_id: int,
     if guild_member:
         try:
             role = db.query(Role).filter_by(id=role_id).first()
-            if member.is_owner or role.position < member.roles[0].position:
+            if member.is_owner or (member.roles and role.position < member.roles[0].position):
                 guild_member.roles.remove(role)
                 db.commit()
                 await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE,
@@ -209,19 +209,33 @@ async def get_role_members(guild_id: int,
     return [member.serialize() for member in members]
 
 
-@router.post('/{guild_id}/roles', dependencies=[Depends(deps.get_current_user)])
+@router.post('/{guild_id}/roles', dependencies=[])
 async def create_role(guild_id: int,
                       data: RoleCreate,
+                      dependencies: tuple[Guild, User, GuildMembers] = Depends(
+                          deps.GuildPerms(Permissions.MANAGE_ROLES)),
                       db: Session = Depends(deps.get_db)):
+    *_, member = dependencies
     everyone_role = db.query(Role).filter_by(id=guild_id).first()
-    max_position, = db.query(func.max(Role.position)).filter_by(guild_id=guild_id).first()
-    role = Role(guild_id, data.name, data.color, max_position + 1,
+    if member.is_owner:
+        position = db.query(func.max(Role.position)).filter_by(guild_id=guild_id).first()[0] + 1
+    else:
+        position = max(member.roles[0].position - 1, 1) if member.roles else 1
+    print(position)
+
+    role = Role(guild_id, data.name, data.color, position,
                 data.permissions or everyone_role.permissions,
                 data.mentionable)
+    db.query(Role).filter_by(guild_id=guild_id).filter(
+        Role.position >= position).update({Role.position: Role.position + 1})
+    updated_roles = db.query(Role).filter_by(guild_id=guild_id).filter(Role.position >= position + 1).all()
     db.add(role)
     db.commit()
     await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_CREATE,
                              {'role': role.serialize(), 'guild_id': str(guild_id)}))
+    for role in updated_roles:
+        await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_UPDATE,
+                                 {'role': role.serialize(), 'guild_id': str(guild_id)}))
     return role.serialize()
 
 
@@ -279,14 +293,19 @@ async def update_role(guild_id: int, role_id: int,
     *_, member = dependencies
     role = db.query(Role).filter_by(
         id=role_id).filter_by(guild_id=guild_id).first()
-    if not member.is_owner and member.roles[0].position < role.position:
+    if not member.is_owner and member.roles[0].position <= role.position:
         return Response(status_code=403)
     if data.name:
         role.name = data.name
     if data.color:
         role.color = data.color
     if data.permissions:
-        role.permissions = int(data.permissions)
+        extra_permissions = data.permissions & ~role.permissions
+        if member.is_owner or (member.permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR) or (
+                (member.permissions & extra_permissions) == extra_permissions):
+            role.permissions = int(data.permissions)
+        else:
+            return Response(status_code=403)
     if data.mentionable:
         role.mentionable = data.mentionable
     db.commit()
@@ -302,12 +321,13 @@ async def delete_role(guild_id: int, role_id: int,
                       db: Session = Depends(deps.get_db)):
     *_, member = dependencies
     role = db.query(Role).filter_by(id=role_id, guild_id=guild_id).first()
-    if not member.is_owner and member.roles[0].position < role.position:
+    if not member.is_owner and member.roles[0].position <= role.position:
         return Response(status_code=403)
     if role:
         position = role.position
         db.delete(role)
-        db.query(Role).filter_by(guild_id=guild_id).filter(Role.position > position).update({Role.position: Role.position - 1})
+        db.query(Role).filter_by(guild_id=guild_id).filter(Role.position > position).update(
+            {Role.position: Role.position - 1})
         await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_DELETE,
                                  {'role': role.serialize(), 'guild_id': str(guild_id)}))
         update_roles = db.query(Role).filter_by(guild_id=guild_id).filter(Role.position >= position).all()
@@ -433,7 +453,8 @@ async def update_guild_member(guild_id: int, user_id: int, data: GuildMemberUpda
         guild_id=guild_id).filter_by(user_id=user_id).first()
     if member:
         if data.nick:
-            if not member.is_owner and (my_member.is_owner or my_member.roles[0].position > member.roles[0].position):
+            if (not member.roles and not member.is_owner) or (not member.is_owner and (
+                    my_member.is_owner or my_member.roles[0].position >= member.roles[0].position)):
                 member.nickname = data.nick
                 db.commit()
                 await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE, member.serialize()))
@@ -452,7 +473,9 @@ async def delete_guild_member(guild_id: int, user_id: int,
     member = db.query(GuildMembers).filter_by(
         guild_id=guild_id).filter_by(user_id=user_id).first()
     if member:
-        if not member.is_owner and (my_member.is_owner or my_member.roles[0].position > member.roles[0].position):
+        if (not member.roles and not member.is_owner) or (
+                not member.is_owner and (
+                my_member.is_owner or my_member.roles[0].position >= member.roles[0].position)):
             await websocket_emitter(None, guild_id, Events.GUILD_MEMBER_REMOVE, member.serialize())
             db.delete(member)
             db.commit()
@@ -493,7 +516,8 @@ async def add_guild_ban(guild_id: int, user_id: int, body: CreateGuildBan,
         member = db.query(GuildMembers).filter_by(
             guild_id=guild_id).filter_by(user_id=user_id).first()
         if member:
-            if not member.is_owner and (my_member.is_owner or my_member.roles[0].position > member.roles[0].position):
+            if (not member.roles and not member.is_owner) or (not member.is_owner and (
+                    my_member.is_owner or my_member.roles[0].position >= member.roles[0].position)):
                 ban.user = member.member
                 await emitter.in_room(str(member.user_id)).sockets_leave(str(guild_id))
                 await websocket_emitter(None, guild_id, Events.GUILD_MEMBER_REMOVE,

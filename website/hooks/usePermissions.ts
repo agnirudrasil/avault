@@ -26,11 +26,11 @@ export const usePermssions = (guildId: string, channelId: string) => {
 
     const memberRoles = useMemo(() => {
         if (guildMember) {
-            const myRoles = guildMember.roles.map(r =>
+            const myRoles = guildMember.roles?.map(r =>
                 roles.find(role => role.id === r)
             ) as Roles[];
 
-            myRoles.sort(rolesSort);
+            myRoles?.sort(rolesSort);
 
             return myRoles;
         }

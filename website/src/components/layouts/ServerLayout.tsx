@@ -153,7 +153,7 @@ const MemberDisplay = ({ member_id, member }: any) => {
 
     const otherMember = useMemo(() => {
         if (member) {
-            const myRoles = member.roles.map((r: any) =>
+            const myRoles = member.roles?.map((r: any) =>
                 roles.find(role => role.id === r)
             ) as Roles[];
 
@@ -195,8 +195,9 @@ const MemberDisplay = ({ member_id, member }: any) => {
                                           permissions.permissions,
                                           Permissions.CHANGE_NICKNAME
                                       )
-                                    : permissions.memberRoles[0]?.position <
-                                          otherMember[0].position ||
+                                    : member.is_owner ||
+                                      permissions.memberRoles[0]?.position <=
+                                          otherMember[0]?.position ||
                                       !checkPermissions(
                                           permissions.permissions,
                                           Permissions.MANAGE_NICKNAMES
@@ -210,9 +211,10 @@ const MemberDisplay = ({ member_id, member }: any) => {
                             title: "Ban",
                             color: "error",
                             disabled:
+                                member.is_owner ||
                                 member_id === getUser() ||
-                                permissions.memberRoles[0]?.position <
-                                    otherMember[0].position ||
+                                permissions.memberRoles[0]?.position <=
+                                    otherMember[0]?.position ||
                                 !checkPermissions(
                                     permissions.permissions,
                                     Permissions.BAN_MEMBERS
@@ -228,9 +230,10 @@ const MemberDisplay = ({ member_id, member }: any) => {
                             title: "Kick",
                             color: "error",
                             disabled:
+                                member.is_owner ||
                                 member_id === getUser() ||
-                                permissions.memberRoles[0]?.position <
-                                    otherMember[0].position ||
+                                permissions.memberRoles[0]?.position <=
+                                    otherMember[0]?.position ||
                                 !checkPermissions(
                                     permissions.permissions,
                                     Permissions.KICK_MEMBERS

@@ -22,7 +22,7 @@ import { useDeleteMessage } from "../../hooks/requests/useMessageDelete";
 import { Emoji, EmojiData, getEmojiDataFromNative, Picker } from "emoji-mart";
 import { useCreateReaction } from "../../hooks/requests/useCreateReaction";
 import { Messages, Reactions } from "../../stores/useMessagesStore";
-import data from "emoji-mart/data/all.json";
+import emojiData from "emoji-mart/data/all.json";
 import { useDeleteReaction } from "../../hooks/requests/useDeleteReaction";
 import { usePermssions } from "../../hooks/usePermissions";
 import { checkPermissions } from "../compute-permissions";
@@ -33,6 +33,7 @@ import { Embeds } from "./Embeds";
 import { useGuildsStore } from "../../stores/useGuildsStore";
 import shallow from "zustand/shallow";
 import { GuildMember } from "./GuildMember";
+import { useGetReactions } from "../../hooks/requests/useGetReactions";
 
 const ToolBar: React.FC<{
     editFn: () => any;
@@ -303,6 +304,10 @@ export const Message: React.FC<{
                                     ))}
                                     {message.reactions.map(reaction => (
                                         <Reaction
+                                            channel={
+                                                router.query.channel as string
+                                            }
+                                            message={message.id}
                                             reaction={reaction}
                                             key={reaction.emoji}
                                             addReactionFn={addReactionFn}
@@ -440,6 +445,10 @@ export const Message: React.FC<{
                                     ))}
                                     {message.reactions.map(reaction => (
                                         <Reaction
+                                            channel={
+                                                router.query.channel as string
+                                            }
+                                            message={message.id}
                                             reaction={reaction}
                                             key={reaction.emoji}
                                             addReactionFn={addReactionFn}
@@ -458,9 +467,12 @@ export const Message: React.FC<{
 
 const Reaction: React.FC<{
     reaction: Reactions;
+    channel: string;
+    message: string;
     deleteFn: (emoji: string) => any;
     addReactionFn: (emoji: string) => any;
-}> = ({ reaction, deleteFn, addReactionFn }) => {
+}> = ({ reaction, deleteFn, addReactionFn, channel, message }) => {
+    const { data } = useGetReactions(channel, message, reaction.emoji);
     const handleClick = () => {
         if (reaction.me) {
             deleteFn(reaction.emoji);
@@ -471,30 +483,35 @@ const Reaction: React.FC<{
 
     return (
         <Grow in={true} exit={true} timeout={300}>
-            <Button
-                variant="outlined"
-                startIcon={
-                    <Emoji
-                        emoji={getEmojiDataFromNative(
-                            reaction.emoji,
-                            "twitter",
-                            data
-                        )}
-                        set="twitter"
-                        size={16}
-                    />
-                }
-                onClick={handleClick}
-                size="small"
-                style={{
-                    backgroundColor: reaction.me ? "#55ddff61" : "white",
-                    verticalAlign: "middle",
-                    padding: "0.01rem",
-                    marginRight: "0.2rem",
-                }}
+            <Tooltip
+                placement="top"
+                title={data ? data.map((d: any) => d.username).join(", ") : ""}
             >
-                {reaction.count}
-            </Button>
+                <Button
+                    variant="outlined"
+                    startIcon={
+                        <Emoji
+                            emoji={getEmojiDataFromNative(
+                                reaction.emoji,
+                                "twitter",
+                                emojiData
+                            )}
+                            set="twitter"
+                            size={16}
+                        />
+                    }
+                    onClick={handleClick}
+                    size="small"
+                    style={{
+                        backgroundColor: reaction.me ? "#55ddff61" : "white",
+                        verticalAlign: "middle",
+                        padding: "0.01rem",
+                        marginRight: "0.2rem",
+                    }}
+                >
+                    {reaction.count}
+                </Button>
+            </Tooltip>
         </Grow>
     );
 };

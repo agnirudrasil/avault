@@ -11,6 +11,7 @@ import { useMessagesStore } from "../stores/useMessagesStore";
 import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/router";
 import { setUserId } from "../src/user-cache";
+import { useQueryClient } from "react-query";
 
 export const WebsocketContext = createContext<{ socket: Socket | null }>({
     socket: null as any,
@@ -19,6 +20,7 @@ export const WebsocketContext = createContext<{ socket: Socket | null }>({
 export const WebsocketProvider: React.FC = ({ children }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const router = useRouter();
+    const queryClient = useQueryClient();
     const [loading, setLoading] = useState(true);
     const {
         setGuilds,
@@ -187,15 +189,39 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 deleteBulkMessages(data);
             });
             socket.on("MESSAGE_REACTION_ADD", data => {
+                queryClient.invalidateQueries([
+                    "reactions",
+                    data.channel_id,
+                    data.message_id,
+                    data.emoji,
+                ]);
                 messageReactionAdd(data);
             });
             socket.on("MESSAGE_REACTION_REMOVE", data => {
+                queryClient.invalidateQueries([
+                    "reactions",
+                    data.channel_id,
+                    data.message_id,
+                    data.emoji,
+                ]);
                 messageReactionRemove(data);
             });
             socket.on("MESSAGE_REACTION_REMOVE_ALL", data => {
+                queryClient.invalidateQueries([
+                    "reactions",
+                    data.channel_id,
+                    data.message_id,
+                    data.emoji,
+                ]);
                 messageReactionRemoveAll(data);
             });
             socket.on("MESSAGE_REACTION_REMOVE_EMOJI", data => {
+                queryClient.invalidateQueries([
+                    "reactions",
+                    data.channel_id,
+                    data.message_id,
+                    data.emoji,
+                ]);
                 messageReactionRemoveEmoji(data);
             });
             socket.on("disconnect", reason => {

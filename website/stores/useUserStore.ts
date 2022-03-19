@@ -14,6 +14,7 @@ export interface GuildMembers {
     nick?: string;
     user: User;
     roles: string[];
+    is_owner: boolean;
 }
 
 export const useUserStore = create(

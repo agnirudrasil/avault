@@ -16,7 +16,7 @@ export const GuildMember: React.FC<{ id: string }> = ({ id, children }) => {
 
     const memberRoles = useMemo(() => {
         if (member) {
-            const myRoles = member.roles.map(r =>
+            const myRoles = member.roles?.map(r =>
                 roles.find(role => role.id === r)
             ) as Roles[];
 
