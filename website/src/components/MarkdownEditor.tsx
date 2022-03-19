@@ -35,7 +35,6 @@ import { Emoji as EmojiPicker, emojiIndex, Picker } from "emoji-mart";
 import { Mention, MentionIcon, MentionTypes } from "../../types/mentions";
 import {
     extraSpaces,
-    parseEmoji,
     syntaxTree,
 } from "./markdown/parsers/parseMessageContent";
 import { SingleASTNode } from "simple-markdown";
@@ -123,27 +122,27 @@ const withEmoji = (editor: Editor) => {
         normalizeNode(entry);
     };
 
-    editor.isInline = element =>
+    editor.isInline = (element: any) =>
         ["link", "button", "emoji"].includes(element.type) ||
         element.emoji ||
         isInline(element);
 
-    editor.isVoid = element =>
+    editor.isVoid = (element: any) =>
         element.type === "emoji" || element.emoji || isVoid(element);
 
     return editor;
 };
 
-const InlineChromiumBugfix = () => (
-    <span
-        contentEditable={false}
-        style={{
-            fontSize: 0,
-        }}
-    >
-        ${String.fromCodePoint(160) /* Non-breaking space */}
-    </span>
-);
+// const InlineChromiumBugfix = () => (
+//     <span
+//         contentEditable={false}
+//         style={{
+//             fontSize: 0,
+//         }}
+//     >
+//         ${String.fromCodePoint(160) /* Non-breaking space */}
+//     </span>
+// );
 
 const Element: React.FC<RenderElementProps> = props => {
     const { attributes, children, element } = props;
@@ -370,7 +369,6 @@ export const MarkdownEditor = () => {
             if (token.type !== "text") {
                 ranges.push({
                     [token.type]: true,
-                    emoji: token.emoji,
                     anchor: { path, offset: start },
                     focus: { path, offset: end },
                 });
@@ -609,7 +607,7 @@ const Leaf: React.FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
     }
 
     if (leaf.emoji) {
-        let emojiStr = getEmojiUrl(leaf.emoji);
+        let emojiStr = getEmojiUrl((leaf as any).emoji);
 
         return (
             <span {...attributes}>
@@ -619,7 +617,7 @@ const Leaf: React.FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
                     }}
                     contentEditable={false}
                     src={emojiStr}
-                    alt={leaf.emoji}
+                    alt={leaf.emoji as any}
                     draggable={false}
                     big={false}
                 />

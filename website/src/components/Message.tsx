@@ -1,4 +1,4 @@
-import { AddReaction, Delete, Edit, MoreHoriz } from "@mui/icons-material";
+import { AddReaction, Delete, Edit, Reply } from "@mui/icons-material";
 import {
     ListItem,
     ListItemAvatar,
@@ -13,6 +13,7 @@ import {
     Tooltip,
     Popover,
     Grow,
+    Box,
 } from "@mui/material";
 import { DefaultProfilePic } from "./DefaultProfilePic";
 import React, { useState } from "react";
@@ -41,6 +42,7 @@ const ToolBar: React.FC<{
     addReactionFn: (emoji: string) => any;
     message: Messages;
     permissions: bigint | "ALL";
+    setReference: () => void;
     guildMember: GuildMembers;
 }> = ({
     editFn,
@@ -49,6 +51,7 @@ const ToolBar: React.FC<{
     permissions,
     guildMember,
     message,
+    setReference,
 }) => {
     const [open, setOpen] = useState<HTMLElement | null>(null);
 
@@ -120,8 +123,8 @@ const ToolBar: React.FC<{
                         <AddReaction />
                     </Button>
                 )}
-                <Button size="small">
-                    <MoreHoriz />
+                <Button onClick={setReference} size="small">
+                    <Reply />
                 </Button>
             </ButtonGroup>
         </Paper>
@@ -168,7 +171,9 @@ export const EditMessageField: React.FC<{
 export const Message: React.FC<{
     type: "full" | "half";
     message: Messages;
-}> = ({ message, type }) => {
+    reference?: Messages;
+    setReference: (message: Messages) => void;
+}> = ({ message, type, setReference, reference }) => {
     const [editing, setEditing] = useState(false);
     const router = useRouter();
     const { mutate } = useEditMessage(router.query.channel as string);
@@ -217,7 +222,22 @@ export const Message: React.FC<{
 
     return (
         <>
-            {type === "full" ? (
+            {message.reply ? (
+                <ReplyingMessage
+                    members={members}
+                    addReactionFn={addReactionFn}
+                    deleteReactionFn={deleteReactionFn}
+                    message={message}
+                    permissions={permissions}
+                    setReference={setReference}
+                    deleteFn={deleteFn}
+                    editFn={editFn}
+                    setEditing={setEditing}
+                    editing={editing}
+                    reference={reference}
+                    guildMember={guildMember}
+                />
+            ) : type === "full" ? (
                 <ListItem
                     sx={{
                         "&:hover": {
@@ -231,9 +251,14 @@ export const Message: React.FC<{
                         },
                         paddingTop: "0",
                         paddingBottom: "0",
+                        backgroundColor:
+                            reference?.id === message.id
+                                ? "rgba(63, 191, 191, 0.31)"
+                                : "transparent",
                     }}
                 >
                     <ToolBar
+                        setReference={() => setReference(message)}
                         editFn={() => setEditing(prev => !prev)}
                         deleteFn={() => deleteFn(message.id)}
                         addReactionFn={addReactionFn}
@@ -353,11 +378,16 @@ export const Message: React.FC<{
                         "&:hover .toolbar": {
                             visibility: "visible",
                         },
+                        backgroundColor:
+                            reference?.id === message.id
+                                ? "rgba(63, 191, 191, 0.31)"
+                                : "transparent",
                     }}
                     key={message.id}
                     dense
                 >
                     <ToolBar
+                        setReference={() => setReference(message)}
                         editFn={() => setEditing(prev => !prev)}
                         deleteFn={() => deleteFn(message.id)}
                         addReactionFn={addReactionFn}
@@ -513,5 +543,214 @@ const Reaction: React.FC<{
                 </Button>
             </Tooltip>
         </Grow>
+    );
+};
+
+export const ReplyingMessage: React.FC<{
+    message: Messages;
+    setReference: (message: Messages) => void;
+    setEditing: any;
+    deleteFn: any;
+    addReactionFn: any;
+    permissions: any;
+    guildMember: any;
+    editFn: any;
+    reference?: Messages;
+    members: any;
+    editing: boolean;
+    deleteReactionFn: any;
+}> = ({
+    members,
+    message,
+    reference,
+    deleteReactionFn,
+    editFn,
+    editing,
+    setReference,
+    setEditing,
+    deleteFn,
+    addReactionFn,
+    permissions,
+    guildMember,
+}) => {
+    const router = useRouter();
+    return (
+        <Box
+            sx={{
+                "&:hover": { background: "rgba(0, 0, 0, 0.05)" },
+                maxWidth: "100%",
+                overflow: "hidden",
+                backgroundColor:
+                    reference?.id === message.id
+                        ? "rgba(63, 191, 191, 0.31)"
+                        : "transparent",
+            }}
+        >
+            <Box
+                sx={{
+                    ml: "4.5rem",
+                    display: "flex",
+                    maxWidth: "100%",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    gap: "0.25rem",
+                    marginBottom: "-5px",
+                    position: "relative",
+                    "::before": {
+                        position: "absolute",
+                        content: '""',
+                        width: "2.25rem",
+                        height: "16px",
+                        top: "40%",
+                        left: "-0.25rem",
+                        borderLeft: "2px solid #ccc",
+                        borderTop: "2px solid #ccc",
+                        borderTopLeftRadius: "10px",
+                        transform: "translateX(-100%)",
+                    },
+                }}
+            >
+                <Avatar sx={{ width: "18px", height: "18px" }}>
+                    <DefaultProfilePic
+                        width={18}
+                        height={18}
+                        tag={message.reply!.author.tag}
+                    />
+                </Avatar>
+                <Typography>
+                    <GuildMember id={message.reply!.author.id}>
+                        @
+                        {(members && members[message.reply!.author.id]?.nick) ||
+                            message.author.username}
+                    </GuildMember>
+                </Typography>
+                <Typography
+                    sx={{
+                        maxWidth: "100%",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        "> img": { width: "18px", height: "18px" },
+                    }}
+                    color="GrayText"
+                >
+                    <Markdown
+                        style={{
+                            whiteSpace: "nowrap",
+                            maxWidth: "100%",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                        }}
+                        content={message.reply!.content}
+                    />
+                </Typography>
+            </Box>
+            <ListItem
+                sx={{
+                    "&:hover .toolbar": {
+                        visibility: "visible",
+                    },
+                }}
+                key={message.id}
+                dense
+            >
+                <ToolBar
+                    setReference={() => setReference(message)}
+                    editFn={() => setEditing((prev: any) => !prev)}
+                    deleteFn={() => deleteFn(message.id)}
+                    addReactionFn={addReactionFn}
+                    permissions={permissions}
+                    guildMember={guildMember}
+                    message={message}
+                />
+                <ListItemAvatar>
+                    <Avatar>
+                        <DefaultProfilePic tag={message.author.tag} />
+                    </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                    primary={
+                        <Link
+                            sx={{ color: "inherit", cursor: "pointer" }}
+                            underline="hover"
+                        >
+                            <GuildMember id={message.author.id}>
+                                <Typography
+                                    style={{ userSelect: "none" }}
+                                    variant="subtitle2"
+                                >
+                                    {(members &&
+                                        members[message.author.id]?.nick) ||
+                                        message.author.username}
+                                </Typography>
+                            </GuildMember>
+                        </Link>
+                    }
+                    secondary={
+                        <div>
+                            {editing ? (
+                                <div style={{ width: "80%" }}>
+                                    <Typography component="div">
+                                        <EditMessageField
+                                            disabled={
+                                                !checkPermissions(
+                                                    permissions,
+                                                    Permissions.SEND_MESSAGES
+                                                )
+                                            }
+                                            defaultValue={message.content}
+                                            editFn={value =>
+                                                editFn(message.id, value)
+                                            }
+                                            setEditing={() => setEditing(false)}
+                                        />
+                                        escape to{" "}
+                                        <Link
+                                            sx={{ cursor: "pointer" }}
+                                            underline="hover"
+                                            onClick={() => setEditing(false)}
+                                        >
+                                            cancel
+                                        </Link>{" "}
+                                        {/* • enter to{" "}
+                                            <Link
+                                                sx={{ cursor: "pointer" }}
+                                                underline="hover"
+                                                onClick={() => {
+                                                    setEditing(false);
+                                                    editFn(
+                                                        message.id,
+                                                        editRef.current!.value
+                                                    );
+                                                }}
+                                            >
+                                                save
+                                            </Link> */}
+                                    </Typography>
+                                </div>
+                            ) : (
+                                <Typography color="ButtonText">
+                                    <Markdown content={message.content} />
+                                </Typography>
+                            )}
+                            <div>
+                                {message.embeds?.map((e, i) => (
+                                    <Embeds embed={e} key={i} />
+                                ))}
+                                {message.reactions.map(reaction => (
+                                    <Reaction
+                                        channel={router.query.channel as string}
+                                        message={message.id}
+                                        reaction={reaction}
+                                        key={reaction.emoji}
+                                        addReactionFn={addReactionFn}
+                                        deleteFn={deleteReactionFn}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    }
+                />
+            </ListItem>
+        </Box>
     );
 };

@@ -88,7 +88,7 @@ class Message(Base):
             'reactions': [{"emoji": reaction[0], "count": reaction[1], "me": reaction[2]} for reaction in
                           reactions_count],
             'author': author,
-            'reply': self.reply.serialize() if self.reply else None
+            'reply': self.reply.serialize(current_user, db) if self.reply else None
         }
 
     def mentions_everyone(self):
@@ -109,12 +109,14 @@ class Message(Base):
                  author_id,
                  tts=False,
                  embeds=None,
+                 replies_to=None,
                  attachments=None):
         self.id = next(snowflake_id)
         self.content = content
         self.channel_id = channel_id
         self.author_id = author_id
         self.tts = tts
+        self.replies_to = replies_to
         self.edited_timestamp = None
         self.timestamp = datetime.utcnow()
         self.mentions_everyone = self.mentions_everyone()

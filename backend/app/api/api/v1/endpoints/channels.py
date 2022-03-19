@@ -72,7 +72,8 @@ async def create_message(channel_id: int,
                          dependency: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES)),
                          db: Session = Depends(deps.get_db)) -> dict:
     channel, current_user = dependency
-    message = Message(body.content.strip(), channel_id, current_user.id, embeds=body.embeds)
+    message = Message(body.content.strip(), channel_id, current_user.id, embeds=body.embeds,
+                      replies_to=body.message_reference)
     db.add(message)
     db.commit()
     await websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_CREATE,

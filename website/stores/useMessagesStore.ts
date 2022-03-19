@@ -212,6 +212,12 @@ export const useMessagesStore = create(
                         draft[channelId] = draft[channelId].filter(
                             message => message.id !== messageId
                         );
+                        const index = draft[channelId].findIndex(
+                            message => message.reply?.id === messageId
+                        );
+                        if (index >= 0) {
+                            draft[channelId][index].reply = undefined;
+                        }
                     })
                 ),
             updateMessage: (message: Messages) =>

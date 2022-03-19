@@ -52,7 +52,7 @@ export const emoji: MarkdownRule = {
             alt={node.emoji}
             title={node.name}
             draggable={false}
-            big={node.jumboable}
+            big={false}
         />
     ),
 };

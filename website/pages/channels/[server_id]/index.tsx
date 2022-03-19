@@ -1,15 +1,7 @@
-import {
-    Container,
-    List,
-    ListItemButton,
-    ListItemAvatar,
-    Avatar,
-    ListItemText,
-} from "@mui/material";
+import { Container, List } from "@mui/material";
 import { NextPage } from "next";
 import { ChannelBar } from "../../../src/components/ChannelBar";
 import { ChannelLayout } from "../../../src/components/ChannelLayout";
-import { DefaultProfilePic } from "../../../src/components/DefaultProfilePic";
 import { MembersBar } from "../../../src/components/MembersBar";
 import { ServersBar } from "../../../src/components/ServerBar";
 import { useGuildsStore } from "../../../stores/useGuildsStore";
@@ -50,20 +42,7 @@ const ServerIndexPage: NextPage<Props> = ({ serverId }) => {
                     }}
                 ></List>
             </div>
-            <MembersBar>
-                {guild?.members.map((member: any) => (
-                    <ListItemButton key={member.id}>
-                        <ListItemAvatar>
-                            <Avatar>
-                                <DefaultProfilePic tag={member.user.tag} />
-                            </Avatar>
-                        </ListItemAvatar>
-                        <ListItemText
-                            primary={member.nickname || member.user.username}
-                        />
-                    </ListItemButton>
-                ))}
-            </MembersBar>
+            <MembersBar></MembersBar>
         </Container>
     );
 };

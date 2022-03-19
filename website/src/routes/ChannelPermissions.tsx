@@ -126,11 +126,14 @@ const RolesMembersPicker: React.FC<{ roles: Roles[]; guild: Guild }> = ({
                         Members
                     </Typography>
                 </ListSubheader>
-                {guild.members.map(m => (
-                    <MenuItem onClick={() => handleClose(1, m.user.id)}>
-                        {m.nick || m.user.username}
-                    </MenuItem>
-                ))}
+                {Object.keys(guild.members).map(m_id => {
+                    const m = guild.members[m_id];
+                    return (
+                        <MenuItem onClick={() => handleClose(1, m.user.id)}>
+                            {m.nick || m.user.username}
+                        </MenuItem>
+                    );
+                })}
             </Menu>
             <Stack
                 direction="row"
@@ -382,9 +385,13 @@ export const ChannelPermissions = () => {
                 },
             };
         }
-        const member = guild.members.find(m => m.user.id === overwrite.id);
+        const member = Object.keys(guild.members).find(m => m === overwrite.id);
         if (member) {
-            return { primary: member.nick || member.user.username };
+            return {
+                primary:
+                    guild.members[member].nick ||
+                    guild.members[member].user.username,
+            };
         }
         return { primary: "" };
     };

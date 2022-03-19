@@ -16,7 +16,7 @@ import { useKickMember } from "../../../hooks/requests/useKickMember";
 import { useContextMenu } from "../../../hooks/useContextMenu";
 import { usePermssions } from "../../../hooks/usePermissions";
 import { useGuildsStore } from "../../../stores/useGuildsStore";
-import { useMessagesStore } from "../../../stores/useMessagesStore";
+import { Messages, useMessagesStore } from "../../../stores/useMessagesStore";
 import { Roles, useRolesStore } from "../../../stores/useRolesStore";
 import { checkPermissions } from "../../compute-permissions";
 import { copyToClipboard } from "../../copy";
@@ -42,13 +42,19 @@ const Container = styled.div`
     width: 100%;
 `;
 
-export const organizeMessages = (messages: any[]): React.ReactNode => {
+export const organizeMessages = (
+    messages: Messages[],
+    setReference: (message: Messages) => void,
+    reference?: Messages
+): React.ReactNode => {
     return !messages || !Array.isArray(messages)
         ? null
         : messages.map((m, index, array) => {
               const timestamp = new Date(m.timestamp);
               return (
                   <Message
+                      reference={reference}
+                      setReference={setReference}
                       key={m.id}
                       type={
                           m.author.id === array[index + 1]?.author.id &&
@@ -66,6 +72,7 @@ export const organizeMessages = (messages: any[]): React.ReactNode => {
 
 export const ServerLayout: React.FC = () => {
     const router = useRouter();
+    const [reference, setReference] = useState<Messages | null>(null);
     const guild = useGuildsStore(
         state => state[router.query.server_id as string]
     );
@@ -97,6 +104,8 @@ export const ServerLayout: React.FC = () => {
             <div
                 style={{
                     width: "100%",
+                    maxWidth: "100%",
+                    overflow: "hidden",
                     padding: "1rem",
                     paddingTop: "auto",
                     display: "flex",
@@ -114,21 +123,31 @@ export const ServerLayout: React.FC = () => {
                         display: "flex",
                         flexDirection: "column-reverse",
                         width: "100%",
+                        maxWidth: "100%",
+                        overflow: "hidden",
                     }}
                 >
                     {loading ? (
                         <CircularProgress />
                     ) : (
-                        organizeMessages(messages as any[])
+                        organizeMessages(
+                            messages,
+                            setReference,
+                            reference as any
+                        )
                     )}
                 </List>
-                <MessageBox />
+                <MessageBox setReference={setReference} reference={reference} />
             </div>
             <MembersBar>
                 {Object.keys(guild?.members ?? {}).map((member_id: any) => {
                     const member = guild?.members[member_id];
                     return (
-                        <MemberDisplay member={member} member_id={member_id} />
+                        <MemberDisplay
+                            key={member_id}
+                            member={member}
+                            member_id={member_id}
+                        />
                     );
                 })}
             </MembersBar>
