@@ -1,10 +1,13 @@
 import { useRouter } from "next/router";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useGuildsStore } from "../../stores/useGuildsStore";
 import { Roles, useRolesStore } from "../../stores/useRolesStore";
 import { rolesSort } from "../sort-roles";
 
-export const GuildMember: React.FC<{ id: string }> = ({ id, children }) => {
+export const GuildMember: React.FC<{
+    id: string;
+    style?: React.CSSProperties;
+}> = ({ id, children, style }) => {
     const router = useRouter();
     const { member } = useGuildsStore(state => ({
         member: state[router.query.server_id as string].members[id],
@@ -31,9 +34,11 @@ export const GuildMember: React.FC<{ id: string }> = ({ id, children }) => {
         <span
             style={{
                 color: `#${
-                    memberRoles.find(a => a.color !== 0)?.color.toString(16) ||
-                    "000"
+                    memberRoles
+                        ?.find(a => a?.color !== 0)
+                        ?.color.toString(16) || "000"
                 }`,
+                ...style,
             }}
         >
             {children}

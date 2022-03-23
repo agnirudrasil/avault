@@ -155,6 +155,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 addGuilds(data);
             });
             socket.on("GUILD_ROLE_CREATE", data => {
+                console.log(data);
                 addRole(data.guild_id, data.role);
             });
             socket.on("GUILD_ROLE_POSITION_UPDATE", data => {
@@ -214,6 +215,9 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                     data.emoji,
                 ]);
                 messageReactionRemoveAll(data);
+            });
+            socket.on("CHANNEL_PINS_UPDATE", data => {
+                queryClient.invalidateQueries(["pinned", data.channel_id]);
             });
             socket.on("MESSAGE_REACTION_REMOVE_EMOJI", data => {
                 queryClient.invalidateQueries([

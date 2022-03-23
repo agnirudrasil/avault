@@ -34,6 +34,7 @@ export const useRolesStore = create(
             addRole: (guildId: string, role: Roles) =>
                 set(state =>
                     produce(state, draft => {
+                        console.log(state);
                         if (!draft[guildId]) {
                             draft[guildId] = [];
                         }

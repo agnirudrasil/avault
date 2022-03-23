@@ -13,7 +13,7 @@ from api.core.events import Events, websocket_emitter
 from api.core.permissions import Permissions
 from api.models.channels import Channel, ChannelType, Overwrite, PinnedMessages
 from api.models.invites import Invite
-from api.models.messages import Message, Reactions
+from api.models.messages import Message, Reactions, MessageTypes
 from api.models.user import User
 from api.models.webhooks import Webhook
 from api.schemas.channel import ChannelEdit
@@ -73,7 +73,8 @@ async def create_message(channel_id: int,
                          db: Session = Depends(deps.get_db)) -> dict:
     channel, current_user = dependency
     message = Message(body.content.strip(), channel_id, current_user.id, embeds=body.embeds,
-                      replies_to=body.message_reference)
+                      replies_to=body.message_reference,
+                      message_type=MessageTypes.REPLY if body.message_reference else MessageTypes.DEFAULT)
     db.add(message)
     db.commit()
     await websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_CREATE,
@@ -421,7 +422,7 @@ async def edit_channel(channel_id: int,
         channel.name = body.name
         if body.icon:
             channel.icon = body.icon
-        if body.topic:
+        if body.topic is not None:
             channel.topic = body.topic
         db.commit()
         await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_UPDATE,
@@ -465,7 +466,7 @@ def get_pins(channel_id: int,
     pins: list[PinnedMessages] = db.query(
         PinnedMessages).filter_by(channel_id=channel_id).all()
     if not pins:
-        return []
+        return None
     return [pin.message.serialize(user.id, db) for pin in pins]
 
 
@@ -473,17 +474,26 @@ def get_pins(channel_id: int,
 async def pin_message(channel_id: int, message_id: int,
                       db: Session = Depends(deps.get_db),
                       dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_MESSAGES))):
-    channel, _ = dependencies
+    channel, user = dependencies
     message = db.query(Message).filter_by(
         id=message_id).filter_by(channel_id=channel.id).first()
     if message:
         if len(channel.pinned_messages) < 50:
-            channel.pinned_messages.append(message)
+            message.pinned = True
+            pinned_message = PinnedMessages()
+            pinned_message.message = message
+            channel.pinned_messages.append(pinned_message)
+            new_message = Message("", channel_id, user.id, message_type=MessageTypes.CHANNEL_PINNED_MESSAGE)
+            db.add(new_message)
             db.commit()
             await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_PINS_UPDATE, {
                 'guild_id': str(channel.guild_id),
                 'channel_id': str(channel.id),
             })
+            await (websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_UPDATE,
+                                     message.serialize(user.id, db)))
+            await websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_CREATE,
+                                    new_message.serialize(user.id, db))
             return Response(status_code=204)
         return Response(status_code=403)
     return Response(status_code=404)
@@ -493,16 +503,20 @@ async def pin_message(channel_id: int, message_id: int,
 async def unpin_message(channel_id: int, message_id: int,
                         db: Session = Depends(deps.get_db),
                         dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_MESSAGES))):
-    channel, _ = dependencies
-    message = db.query(Message).filter_by(
-        id=message_id).filter_by(channel_id=channel.id).first()
-    if message:
-        channel.pinned_messages.remove(message)
+    channel, user = dependencies
+    pinned_message = db.query(PinnedMessages).filter_by(
+        message_id=message_id).filter_by(channel_id=channel.id).first()
+    if pinned_message:
+        pinned_message.message.pinned = False
+        message = pinned_message.message
+        db.delete(pinned_message)
         db.commit()
         await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_PINS_UPDATE, {
             'guild_id': str(channel.guild_id),
             'channel_id': str(channel.id),
         })
+        await (websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_UPDATE,
+                                 message.serialize(user.id, db)))
         return Response(status_code=204)
     return Response(status_code=404)
 

@@ -174,9 +174,18 @@ export const ServerNavbar: React.FC<{ name: string }> = ({ name }) => {
                 justifyContent: "space-between",
                 gap: "2rem",
                 alignItems: "center",
+                maxHeight: "3.5rem",
             }}
         >
-            <Typography>{name}</Typography>
+            <Typography
+                sx={{
+                    textOverflow: "ellipsis",
+                    maxWidth: "100%",
+                    whiteSpace: "nowrap",
+                }}
+            >
+                {name}
+            </Typography>
             <IconButton onClick={e => setAnchorEl(e.currentTarget)}>
                 {anchorEl ? <Close /> : <KeyboardArrowDown />}
             </IconButton>

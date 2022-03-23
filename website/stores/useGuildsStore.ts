@@ -93,9 +93,8 @@ export const useGuildsStore = create(
                 const deleteRoles = useRolesStore.getState().deleteGuild;
                 deleteGuild(guildId);
                 deleteRoles(guildId);
-                return produce(state, draft => {
-                    delete draft[guildId];
-                });
+                delete state[guildId];
+                return state;
             }),
     }))
 );

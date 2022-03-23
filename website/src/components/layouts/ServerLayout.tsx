@@ -1,20 +1,36 @@
 import styled from "@emotion/styled";
-import { LooksOne } from "@mui/icons-material";
+import { Clear, LooksOne, PushPin } from "@mui/icons-material";
 import {
     Avatar,
+    Box,
+    Card,
+    CardContent,
+    CardHeader,
     CircularProgress,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    IconButton,
     List,
     ListItemAvatar,
     ListItemButton,
+    ListItemSecondaryAction,
     ListItemText,
+    Popover,
+    SvgIcon,
+    Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import shallow from "zustand/shallow";
 import { useBanMember } from "../../../hooks/requests/useBanMember";
+import { useGetPinnedMessage } from "../../../hooks/requests/useGetPinnedMessages";
 import { useKickMember } from "../../../hooks/requests/useKickMember";
+import { useUnpinMessage } from "../../../hooks/requests/useUnpinMessage";
 import { useContextMenu } from "../../../hooks/useContextMenu";
 import { usePermssions } from "../../../hooks/usePermissions";
+import { useChannelsStore } from "../../../stores/useChannelsStore";
 import { useGuildsStore } from "../../../stores/useGuildsStore";
 import { Messages, useMessagesStore } from "../../../stores/useMessagesStore";
 import { Roles, useRolesStore } from "../../../stores/useRolesStore";
@@ -24,11 +40,13 @@ import { Permissions } from "../../permissions";
 import { rolesSort } from "../../sort-roles";
 import { getUser } from "../../user-cache";
 import { ChannelBar } from "../ChannelBar";
+import { PrivateChannelIcon, ChannelIcon } from "../ChannelIcon";
 import { ChannelLayout } from "../ChannelLayout";
 import { ContextMenu } from "../ContextMenu";
 import { DefaultProfilePic } from "../DefaultProfilePic";
 import { EditServerProfileDialog } from "../dialogs/EditServerProfileDialog";
 import { GuildMember } from "../GuildMember";
+import { Markdown } from "../markdown/Markdown";
 import { MembersBar } from "../MembersBar";
 import { Message } from "../Message";
 import { MessageBox } from "../MessageBox";
@@ -45,6 +63,7 @@ const Container = styled.div`
 export const organizeMessages = (
     messages: Messages[],
     setReference: (message: Messages) => void,
+    onOpenPins: () => void,
     reference?: Messages
 ): React.ReactNode => {
     return !messages || !Array.isArray(messages)
@@ -53,6 +72,7 @@ export const organizeMessages = (
               const timestamp = new Date(m.timestamp);
               return (
                   <Message
+                      onOpenPins={onOpenPins}
                       reference={reference}
                       setReference={setReference}
                       key={m.id}
@@ -72,10 +92,45 @@ export const organizeMessages = (
 
 export const ServerLayout: React.FC = () => {
     const router = useRouter();
+    const { data } = useGetPinnedMessage(router.query.channel as string);
+    const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+    const [open, setOpen] = useState(false);
+    const permissions = usePermssions(
+        router.query.server_id as string,
+        router.query.channel as string
+    );
     const [reference, setReference] = useState<Messages | null>(null);
+    const ref = useRef<HTMLButtonElement | null>(null);
     const guild = useGuildsStore(
         state => state[router.query.server_id as string]
     );
+    const channels = useChannelsStore(
+        state => state[router.query.server_id as string]
+    );
+    const channel = channels.find(c => c.id === router.query.channel)!;
+
+    const handleClick = () => {
+        setAnchorEl(ref.current);
+    };
+
+    const handlePinsClose = () => {
+        setAnchorEl(null);
+    };
+
+    const { mutate } = useUnpinMessage(router.query.channel as string);
+
+    const isChannelPrivate = useMemo(() => {
+        const overwrite = channel.overwrites.find(
+            o => o.id === (router.query.server_id as string)
+        );
+        if (
+            overwrite &&
+            checkPermissions(BigInt(overwrite.deny), Permissions.VIEW_CHANNEL)
+        ) {
+            return true;
+        }
+    }, [channel]);
+
     const [loading, setLoading] = useState(false);
 
     const { messages, getChannelMessages } = useMessagesStore(
@@ -85,6 +140,15 @@ export const ServerLayout: React.FC = () => {
         }),
         shallow
     );
+
+    const handleOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+    const pinsOpen = Boolean(anchorEl);
 
     useEffect(() => {
         setLoading(true);
@@ -97,17 +161,113 @@ export const ServerLayout: React.FC = () => {
 
     return (
         <Container>
+            <Popover
+                open={pinsOpen}
+                onClose={handlePinsClose}
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                }}
+                transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                }}
+            >
+                <Card>
+                    <CardHeader title="Pinned Messages" />
+                    <CardContent>
+                        {data ? (
+                            <List sx={{ minWidth: "400px" }} dense>
+                                {data.map(m => (
+                                    <ListItemButton
+                                        sx={{
+                                            border: "1px solid #ccc",
+                                            borderRadius: "4px",
+                                        }}
+                                    >
+                                        <ListItemAvatar>
+                                            <Avatar>
+                                                <DefaultProfilePic
+                                                    tag={m.author.tag}
+                                                />
+                                            </Avatar>
+                                        </ListItemAvatar>
+                                        <ListItemText
+                                            primary={
+                                                <Typography>
+                                                    <GuildMember
+                                                        id={m.author.id}
+                                                    >
+                                                        {m.author.username}
+                                                    </GuildMember>
+                                                </Typography>
+                                            }
+                                            secondary={
+                                                <Typography>
+                                                    <Markdown
+                                                        content={m.content}
+                                                    />
+                                                </Typography>
+                                            }
+                                        />
+                                        {checkPermissions(
+                                            permissions.permissions,
+                                            Permissions.MANAGE_MESSAGES
+                                        ) && (
+                                            <ListItemSecondaryAction>
+                                                <IconButton
+                                                    onClick={() => {
+                                                        mutate({
+                                                            messageId: m.id,
+                                                        });
+                                                    }}
+                                                    color="error"
+                                                    size="small"
+                                                >
+                                                    <Clear />
+                                                </IconButton>
+                                            </ListItemSecondaryAction>
+                                        )}
+                                    </ListItemButton>
+                                ))}
+                            </List>
+                        ) : (
+                            <>
+                                <Typography
+                                    align="center"
+                                    component="p"
+                                    variant="h1"
+                                >
+                                    😭
+                                </Typography>
+                                <Typography align="center">
+                                    This channel does not have any pinned
+                                    messages...yet.
+                                </Typography>
+                            </>
+                        )}
+                    </CardContent>
+                </Card>
+            </Popover>
             <ServersBar />
             <ChannelBar name={guild?.name}>
                 <ChannelLayout />
             </ChannelBar>
+            <Dialog
+                fullWidth={true}
+                maxWidth="xs"
+                open={open}
+                onClose={handleClose}
+            >
+                <DialogTitle>#{channel.name}</DialogTitle>
+                <DialogContent>{channel.topic}</DialogContent>
+            </Dialog>
             <div
                 style={{
                     width: "100%",
                     maxWidth: "100%",
                     overflow: "hidden",
-                    padding: "1rem",
-                    paddingTop: "auto",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "flex-end",
@@ -115,6 +275,55 @@ export const ServerLayout: React.FC = () => {
                     height: "100vh",
                 }}
             >
+                <Box
+                    sx={{
+                        height: "3.5rem",
+                        borderBottom: "1px solid #ccc",
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.15rem",
+                        padding: "1.98rem",
+                        justifyContent: "flex-start",
+                    }}
+                >
+                    <SvgIcon>
+                        {isChannelPrivate ? (
+                            <PrivateChannelIcon />
+                        ) : (
+                            <ChannelIcon />
+                        )}
+                    </SvgIcon>
+                    <Typography variant="h6">{channel.name}</Typography>
+                    {channel.topic && (
+                        <>
+                            <Divider
+                                orientation="vertical"
+                                sx={{
+                                    ml: "0.6rem",
+                                    mr: "0.6rem",
+                                    height: "1.5rem",
+                                }}
+                            />
+                            <Typography
+                                onClick={handleOpen}
+                                sx={{
+                                    whiteSpace: "nowrap",
+                                    textOverflow: "ellipsis",
+                                    cursor: "pointer",
+                                    maxWidth: "100%",
+                                    overflow: "hidden",
+                                    width: "100%",
+                                }}
+                            >
+                                {channel.topic}
+                            </Typography>
+                        </>
+                    )}
+                    <IconButton ref={ref} onClick={handleClick}>
+                        <PushPin />
+                    </IconButton>
+                </Box>
                 <List
                     style={{
                         overflowY: "auto",
@@ -124,7 +333,7 @@ export const ServerLayout: React.FC = () => {
                         flexDirection: "column-reverse",
                         width: "100%",
                         maxWidth: "100%",
-                        overflow: "hidden",
+                        overflowX: "hidden",
                     }}
                 >
                     {loading ? (
@@ -133,11 +342,17 @@ export const ServerLayout: React.FC = () => {
                         organizeMessages(
                             messages,
                             setReference,
+                            handleClick,
                             reference as any
                         )
                     )}
                 </List>
-                <MessageBox setReference={setReference} reference={reference} />
+                <Box sx={{ pl: "1rem", pr: "1rem", width: "100%", pb: "1rem" }}>
+                    <MessageBox
+                        setReference={setReference}
+                        reference={reference}
+                    />
+                </Box>
             </div>
             <MembersBar>
                 {Object.keys(guild?.members ?? {}).map((member_id: any) => {

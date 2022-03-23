@@ -74,7 +74,7 @@ async def create_guild(
     db.add(guild)
     db.add(role)
     db.commit()
-    await emitter.in_room(current_user.id).sockets_join(str(guild.id))
+    await emitter.in_room(str(current_user.id)).sockets_join(str(guild.id))
     await (websocket_emitter(None, None, Events.GUILD_CREATE,
                              {"guild": guild.serialize(), "member": guild_member.serialize()}, current_user.id))
     return guild.preview()

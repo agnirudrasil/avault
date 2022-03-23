@@ -1,13 +1,21 @@
 import re
+import enum
 from datetime import datetime
 
-from sqlalchemy import Column, ForeignKey, DateTime, Boolean, UniqueConstraint, func, BigInteger, Text
+from sqlalchemy import Column, ForeignKey, DateTime, Boolean, UniqueConstraint, func, BigInteger, Text, Integer
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
 from api.core.security import snowflake_id
 from api.db.base_class import Base
 from api.models.channels import Channel
+
+
+class MessageTypes(int, enum.Enum):
+    DEFAULT = 0
+    REPLY = 1
+    CHANNEL_PINNED_MESSAGE = 2
+    GUILD_MEMBER_JOIN = 3
 
 
 class Reactions(Base):
@@ -57,9 +65,11 @@ class Message(Base):
     replies_to = Column(BigInteger, ForeignKey(
         'messages.id', ondelete="SET NULL"))
     edited_timestamp = Column(DateTime)
+    message_type = Column("type", Integer, nullable=False, default=MessageTypes.DEFAULT)
     tts = Column(Boolean, nullable=False, default=False)
     embeds = Column(JSONB)
     attachments = Column(JSONB)
+    pinned = Column(Boolean, nullable=False, default=False)
     reactions = relationship('Reactions', back_populates='message')
     channel: Channel = relationship('Channel')
     author = relationship('User')
@@ -80,7 +90,9 @@ class Message(Base):
             'channel_id': str(self.channel_id) if self.channel_id else None,
             'author_id': str(self.author_id) if self.author_id else None,
             'content': self.content,
+            'pinned': self.pinned,
             'timestamp': self.timestamp.isoformat(),
+            'type': self.message_type,
             'edited_timestamp': self.edited_timestamp.isoformat() if self.edited_timestamp else None,
             'tts': self.tts,
             'embeds': self.embeds,
@@ -107,6 +119,7 @@ class Message(Base):
                  content,
                  channel_id,
                  author_id,
+                 message_type=MessageTypes.DEFAULT,
                  tts=False,
                  embeds=None,
                  replies_to=None,
@@ -116,6 +129,8 @@ class Message(Base):
         self.channel_id = channel_id
         self.author_id = author_id
         self.tts = tts
+        self.pinned = False
+        self.message_type = message_type
         self.replies_to = replies_to
         self.edited_timestamp = None
         self.timestamp = datetime.utcnow()

@@ -117,7 +117,7 @@ export const ChannelSettingsLayout: React.FC = ({ children }) => {
                         </ListItem>
                         <ListItemButton
                             selected={route === "/channel-settings"}
-                            onClick={() => setRoute("/settings")}
+                            onClick={() => setRoute("/channel-settings")}
                             sx={{ width: "100%" }}
                         >
                             <ListItemText primary="Overview" />

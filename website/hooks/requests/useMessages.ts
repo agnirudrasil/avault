@@ -1,6 +1,5 @@
-import { useQuery } from "react-query";
+import { useInfiniteQuery } from "react-query";
 import { request } from "../../src/request";
-import { useMessagesStore } from "../../stores/useMessagesStore";
 
 export const messages = async ({ queryKey }: { queryKey: string[] }) => {
     const data = await request(
@@ -14,9 +13,7 @@ export const messages = async ({ queryKey }: { queryKey: string[] }) => {
 };
 
 export const useMessages = (channelId: string) =>
-    useQuery(["messages", channelId], messages, {
+    useInfiniteQuery(["messages", channelId], messages, {
         cacheTime: Infinity,
-        onSettled: data => {
-            useMessagesStore.setState({ channel_id: data });
-        },
+        staleTime: Infinity,
     });

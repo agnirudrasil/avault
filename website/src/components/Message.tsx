@@ -1,4 +1,4 @@
-import { AddReaction, Delete, Edit, Reply } from "@mui/icons-material";
+import { AddReaction, Delete, Edit, PushPin, Reply } from "@mui/icons-material";
 import {
     ListItem,
     ListItemAvatar,
@@ -14,6 +14,7 @@ import {
     Popover,
     Grow,
     Box,
+    ListItemIcon,
 } from "@mui/material";
 import { DefaultProfilePic } from "./DefaultProfilePic";
 import React, { useState } from "react";
@@ -35,6 +36,9 @@ import { useGuildsStore } from "../../stores/useGuildsStore";
 import shallow from "zustand/shallow";
 import { GuildMember } from "./GuildMember";
 import { useGetReactions } from "../../hooks/requests/useGetReactions";
+import { usePinMessage } from "../../hooks/requests/usePinMessage";
+import { getUser } from "../user-cache";
+import { useUnpinMessage } from "../../hooks/requests/useUnpinMessage";
 
 const ToolBar: React.FC<{
     editFn: () => any;
@@ -54,6 +58,8 @@ const ToolBar: React.FC<{
     setReference,
 }) => {
     const [open, setOpen] = useState<HTMLElement | null>(null);
+    const { mutate: pinMessage } = usePinMessage(message.channel_id);
+    const { mutate: unpinMessage } = useUnpinMessage(message.channel_id);
 
     const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
         setOpen(e.currentTarget);
@@ -118,14 +124,35 @@ const ToolBar: React.FC<{
                         <Delete />
                     </Button>
                 )}
+                {(message.author_id === guildMember.user?.id ||
+                    checkPermissions(
+                        permissions,
+                        Permissions.MANAGE_MESSAGES
+                    )) && (
+                    <Button
+                        color={message.pinned ? "error" : "primary"}
+                        onClick={() => {
+                            if (message.pinned) {
+                                unpinMessage({ messageId: message.id });
+                            } else {
+                                pinMessage({ messageId: message.id });
+                            }
+                        }}
+                        size="small"
+                    >
+                        <PushPin />
+                    </Button>
+                )}
                 {checkPermissions(permissions, Permissions.ADD_REACTIONS) && (
                     <Button onClick={handleOpen} size="small">
                         <AddReaction />
                     </Button>
                 )}
-                <Button onClick={setReference} size="small">
-                    <Reply />
-                </Button>
+                {message.type !== 2 && (
+                    <Button onClick={setReference} size="small">
+                        <Reply />
+                    </Button>
+                )}
             </ButtonGroup>
         </Paper>
     );
@@ -170,10 +197,11 @@ export const EditMessageField: React.FC<{
 
 export const Message: React.FC<{
     type: "full" | "half";
+    onOpenPins: () => void;
     message: Messages;
     reference?: Messages;
     setReference: (message: Messages) => void;
-}> = ({ message, type, setReference, reference }) => {
+}> = ({ message, type, setReference, reference, onOpenPins }) => {
     const [editing, setEditing] = useState(false);
     const router = useRouter();
     const { mutate } = useEditMessage(router.query.channel as string);
@@ -222,7 +250,13 @@ export const Message: React.FC<{
 
     return (
         <>
-            {message.reply ? (
+            {message.type === 2 ? (
+                <PinnedMessage
+                    onOpenPins={onOpenPins}
+                    message={message}
+                    guildMember={guildMember}
+                />
+            ) : message.reply ? (
                 <ReplyingMessage
                     members={members}
                     addReactionFn={addReactionFn}
@@ -546,6 +580,61 @@ const Reaction: React.FC<{
     );
 };
 
+export const PinnedMessage: React.FC<{
+    message: Messages;
+    guildMember: any;
+    onOpenPins: () => void;
+}> = ({ onOpenPins, message, guildMember }) => {
+    return (
+        <ListItem
+            sx={{
+                ":hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.05)",
+                },
+            }}
+            key={message.id}
+            dense
+        >
+            <ListItemIcon>
+                <PushPin />
+            </ListItemIcon>
+            <ListItemText
+                primary={
+                    <Typography>
+                        <Link
+                            underline="hover"
+                            sx={{
+                                cursor: "pointer",
+                                color: "black",
+                                fontWeight: "bold",
+                            }}
+                        >
+                            <GuildMember id={message.author.id}>
+                                {guildMember.nick || message.author.username}
+                            </GuildMember>
+                        </Link>{" "}
+                        Pinned a message to this channel. See all{" "}
+                        <span>
+                            <Link
+                                onClick={onOpenPins}
+                                underline="hover"
+                                sx={{
+                                    cursor: "pointer",
+                                    color: "black",
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                pinned messages
+                            </Link>
+                        </span>
+                        .
+                    </Typography>
+                }
+            />
+        </ListItem>
+    );
+};
+
 export const ReplyingMessage: React.FC<{
     message: Messages;
     setReference: (message: Messages) => void;
@@ -580,9 +669,15 @@ export const ReplyingMessage: React.FC<{
                 "&:hover": { background: "rgba(0, 0, 0, 0.05)" },
                 maxWidth: "100%",
                 overflow: "hidden",
+                borderLeft:
+                    message.reply!.author.id === getUser()
+                        ? "3px solid #BFBF3F"
+                        : "",
                 backgroundColor:
                     reference?.id === message.id
                         ? "rgba(63, 191, 191, 0.31)"
+                        : message.reply!.author.id === getUser()
+                        ? "rgba(191, 191, 63, 0.2)"
                         : "transparent",
             }}
         >

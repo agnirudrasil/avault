@@ -23,6 +23,7 @@ export interface Messages {
     author_id: string;
     content: string;
     timestamp: Date;
+    type: number;
     edited_timestamp?: Date;
     tts: boolean;
     mention_everyone: boolean;
@@ -34,6 +35,7 @@ export interface Messages {
     reactions: Reactions[];
     author: Author;
     reply?: Messages;
+    pinned: boolean;
 }
 
 export const useMessagesStore = create(
