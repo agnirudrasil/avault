@@ -181,6 +181,7 @@ export const ServerLayout: React.FC = () => {
                             <List sx={{ minWidth: "400px" }} dense>
                                 {data.map(m => (
                                     <ListItemButton
+                                        key={m.id}
                                         sx={{
                                             border: "1px solid #ccc",
                                             borderRadius: "4px",
@@ -320,7 +321,11 @@ export const ServerLayout: React.FC = () => {
                             </Typography>
                         </>
                     )}
-                    <IconButton ref={ref} onClick={handleClick}>
+                    <IconButton
+                        sx={{ ml: "auto" }}
+                        ref={ref}
+                        onClick={handleClick}
+                    >
                         <PushPin />
                     </IconButton>
                 </Box>
