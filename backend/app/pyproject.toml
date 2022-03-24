@@ -30,6 +30,7 @@ aio-pika = "^6.8.1"
 msgpack = "^1.0.3"
 argon2_cffi = "^21.3.0"
 python-dotenv = "^0.19.2"
+emoji = "^1.7.0"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.770"

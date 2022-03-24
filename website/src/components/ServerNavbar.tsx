@@ -138,7 +138,7 @@ const MyMenu: React.FC<{
             <MyMenuItems lable="Hide Muted Channels">
                 <CheckBox />
             </MyMenuItems>
-            {!(guild.owner_id === guildMember.user.id) && (
+            {!(guild.owner_id === guildMember?.user?.id) && (
                 <>
                     <Divider />
                     <MyMenuItems

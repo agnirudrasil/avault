@@ -4,6 +4,7 @@ import { ChannelPermissions } from "../../../src/routes/ChannelPermissions";
 import { ChannelSettings } from "../../../src/routes/ChannelSettings";
 import { SettingsBans } from "../../../src/routes/SettingsBans";
 import SettingIndexPage from "../../../src/routes/SettingsIndex";
+import { SettingsMembers } from "../../../src/routes/SettingsMembers";
 import { SettingsRoles } from "../../../src/routes/SettingsRoles";
 import { useRoutesStore } from "../../../stores/useRoutesStore";
 
@@ -22,6 +23,8 @@ const ChannelsPage: NextPage<Props> = ({ serverId }) => {
             return <SettingsRoles />;
         case "/settings/bans":
             return <SettingsBans />;
+        case "/settings/members":
+            return <SettingsMembers />;
         case "/channel-settings":
             return <ChannelSettings />;
         case "/channel-settings/permissions":

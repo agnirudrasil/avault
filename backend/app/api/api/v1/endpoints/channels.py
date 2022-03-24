@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Any, List, Optional, Union
 
+import emoji as emojilib
 import sqlalchemy.exc
 from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel, root_validator
@@ -191,6 +192,8 @@ async def create_reaction(channel_id: int, message_id: int, emoji: str,
                           current_user: User = Depends(deps.get_current_user)) -> Optional[Response]:
     message: Message = db.query(Message).filter_by(id=message_id).filter_by(channel_id=channel_id).first()
     channel: Channel = db.query(Channel).filter_by(id=channel_id).first()
+    if not emojilib.is_emoji(emoji):
+        return Response(status_code=400)
     if message:
         if len(message.reactions) == 0:
             try:

@@ -93,18 +93,6 @@ export const SettingsLayout: React.FC = ({ children }) => {
                                 <ListItemText primary="Roles" />
                             </ListItemButton>
                         )}
-                        {checkPermissions(
-                            permissions,
-                            Permissions.MANAGE_EMOJIS_AND_STICKERS
-                        ) && (
-                            <ListItemButton
-                                selected={route === "/settings/emojis"}
-                                onClick={() => setRoute("/settings/emojis")}
-                                sx={{ width: "100%" }}
-                            >
-                                <ListItemText primary="Emoji" />
-                            </ListItemButton>
-                        )}
                         <Divider sx={{ margin: "1rem 0" }} />
                         <ListItem>
                             <ListItemText
@@ -134,19 +122,7 @@ export const SettingsLayout: React.FC = ({ children }) => {
                                 <ListItemText primary="Bans" />
                             </ListItemButton>
                         )}
-                        {checkPermissions(
-                            permissions,
-                            Permissions.MANAGE_GUILD
-                        ) && (
-                            <ListItemButton
-                                selected={route === "/settings/invites"}
-                                onClick={() => setRoute("/settings/invites")}
-                                sx={{ width: "100%" }}
-                            >
-                                <ListItemText primary="Invites" />
-                            </ListItemButton>
-                        )}
-                    </List>
+                        </List>
                 </div>
             </div>
             <div
