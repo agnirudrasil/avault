@@ -56,7 +56,7 @@ class Embeds(BaseModel):
                            'gifv', 'article', 'link']] = "rich"
     description: Optional[str] = None
     url: Optional[str] = None
-    timestamp: Optional[datetime] = datetime.now()
+    timestamp: Optional[datetime] = None
     color: Optional[int] = 0
     footer: Optional[Footer] = None
     image: Optional[EmbedImage] = None

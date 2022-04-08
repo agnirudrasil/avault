@@ -2,6 +2,7 @@ import { NextPage } from "next";
 import { ChannelsIndexPage } from "../../../src/routes/ChannelIndex";
 import { ChannelPermissions } from "../../../src/routes/ChannelPermissions";
 import { ChannelSettings } from "../../../src/routes/ChannelSettings";
+import { ChannelWebhooks } from "../../../src/routes/ChannelWebhooks";
 import { SettingsBans } from "../../../src/routes/SettingsBans";
 import SettingIndexPage from "../../../src/routes/SettingsIndex";
 import { SettingsMembers } from "../../../src/routes/SettingsMembers";
@@ -29,6 +30,8 @@ const ChannelsPage: NextPage<Props> = ({ serverId }) => {
             return <ChannelSettings />;
         case "/channel-settings/permissions":
             return <ChannelPermissions />;
+        case "/channel-settings/webhooks":
+            return <ChannelWebhooks />;
         case "/":
         default:
             return <ChannelsIndexPage serverId={serverId} />;

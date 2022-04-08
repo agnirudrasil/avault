@@ -15,6 +15,8 @@ import {
     Grow,
     Box,
     ListItemIcon,
+    Chip,
+    Stack,
 } from "@mui/material";
 import { DefaultProfilePic } from "./DefaultProfilePic";
 import React, { useState } from "react";
@@ -436,21 +438,35 @@ export const Message: React.FC<{
                     </ListItemAvatar>
                     <ListItemText
                         primary={
-                            <Link
-                                sx={{ color: "inherit", cursor: "pointer" }}
-                                underline="hover"
-                            >
-                                <GuildMember id={message.author.id}>
-                                    <Typography
-                                        style={{ userSelect: "none" }}
-                                        variant="subtitle2"
-                                    >
-                                        {(members &&
-                                            members[message.author.id]?.nick) ||
-                                            message.author.username}
-                                    </Typography>
-                                </GuildMember>
-                            </Link>
+                            <Stack direction="row" spacing={1}>
+                                <Link
+                                    sx={{ color: "inherit", cursor: "pointer" }}
+                                    underline="hover"
+                                >
+                                    <GuildMember id={message.author.id}>
+                                        <Typography
+                                            style={{
+                                                userSelect: "none",
+                                                display: "flex",
+                                            }}
+                                            variant="subtitle2"
+                                        >
+                                            {(members &&
+                                                members[message.author.id]
+                                                    ?.nick) ||
+                                                message.author.username}
+                                        </Typography>
+                                    </GuildMember>
+                                </Link>
+                                {message.author.bot && (
+                                    <Chip
+                                        sx={{ borderRadius: "3px" }}
+                                        size="small"
+                                        label="BOT"
+                                        color="primary"
+                                    />
+                                )}
+                            </Stack>
                         }
                         secondary={
                             <div>
@@ -601,18 +617,29 @@ export const PinnedMessage: React.FC<{
             <ListItemText
                 primary={
                     <Typography>
-                        <Link
-                            underline="hover"
-                            sx={{
-                                cursor: "pointer",
-                                color: "black",
-                                fontWeight: "bold",
-                            }}
-                        >
-                            <GuildMember id={message.author.id}>
-                                {guildMember.nick || message.author.username}
-                            </GuildMember>
-                        </Link>{" "}
+                        <Stack direction="row" spacing={1}>
+                            <Link
+                                underline="hover"
+                                sx={{
+                                    cursor: "pointer",
+                                    color: "black",
+                                    fontWeight: "bold",
+                                }}
+                            >
+                                <GuildMember id={message.author.id}>
+                                    {guildMember.nick ||
+                                        message.author.username}
+                                </GuildMember>
+                            </Link>{" "}
+                            {message.author.bot && (
+                                <Chip
+                                    size="small"
+                                    sx={{ borderRadius: "3px" }}
+                                    label="BOT"
+                                    color="primary"
+                                />
+                            )}
+                        </Stack>
                         Pinned a message to this channel. See all{" "}
                         <span>
                             <Link
@@ -716,7 +743,15 @@ export const ReplyingMessage: React.FC<{
                     <GuildMember id={message.reply!.author.id}>
                         @
                         {(members && members[message.reply!.author.id]?.nick) ||
-                            message.author.username}
+                            message.reply!.author.username}{" "}
+                        {message.reply?.author.bot && (
+                            <Chip
+                                size="small"
+                                sx={{ borderRadius: "3px" }}
+                                label="BOT"
+                                color="primary"
+                            />
+                        )}
                     </GuildMember>
                 </Typography>
                 <Typography
@@ -764,21 +799,31 @@ export const ReplyingMessage: React.FC<{
                 </ListItemAvatar>
                 <ListItemText
                     primary={
-                        <Link
-                            sx={{ color: "inherit", cursor: "pointer" }}
-                            underline="hover"
-                        >
-                            <GuildMember id={message.author.id}>
-                                <Typography
-                                    style={{ userSelect: "none" }}
-                                    variant="subtitle2"
-                                >
-                                    {(members &&
-                                        members[message.author.id]?.nick) ||
-                                        message.author.username}
-                                </Typography>
-                            </GuildMember>
-                        </Link>
+                        <Stack direction="row" spacing={1}>
+                            <Link
+                                sx={{ color: "inherit", cursor: "pointer" }}
+                                underline="hover"
+                            >
+                                <GuildMember id={message.author.id}>
+                                    <Typography
+                                        style={{ userSelect: "none" }}
+                                        variant="subtitle2"
+                                    >
+                                        {(members &&
+                                            members[message.author.id]?.nick) ||
+                                            message.author.username}
+                                    </Typography>
+                                </GuildMember>
+                            </Link>
+                            {message.author.bot && (
+                                <Chip
+                                    size="small"
+                                    sx={{ borderRadius: "3px" }}
+                                    label="BOT"
+                                    color="primary"
+                                />
+                            )}
+                        </Stack>
                     }
                     secondary={
                         <div>

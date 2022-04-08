@@ -1,4 +1,4 @@
-from api.core.security import generate_token
+from api.core.security import generate_token, snowflake_id
 from api.db.base_class import Base
 from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
@@ -18,6 +18,7 @@ class Webhook(Base):
     token = Column(Text, nullable=True)
     channel = relationship('Channel', backref='webhooks')
     guild = relationship('Guild', backref='webhooks')
+    user = relationship('User')
 
     def get_author(self):
         return {
@@ -30,25 +31,37 @@ class Webhook(Base):
 
     def serialize(self):
         return {
-            'id': self.id,
+            'id': str(self.id),
             'type': self.type,
-            'guild_id': self.guild_id,
-            'channel_id': self.channel_id,
-            'user_id': self.user_id,
+            'guild_id': str(self.guild_id),
+            'channel_id': str(self.channel_id),
+            'user': self.user.serialize(),
+            'name': self.name,
+            'avatar': self.avatar,
+            'token': self.token
+        }
+
+    def serialize_token(self):
+        return {
+            'id': str(self.id),
+            'type': self.type,
+            'guild_id': str(self.guild_id),
+            'channel_id': str(self.channel_id),
             'name': self.name,
             'avatar': self.avatar,
             'token': self.token
         }
 
     def __init__(self,
-                 type,
+                 webhook_type,
                  channel_id,
                  user_id,
                  name,
                  avatar=None,
                  token=None,
                  guild_id=None):
-        self.type = type
+        self.id = next(snowflake_id)
+        self.type = webhook_type
         self.guild_id = guild_id
         self.channel_id = channel_id
         self.user_id = user_id

@@ -26,7 +26,7 @@ router = APIRouter()
 
 
 class WebhookCreate(BaseModel):
-    name: str
+    name: Optional[str] = None
     avatar: Optional[Any] = None
 
 
@@ -561,9 +561,7 @@ def remove_recipient(channel_id: int, user_id: int,
 @router.get('/{channel_id}/webhooks')
 def get_webhooks(dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_WEBHOOKS))):
     channel, user = dependencies
-    return {
-        [webhook.serialize() for webhook in channel.webhooks]
-    }
+    return [webhook.serialize() for webhook in channel.webhooks]
 
 
 @router.post('/{channel_id}/webhooks')
@@ -572,9 +570,11 @@ async def create_webhook(channel_id: int,
                          db: Session = Depends(deps.get_db),
                          dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_WEBHOOKS))):
     channel, current_user = dependencies
+    name = data.name if data.name else "Captain Hook"
     webhook = Webhook(1, channel_id, current_user.id,
-                      data.name, data.avatar, guild_id=channel.guild_id)
+                      name, data.avatar, guild_id=channel.guild_id)
     channel.webhooks.append(webhook)
+    db.add(webhook)
     db.commit()
     await websocket_emitter(channel_id, channel.guild_id, Events.WEBHOOKS_UPDATE, {
         'guild_id': str(channel.guild_id),

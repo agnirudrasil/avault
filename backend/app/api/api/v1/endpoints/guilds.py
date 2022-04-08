@@ -434,11 +434,10 @@ async def update_guild_member_me(guild_id: int, data: GuildMemberUpdate,
     member = db.query(GuildMembers).filter_by(
         guild_id=guild_id).filter_by(user_id=user.id).first()
     if member:
-        if data.nick:
-            member.nickname = data.nick
-            db.add(member)
-            db.commit()
-            await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE, member.serialize()))
+        member.nickname = data.nick
+        db.add(member)
+        db.commit()
+        await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE, member.serialize()))
         return member.serialize()
     return Response(status_code=404)
 

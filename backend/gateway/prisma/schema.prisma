@@ -1,0 +1,244 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model alembic_version {
+  version_num String @id(map: "alembic_version_pkc") @db.VarChar(32)
+}
+
+model applications {
+  id                                 BigInt   @id @default(autoincrement())
+  name                               String
+  description                        String
+  redirect_uris                      String[]
+  owner_id                           BigInt
+  secret                             String
+  bot_id                             BigInt?
+  users_applications_bot_idTousers   users?   @relation("applications_bot_idTousers", fields: [bot_id], references: [id], onUpdate: NoAction)
+  users_applications_owner_idTousers users    @relation("applications_owner_idTousers", fields: [owner_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model channel_members {
+  channel_id BigInt
+  user_id    BigInt
+  channels   channels @relation(fields: [channel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([channel_id, user_id])
+}
+
+model channels {
+  id                     BigInt            @id @default(autoincrement())
+  type                   channeltype
+  guild_id               BigInt?
+  position               Int
+  name                   String            @db.VarChar(100)
+  topic                  String?           @db.VarChar(1024)
+  nsfw                   Boolean
+  last_message_timestamp DateTime?         @db.Timestamp(6)
+  owner_id               BigInt?
+  parent_id              BigInt?
+  guilds                 guilds?           @relation(fields: [guild_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users                  users?            @relation(fields: [owner_id], references: [id], onUpdate: NoAction)
+  channels               channels?         @relation("channelsTochannels_parent_id", fields: [parent_id], references: [id], onUpdate: NoAction)
+  channel_members        channel_members[]
+  other_channels         channels[]        @relation("channelsTochannels_parent_id")
+  invites                invites[]
+  messages               messages[]
+  overwrites             overwrites[]
+  pinned_messages        pinned_messages[]
+  thread_metadata        thread_metadata?
+  webhooks               webhooks[]
+}
+
+model guild_bans {
+  user_id  BigInt
+  guild_id BigInt
+  reason   String?
+  guilds   guilds  @relation(fields: [guild_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users    users   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, guild_id])
+  @@unique([guild_id, user_id])
+}
+
+model guild_members {
+  guild_id     BigInt
+  user_id      BigInt
+  is_owner     Boolean
+  nickname     String?        @db.VarChar(80)
+  permissions  BigInt
+  guilds       guilds         @relation(fields: [guild_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users        users          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  role_members role_members[]
+
+  @@id([guild_id, user_id])
+}
+
+model guilds {
+  id            BigInt          @id @default(autoincrement())
+  name          String          @db.VarChar(80)
+  icon          String?
+  owner_id      BigInt?
+  users         users?          @relation(fields: [owner_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  channels      channels[]
+  guild_bans    guild_bans[]
+  guild_members guild_members[]
+  roles         roles[]
+  webhooks      webhooks[]
+}
+
+model invites {
+  id         String   @id @db.VarChar(21)
+  channel_id BigInt
+  user_id    BigInt
+  created_at DateTime @db.Timestamp(6)
+  max_age    Int
+  max_uses   Int?
+  count      Int?
+  channels   channels @relation(fields: [channel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
+}
+
+model messages {
+  id               BigInt            @id @default(autoincrement())
+  channel_id       BigInt
+  author_id        BigInt?
+  webhook_id       BigInt?
+  content          String?
+  timestamp        DateTime          @db.Timestamp(6)
+  replies_to       BigInt?
+  edited_timestamp DateTime?         @db.Timestamp(6)
+  tts              Boolean
+  embeds           Json?
+  attachments      Json?
+  type             Int               @default(0)
+  pinned           Boolean           @default(false)
+  users            users?            @relation(fields: [author_id], references: [id], onUpdate: NoAction)
+  channels         channels          @relation(fields: [channel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  messages         messages?         @relation("messagesTomessages_replies_to", fields: [replies_to], references: [id], onUpdate: NoAction)
+  webhooks         webhooks?         @relation(fields: [webhook_id], references: [id], onUpdate: NoAction)
+  other_messages   messages[]        @relation("messagesTomessages_replies_to")
+  pinned_messages  pinned_messages[]
+  reactions        reactions[]
+}
+
+model overwrites {
+  id         BigInt
+  type       Int
+  allow      BigInt
+  deny       BigInt
+  channel_id BigInt
+  channels   channels @relation(fields: [channel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([id, channel_id, type])
+}
+
+model permissions {
+  permission String @id
+  value      BigInt
+  title      String
+}
+
+model pinned_messages {
+  channel_id BigInt
+  message_id BigInt
+  channels   channels @relation(fields: [channel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  messages   messages @relation(fields: [message_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([channel_id, message_id])
+}
+
+model reactions {
+  id         BigInt    @id @default(autoincrement())
+  message_id BigInt?
+  user_id    BigInt?
+  reaction   String
+  messages   messages? @relation(fields: [message_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users      users?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([message_id, user_id, reaction], map: "_reaction_uc")
+}
+
+model role_members {
+  user_id       BigInt
+  guild_id      BigInt
+  role_id       BigInt
+  roles         roles         @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  guild_members guild_members @relation(fields: [user_id, guild_id], references: [user_id, guild_id], onDelete: Cascade, onUpdate: NoAction, map: "guild_members_role_fkey")
+
+  @@id([user_id, guild_id, role_id])
+}
+
+model roles {
+  id           BigInt         @id @default(autoincrement())
+  guild_id     BigInt
+  name         String         @db.VarChar(64)
+  color        Int
+  position     Int
+  permissions  BigInt
+  mentionable  Boolean
+  guilds       guilds         @relation(fields: [guild_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  role_members role_members[]
+}
+
+model thread_metadata {
+  channel_id            BigInt    @id
+  archived              Boolean?
+  archive_timestamp     DateTime? @db.Timestamp(6)
+  auto_archive_duration Int?
+  locked                Boolean?
+  channels              channels  @relation(fields: [channel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model users {
+  id                                        BigInt            @id @default(autoincrement())
+  username                                  String            @db.VarChar(80)
+  password                                  String
+  tag                                       String            @db.VarChar(5)
+  bot                                       Boolean
+  email                                     String            @unique @db.VarChar(120)
+  applications_applications_bot_idTousers   applications[]    @relation("applications_bot_idTousers")
+  applications_applications_owner_idTousers applications[]    @relation("applications_owner_idTousers")
+  channel_members                           channel_members[]
+  channels                                  channels[]
+  guild_bans                                guild_bans[]
+  guild_members                             guild_members[]
+  guilds                                    guilds[]
+  invites                                   invites[]
+  messages                                  messages[]
+  reactions                                 reactions[]
+  webhooks                                  webhooks[]
+
+  @@unique([username, tag])
+}
+
+model webhooks {
+  id         BigInt     @id @default(autoincrement())
+  type       Int
+  guild_id   BigInt?
+  channel_id BigInt
+  user_id    BigInt
+  name       String     @db.VarChar(100)
+  avatar     String?    @db.VarChar(2048)
+  token      String?
+  channels   channels   @relation(fields: [channel_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  guilds     guilds?    @relation(fields: [guild_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users      users      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  messages   messages[]
+}
+
+enum channeltype {
+  guild_text
+  dm
+  guild_category
+  guild_news
+  guild_public_thread
+  guild_private_thread
+  group_dm
+}

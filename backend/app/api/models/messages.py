@@ -67,24 +67,25 @@ class Message(Base):
     edited_timestamp = Column(DateTime)
     message_type = Column("type", Integer, nullable=False, default=MessageTypes.DEFAULT)
     tts = Column(Boolean, nullable=False, default=False)
+    webhook_author = Column(JSONB)
     embeds = Column(JSONB)
     attachments = Column(JSONB)
     pinned = Column(Boolean, nullable=False, default=False)
     reactions = relationship('Reactions', back_populates='message')
     channel: Channel = relationship('Channel')
     author = relationship('User')
-    webhook = relationship('Webhook')
     reply = relationship('Message', remote_side=[id])
 
     def serialize(self, current_user, db):
         author = None
         if self.webhook_id:
-            author = self.webhook.get_author()
+            author = self.webhook_author
         else:
             author = self.author.serialize()
         reactions_count = db.query(Reactions.reaction, func.count(Reactions.id),
                                    func.bool_or(Reactions.user_id == current_user)).filter_by(
             message_id=self.id).group_by(Reactions.reaction).all()
+
         return {
             'id': str(self.id),
             'channel_id': str(self.channel_id) if self.channel_id else None,
@@ -123,7 +124,9 @@ class Message(Base):
                  tts=False,
                  embeds=None,
                  replies_to=None,
-                 attachments=None):
+                 attachments=None,
+                 webhook_id=None,
+                 webhook_author=None):
         self.id = next(snowflake_id)
         self.content = content
         self.channel_id = channel_id
@@ -140,3 +143,5 @@ class Message(Base):
         self.mention_channel = self.mentions_channels()
         self.embeds = [embed.json() for embed in embeds] if embeds else None
         self.attachments = attachments
+        self.webhook_author = webhook_author
+        self.webhook_id = webhook_id

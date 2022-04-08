@@ -17,7 +17,6 @@ import { sendMessage } from "./utils/sendMessage";
     const connection = await connect(RABBITMQ_URL);
     const channel = await connection.createChannel();
     const queue = "gateway_api_talks";
-
     await channel.assertQueue(queue, {
         durable: true,
     });

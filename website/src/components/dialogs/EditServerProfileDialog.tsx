@@ -77,7 +77,6 @@ export const EditServerProfileDialog: React.FC<
                             name="nick"
                             type="text"
                             label="Nickname"
-                            required
                         />
                         <DialogActions
                             sx={{
@@ -94,7 +93,7 @@ export const EditServerProfileDialog: React.FC<
                                 type="submit"
                                 loading={isSubmitting}
                             >
-                                Create
+                                Edit
                             </LoadingButton>
                         </DialogActions>
                     </Form>

@@ -138,6 +138,22 @@ export const ChannelSettingsLayout: React.FC = ({ children }) => {
                                 <ListItemText primary="Permissions" />
                             </ListItemButton>
                         )}
+                        {checkPermissions(
+                            permissions,
+                            Permissions.MANAGE_WEBHOOKS
+                        ) && (
+                            <ListItemButton
+                                selected={
+                                    route === "/channel-settings/webhooks"
+                                }
+                                onClick={() =>
+                                    setRoute("/channel-settings/webhooks")
+                                }
+                                sx={{ width: "100%" }}
+                            >
+                                <ListItemText primary="Webhooks" />
+                            </ListItemButton>
+                        )}
                         <Divider />
                         {checkPermissions(
                             permissions,
