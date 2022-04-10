@@ -63,6 +63,7 @@ async def search_gifs(q: str,
     })) as response:
 
         json = await response.json()
+        print(json['results'][0]["media"])
 
         response_obj = [make_response(result, media_type)
                         for result in json['results']]

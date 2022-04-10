@@ -1,22 +1,22 @@
-import { toASCII } from "punycode"
-import * as URL from "url"
+import { toASCII } from "punycode";
+import * as URL from "url";
 
 export const depunycodeUrl = (link: string) => {
-  try {
-    const url = URL.parse(link)
-    const { hostname, protocol } = url
+    try {
+        const url = URL.parse(link);
+        const { hostname, protocol } = url;
 
-    if (protocol?.toLowerCase() === "file:") return
-    if (!hostname) return
+        if (protocol?.toLowerCase() === "file:") return;
+        if (!hostname) return;
 
-    const asciiHostname = toASCII(hostname)
+        const asciiHostname = toASCII(hostname);
 
-    return URL.format({
-      ...url,
-      hostname: asciiHostname,
-      protocol,
-    })
-  } catch {
-    // return nothing
-  }
-}
+        return URL.format({
+            ...url,
+            hostname: asciiHostname,
+            protocol,
+        });
+    } catch {
+        // return nothing
+    }
+};

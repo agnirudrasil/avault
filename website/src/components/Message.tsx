@@ -210,14 +210,14 @@ export const Message: React.FC<{
     const { mutate: mutateDelete } = useDeleteMessage(
         router.query.channel as string
     );
-    const members = useGuildsStore(
+    const members: any = useGuildsStore(
         state => state[router.query.server_id as string].members,
         shallow
     );
 
     const { mutateAsync } = useCreateReaction();
     const { mutateAsync: deleteReaction } = useDeleteReaction();
-    const { permissions, guildMember } = usePermssions(
+    const { permissions, guildMember }: any = usePermssions(
         router.query.server_id as string,
         router.query.channel as string
     );
@@ -226,6 +226,7 @@ export const Message: React.FC<{
         mutate({
             messageId,
             content,
+            embeds: message.embeds,
         } as any);
         setEditing(false);
     };
@@ -360,9 +361,17 @@ export const Message: React.FC<{
                         <ListItemText
                             secondary={
                                 <div>
-                                    {message.embeds?.map((e, i) => (
-                                        <Embeds embed={e} key={i} />
-                                    ))}
+                                    <Stack spacing={2}>
+                                        {message.embeds?.map((e, i) => (
+                                            <Embeds
+                                                message={message}
+                                                author={message.author.id}
+                                                permissions={permissions}
+                                                embed={e}
+                                                key={i}
+                                            />
+                                        ))}
+                                    </Stack>
                                     {message.reactions.map(reaction => (
                                         <Reaction
                                             channel={
@@ -520,9 +529,17 @@ export const Message: React.FC<{
                                     </Typography>
                                 )}
                                 <div>
-                                    {message.embeds?.map((e, i) => (
-                                        <Embeds embed={e} key={i} />
-                                    ))}
+                                    <Stack spacing={1}>
+                                        {message.embeds?.map((e, i) => (
+                                            <Embeds
+                                                message={message}
+                                                author={message.author.id}
+                                                permissions={permissions}
+                                                embed={e}
+                                                key={i}
+                                            />
+                                        ))}
+                                    </Stack>
                                     {message.reactions.map(reaction => (
                                         <Reaction
                                             channel={
@@ -873,9 +890,17 @@ export const ReplyingMessage: React.FC<{
                                 </Typography>
                             )}
                             <div>
-                                {message.embeds?.map((e, i) => (
-                                    <Embeds embed={e} key={i} />
-                                ))}
+                                <Stack spacing={1}>
+                                    {message.embeds?.map((e, i) => (
+                                        <Embeds
+                                            message={message}
+                                            permissions={permissions}
+                                            author={message.author.id}
+                                            embed={e}
+                                            key={i}
+                                        />
+                                    ))}
+                                </Stack>
                                 {message.reactions.map(reaction => (
                                     <Reaction
                                         channel={router.query.channel as string}

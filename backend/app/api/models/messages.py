@@ -1,5 +1,6 @@
-import re
 import enum
+import json
+import re
 from datetime import datetime
 
 from sqlalchemy import Column, ForeignKey, DateTime, Boolean, UniqueConstraint, func, BigInteger, Text, Integer
@@ -96,7 +97,7 @@ class Message(Base):
             'type': self.message_type,
             'edited_timestamp': self.edited_timestamp.isoformat() if self.edited_timestamp else None,
             'tts': self.tts,
-            'embeds': self.embeds,
+            'embeds': [json.loads(embed) for embed in self.embeds] if self.embeds else [],
             'attachments': self.attachments,
             'reactions': [{"emoji": reaction[0], "count": reaction[1], "me": reaction[2]} for reaction in
                           reactions_count],

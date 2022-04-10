@@ -5,18 +5,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/website/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/_app.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/slate.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/slate.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/MarkdownEditor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/MarkdownEditor.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/helpers/parseUrl.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/helpers/parseUrl.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/parsers/createParser.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/parsers/createParser.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/parsers/parseMessageContent.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/parsers/parseMessageContent.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/autolink.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/autolink.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/emoji.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/emoji.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/escape.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/escape.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/website/yarn.lock" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/api/core/celery_app.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/api/worker.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/s.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/avault.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/avault.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/gifs.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/gifs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/emitter.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/emitter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/events.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/events.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/messages.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/messages.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/schemas/message.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/schemas/message.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/poetry.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/pyproject.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useMessageEdit.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useMessageEdit.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/Embeds.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/Embeds.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/Message.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/Message.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,11 +61,11 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/nginx.conf" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/docker-compose.yaml" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/nginx.conf" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/sql/permissions.csv" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/backend/app/api/db/base.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/backend/app/api/db/__init__.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/sql/permissions.csv" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -86,7 +95,7 @@
     <property name="add_unversioned_files" value="$PROJECT_DIR$/backend/app/.env" />
     <property name="database.data.extractors.current.export.id" value="JSON-Groovy.json.groovy" />
     <property name="database.data.extractors.current.id" value="JSON-Groovy.json.groovy" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/backend" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/backend/app" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
@@ -101,6 +110,8 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/backend/app/api/core" />
+      <recent name="$PROJECT_DIR$/backend/app/api/api" />
       <recent name="$PROJECT_DIR$/backend/app" />
       <recent name="$PROJECT_DIR$/backend/app/api" />
       <recent name="$PROJECT_DIR$/backend" />
@@ -112,20 +123,57 @@
       <command value="yarn run dev" />
     </option>
   </component>
-  <component name="RunManager" selected="FastAPI.Backend">
+  <component name="RunManager" selected="Python.celery">
+    <configuration name="celery" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="avault" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$USER_HOME$/.cache/pypoetry/virtualenvs/avault-t66eJUQ5-py3.10/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/backend/app" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="celery" />
+      <option name="PARAMETERS" value="-A api.worker worker -E --loglevel=INFO" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="true" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="Backend" type="Python.FastAPI">
       <option name="additionalOptions" value="--reload --reload-dir $PROJECT_DIR$/backend/app" />
       <option name="file" value="$PROJECT_DIR$/backend/app/api/main.py" />
       <module name="avault" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="$PROJECT_DIR$/backend/venv/bin/python" />
+      <option name="SDK_HOME" value="$USER_HOME$/.cache/pypoetry/virtualenvs/avault-t66eJUQ5-py3.10/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/backend/app" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Celery" type="ShConfigurationType">
+      <option name="SCRIPT_TEXT" value="celery -A api.worker worker -E --loglevel=INFO" />
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/backend/app" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/usr/bin/fish" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="EXECUTE_IN_TERMINAL" value="true" />
+      <option name="EXECUTE_SCRIPT_FILE" value="false" />
+      <envs />
       <method v="2" />
     </configuration>
     <configuration name="backend/Dockerfile.gateway" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
@@ -218,6 +266,8 @@
       <item itemvalue="npm.dev website" />
       <item itemvalue="npm.watch" />
       <item itemvalue="npm.dev" />
+      <item itemvalue="Python.celery" />
+      <item itemvalue="Shell Script.Celery" />
     </list>
     <recent_temporary>
       <list>
@@ -319,6 +369,8 @@
       <workItem from="1642655979018" duration="6180000" />
       <workItem from="1642824146603" duration="138000" />
       <workItem from="1646573372609" duration="52000" />
+      <workItem from="1649569220207" duration="12782000" />
+      <workItem from="1649596068133" duration="1635000" />
     </task>
     <servers />
   </component>
@@ -347,6 +399,7 @@
     <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1642657067833" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+    <SUITE FILE_PATH="coverage/avault$celery.coverage" NAME="celery Coverage Results" MODIFIED="1649597647914" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1649596153045" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
   </component>
 </project>

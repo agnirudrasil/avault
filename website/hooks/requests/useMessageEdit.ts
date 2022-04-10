@@ -4,12 +4,13 @@ import { request } from "../../src/request";
 export const editMessage = async (
     channelId: string,
     messageId: string,
-    content: string
+    content: string,
+    embeds: any[]
 ) => {
     const data = await request(
         `${process.env.NEXT_PUBLIC_API_URL}/channels/${channelId}/messages/${messageId}`,
         {
-            body: JSON.stringify({ content }),
+            body: JSON.stringify({ content, embeds }),
             method: "PATCH",
             credentials: "include",
         }
@@ -19,6 +20,6 @@ export const editMessage = async (
 };
 
 export const useEditMessage = (channelId: string) =>
-    useMutation(({ messageId, content }: any) => {
-        return editMessage(channelId, messageId, content);
+    useMutation(({ messageId, content, embeds }: any) => {
+        return editMessage(channelId, messageId, content, embeds);
     });

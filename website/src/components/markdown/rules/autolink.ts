@@ -10,9 +10,6 @@ export const autolink: MarkdownRule = {
         if (!capture) {
             return null;
         }
-        if (!s.endsWith("/")) {
-            capture[1] = capture[1].slice(0, capture[1].length - 1);
-        }
         return capture;
     },
     parse: parseUrl,

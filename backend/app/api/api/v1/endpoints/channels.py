@@ -21,6 +21,7 @@ from api.schemas.channel import ChannelEdit
 from api.schemas.invite import ChannelInvite
 from api.schemas.message import MessageCreate
 from api.schemas.overwrite import Overwrite as OverwriteSchema
+from api.worker import embed_message
 
 router = APIRouter()
 
@@ -72,12 +73,15 @@ async def create_message(channel_id: int,
                          body: MessageCreate,
                          dependency: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES)),
                          db: Session = Depends(deps.get_db)) -> dict:
+    embed_checker = deps.ChannelPerms(Permissions.EMBED_LINKS)
     channel, current_user = dependency
     message = Message(body.content.strip(), channel_id, current_user.id, embeds=body.embeds,
                       replies_to=body.message_reference,
                       message_type=MessageTypes.REPLY if body.message_reference else MessageTypes.DEFAULT)
     db.add(message)
     db.commit()
+    if not body.embeds and await embed_checker.is_valid(channel, current_user, db):
+        embed_message.delay(message.content, message.id, channel.guild_id, current_user.id)
     await websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_CREATE,
                             message.serialize(current_user.id, db))
     return message.serialize(current_user.id, db)
@@ -153,9 +157,11 @@ async def edit_message(channel_id: int,
     if prev_message:
         if prev_message.author_id == current_user.id or await perm_checker.is_valid(channel, current_user, db):
             if message.content.strip() and prev_message.author_id == current_user.id:
+                if prev_message.content != message.content.strip():
+                    prev_message.edited_timestamp = datetime.utcnow()
                 prev_message.content = message.content.strip()
-                prev_message.edited_timestamp = datetime.utcnow()
             db.commit()
+            prev_message.embeds = message.embeds
             await (websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_UPDATE,
                                      prev_message.serialize(current_user.id, db)))
             return prev_message.serialize(current_user.id, db)

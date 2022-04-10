@@ -63,8 +63,9 @@ SPECIAL_EVENTS = {
 
 
 def get_recipients(event: Events, guild_id: Optional[int] = None, channel_id: Optional[int] = None,
-                   user_id: Optional[int] = None) -> list[str]:
-    db = next(get_db())
+                   user_id: Optional[int] = None, db=None) -> list[str]:
+    if db is None:
+        db = next(get_db())
     if event == Events.GUILD_CREATE or (event == Events.GUILD_DELETE and user_id):
         return [str(user_id)]
     if event in SPECIAL_EVENTS:

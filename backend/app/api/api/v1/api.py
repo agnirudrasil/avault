@@ -1,6 +1,9 @@
+import io
+
+import requests
 from fastapi import APIRouter, Depends, Response
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from starlette.responses import StreamingResponse
 
 from api.api import deps
 from api.api.v1.endpoints import auth, channels, gifs, users, guilds, invites, default, oauth2, webhooks
@@ -11,6 +14,12 @@ from api.models.invites import Invite
 from api.models.user import User
 
 api_router = APIRouter()
+
+
+@api_router.get("/proxy")
+async def proxy(path: str, response: Response):
+    content = requests.get(path)
+    return StreamingResponse(io.BytesIO(content.content), media_type=content.headers["content-type"])
 
 
 @api_router.post('/join/{code}')

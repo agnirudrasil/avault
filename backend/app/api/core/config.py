@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     RABBITMQ_HOST: str = os.getenv("RABBITMQ_HOST", "127.0.0.1")
     REDIS_HOST: str = os.getenv("REDIS_HOST", "127.0.0.1")
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ['http://localhost:3000']
-    TENOR_API_KEY: str = os.getenv("TENOR_API_KEY", "")
+    TENOR_API_KEY: str = os.getenv("TENOR_API_KEY", "ZXOQ05LGC2I9")
     TENOR_BASE_URL: str = "https://g.tenor.com/v1"
     FERNET_KEY: str = os.getenv("FERNET_KEY", "")
 

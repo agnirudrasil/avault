@@ -6,10 +6,6 @@ export const parseUrl: ParseFunction = capture => {
 
     let url = depunycodeUrl(content);
 
-    if (!content.endsWith("/")) {
-        url = url?.slice(0, url.length - 1);
-    }
-
     if (!url) {
         return {
             type: "text",

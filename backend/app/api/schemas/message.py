@@ -1,6 +1,7 @@
-from typing import Literal, Optional
-from pydantic import BaseModel, HttpUrl, validator, root_validator
 from datetime import datetime
+from typing import Literal, Optional
+
+from pydantic import BaseModel, HttpUrl, validator, root_validator, AnyUrl
 
 
 class Footer(BaseModel):
@@ -14,8 +15,13 @@ class Footer(BaseModel):
         return v
 
 
+class EmbedProvider(BaseModel):
+    name: Optional[str] = None
+    url: Optional[HttpUrl] = None
+
+
 class EmbedImage(BaseModel):
-    url: HttpUrl
+    url: Optional[AnyUrl] = None
     height: Optional[int] = None
     width: Optional[int] = None
 
@@ -63,6 +69,8 @@ class Embeds(BaseModel):
     thumbnail: Optional[EmbedImage] = None
     author: Optional[EmbedAuthor] = None
     fields: Optional[list[EmbedFields]] = []
+    video: Optional[EmbedImage] = None
+    provider: Optional[EmbedProvider] = None
 
     @validator("title")
     def validate_title(cls, v):
