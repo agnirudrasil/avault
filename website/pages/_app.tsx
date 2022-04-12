@@ -2,7 +2,6 @@ import { AppProps } from "next/app";
 import { ThemeProvider } from "@mui/material/styles";
 import { createEmotionCache } from "../src/createEmotionCache";
 import { CacheProvider, EmotionCache } from "@emotion/react";
-import theme from "../src/theme";
 import { CssBaseline } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { useState } from "react";
@@ -11,6 +10,7 @@ import "emoji-mart/css/emoji-mart.css";
 import "../styles/styles.css";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import { darkTheme } from "../src/theme";
 
 const clientSideCache = createEmotionCache();
 
@@ -63,7 +63,7 @@ const MyApp = (props: MyAppProps) => {
                 <link rel="manifest" href="/site.webmanifest"></link>
             </Head>
             <CacheProvider value={emotionCache}>
-                <ThemeProvider theme={theme}>
+                <ThemeProvider theme={darkTheme}>
                     <CssBaseline />
                     <MyComponent
                         {...props}

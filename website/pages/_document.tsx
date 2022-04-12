@@ -1,7 +1,7 @@
 import * as React from "react";
 import Document, { Html, Head, Main, NextScript } from "next/document";
 import createEmotionServer from "@emotion/server/create-instance";
-import theme from "../src/theme";
+import { darkTheme } from "../src/theme";
 import { createEmotionCache } from "../src/createEmotionCache";
 import { resetServerContext } from "react-beautiful-dnd";
 
@@ -13,7 +13,7 @@ export default class MyDocument extends Document {
                     {/* PWA primary color */}
                     <meta
                         name="theme-color"
-                        content={theme.palette.primary.main}
+                        content={darkTheme.palette.primary?.main}
                     />
                     <link
                         rel="stylesheet"

@@ -15,86 +15,112 @@ export interface Guild {
     members: { [id: string]: GuildMembers };
 }
 
-export const useGuildsStore = create(
-    combine({ ...({} as Record<string, Guild>) }, set => ({
-        setGuilds: (guilds: any[]) =>
-            set(() => {
-                const guildsMap: Record<string, any> = {};
-                guilds.forEach(guild => {
-                    guildsMap[guild.id] = guild;
-                    guildsMap[guild.id].members = (
-                        guild.members as GuildMembers[]
-                    ).reduce(
-                        (acc, curr) => ((acc[curr.user.id] = curr), acc),
-                        {} as {
-                            [id: string]: GuildMembers;
-                        }
-                    );
-                });
-                return guildsMap;
-            }),
-        updateGuild: (guild: Guild) => {
-            set(state =>
-                produce(state, draft => {
-                    const members = draft[guild.id].members;
-                    draft[guild.id] = guild;
-                    draft[guild.id].members = members;
-                })
-            );
-        },
-        updateMember: (member: GuildMembers) => {
-            set(state =>
-                produce(state, draft => {
-                    if (draft[member.guild_id]) {
-                        draft[member.guild_id].members[member.user.id] = member;
-                    }
-                })
-            );
-        },
-        removeMember: (member: GuildMembers) => {
-            set(state =>
-                produce(state, draft => {
-                    delete draft[member.guild_id].members[member.user.id];
-                })
-            );
-        },
-        addMember: (member: GuildMembers) => {
-            set(state =>
-                produce(state, draft => {
-                    if (draft[member.guild_id]) {
-                        draft[member.guild_id].members[member.user.id] = member;
-                    }
-                })
-            );
-        },
-        addGuilds: ({ guild }: { guild: Guild; member: GuildMembers }) => {
-            const addGuild = useChannelsStore.getState().addGuild;
-            const addRoles = useRolesStore.getState().addGuild;
-            addGuild(guild.id, guild.channels);
-            addRoles(guild.id, guild.roles);
+export interface GuildPreview {
+    name: string;
+    id: string;
+}
 
-            return set(state =>
-                produce(state, draft => {
-                    draft[guild.id] = guild;
-                    draft[guild.id].members = (
-                        guild.members as unknown as GuildMembers[]
-                    ).reduce(
-                        (acc, curr) => ((acc[curr.user.id] = curr), acc),
-                        {} as {
-                            [id: string]: GuildMembers;
-                        }
-                    );
-                })
-            );
+export const useGuildsStore = create(
+    combine(
+        {
+            guilds: {} as Record<string, Guild>,
+            guildPreview: [] as GuildPreview[],
         },
-        removeGuild: (guildId: string) =>
-            set(state => {
-                const deleteGuild = useChannelsStore.getState().deleteGuild;
-                const deleteRoles = useRolesStore.getState().deleteGuild;
-                deleteGuild(guildId);
-                deleteRoles(guildId);
-                delete state[guildId];
-                return state;
-            }),
-    }))
+        set => ({
+            setGuilds: (guilds: Guild[]) =>
+                set(state =>
+                    produce(state, state => {
+                        for (let guild of guilds) {
+                            const members: { [id: string]: GuildMembers } = {};
+                            for (let member of guild.members as unknown as GuildMembers[]) {
+                                members[member.user.id] = member;
+                            }
+                            guild.members = members;
+                            state.guilds[guild.id] = guild;
+                            state.guildPreview.push({
+                                name: guild.name,
+                                id: guild.id,
+                            });
+                        }
+                    })
+                ),
+            updateGuild: (guild: Guild) => {
+                set(state =>
+                    produce(state, draft => {
+                        draft.guilds[guild.id] = guild;
+                        draft.guildPreview = draft.guildPreview.map(
+                            guildPreview =>
+                                guildPreview.id === guild.id
+                                    ? { name: guild.name, id: guild.id }
+                                    : guildPreview
+                        );
+                    })
+                );
+            },
+            updateMember: (member: GuildMembers) => {
+                set(state =>
+                    produce(state, draft => {
+                        if (draft.guilds[member.guild_id]) {
+                            draft.guilds[member.guild_id].members[
+                                member.user.id
+                            ] = member;
+                        }
+                    })
+                );
+            },
+            removeMember: (member: GuildMembers) => {
+                set(state =>
+                    produce(state, draft => {
+                        delete draft.guilds[member.guild_id].members[
+                            member.user.id
+                        ];
+                    })
+                );
+            },
+            addMember: (member: GuildMembers) => {
+                set(state =>
+                    produce(state, draft => {
+                        if (draft.guilds[member.guild_id]) {
+                            draft.guilds[member.guild_id].members[
+                                member.user.id
+                            ] = member;
+                        }
+                    })
+                );
+            },
+            addGuilds: ({ guild }: { guild: Guild; member: GuildMembers }) => {
+                const addGuild = useChannelsStore.getState().addGuild;
+                const addRoles = useRolesStore.getState().addGuild;
+                addGuild(guild.id, guild.channels);
+                addRoles(guild.id, guild.roles);
+
+                return set(state =>
+                    produce(state, draft => {
+                        draft.guilds[guild.id] = guild;
+                        draft.guildPreview.push({
+                            name: guild.name,
+                            id: guild.id,
+                        });
+                        draft.guilds[guild.id].members = (
+                            guild.members as unknown as GuildMembers[]
+                        ).reduce(
+                            (acc, curr) => ((acc[curr.user.id] = curr), acc),
+                            {} as {
+                                [id: string]: GuildMembers;
+                            }
+                        );
+                    })
+                );
+            },
+            removeGuild: (guildId: string) =>
+                set(state => {
+                    const deleteGuild = useChannelsStore.getState().deleteGuild;
+                    const deleteRoles = useRolesStore.getState().deleteGuild;
+                    deleteGuild(guildId);
+                    deleteRoles(guildId);
+                    delete state.guilds[guildId];
+                    return state;
+                }),
+        })
+    )
 );

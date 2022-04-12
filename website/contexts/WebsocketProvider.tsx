@@ -93,7 +93,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
         state => ({
             setChannels: state.setChannels,
             updateChannel: state.updateChannel,
-            deleteGuildChannel: state.deleteGuildChannel,
+            deleteGuildChannel: state.deleteChannel,
             addChannel: state.addChannel,
             deleteChannel: state.deleteChannel,
             updateLastMessage: state.updateLastMessage,
@@ -127,17 +127,26 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 }
             });
             socket.once("READY", (data: any) => {
-                const guildChannels: Record<string, Channel[]> = {};
+                const guildChannels: Record<
+                    string,
+                    Record<string, Channel>
+                > = {};
                 const guildsRoles: Record<string, Roles[]> = {};
                 for (const guild of data.guilds) {
-                    guildChannels[guild.id] = guild.channels.map((c: any) => {
-                        return { ...c, last_read: data.unread[c.id] };
-                    });
+                    guildChannels[guild.id] = guild.channels.reduce(
+                        (acc: any, curr: any) => (
+                            (acc[curr.id] = {
+                                ...curr,
+                                last_read: data.unread[curr.id],
+                            }),
+                            acc
+                        ),
+                        {}
+                    );
                     guildsRoles[guild.id] = guild.roles;
                 }
                 setChannels({
-                    ...guildChannels,
-                    unread: data.unread,
+                    channels: guildChannels,
                     privateChannels: data.private_channels,
                 });
                 setUserId(data.user.id);

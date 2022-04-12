@@ -5,33 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/avault.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/avault.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.zip" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/ed6643c020ac_.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/alembic/versions/317ddf3a53c7_.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/celery_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/celery_app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/events.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/events.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/channels.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/messages.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/messages.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/schemas/message.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/schemas/message.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/worker.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/worker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/gateway/src/types/events.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/gateway/src/types/events.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sql/pinned-messages.sql" beforeDir="false" afterPath="$PROJECT_DIR$/sql/pinned-messages.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ChannelLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ChannelLayout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/Embeds.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/Embeds.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/Message.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/Message.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/dialogs/CreateChannelDialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/dialogs/CreateChannelDialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/layouts/ServerLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/layouts/ServerLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/ChannelLayout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/Embeds.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/Message.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/layouts/ServerLayout.tsx" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -129,7 +108,7 @@
       <command value="yarn run dev" />
     </option>
   </component>
-  <component name="RunManager" selected="Python.celery">
+  <component name="RunManager" selected="FastAPI.Backend">
     <configuration name="celery" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="avault" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -268,6 +247,7 @@
       <workItem from="1649658191773" duration="4886000" />
       <workItem from="1649696788350" duration="3383000" />
       <workItem from="1649741186890" duration="3845000" />
+      <workItem from="1649763288962" duration="2132000" />
     </task>
     <servers />
   </component>
@@ -296,7 +276,7 @@
     <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/avault$celery.coverage" NAME="celery Coverage Results" MODIFIED="1649741316667" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
-    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1649741314355" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+    <SUITE FILE_PATH="coverage/avault$celery.coverage" NAME="celery Coverage Results" MODIFIED="1649763513890" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1649779743160" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
   </component>
 </project>

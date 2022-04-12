@@ -9,6 +9,7 @@ import {
     Button,
 } from "@mui/material";
 import { Formik, Form, Field } from "formik";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { useGuildCreate } from "../../../hooks/requests/useGuildCreate";
 import { CustomTextField } from "../CustomTextField";
@@ -19,6 +20,7 @@ export interface CreateServerDialogProps {
 }
 
 export const CreateServerDialog: React.FC<CreateServerDialogProps> = props => {
+    const router = useRouter();
     const { onClose, open } = props;
     const { mutateAsync } = useGuildCreate();
 
@@ -51,9 +53,10 @@ export const CreateServerDialog: React.FC<CreateServerDialogProps> = props => {
                     const form = new FormData();
                     form.append("name", values.name);
                     if (values.icon) form.append("icon", values.icon);
-                    await mutateAsync(form);
+                    const { id } = await mutateAsync(form);
                     setSubmitting(false);
                     handleClose();
+                    router.replace(`/channels/${id}`);
                 }}
             >
                 {({ setFieldValue, isSubmitting }) => (

@@ -1,17 +1,13 @@
 import {
     AddCircle,
     CheckBox,
-    Close,
     CreateNewFolder,
     Edit,
     ExitToApp,
-    KeyboardArrowDown,
     PersonAdd,
     Settings,
 } from "@mui/icons-material";
 import {
-    IconButton,
-    Typography,
     Menu,
     MenuItem,
     ListItemIcon,
@@ -65,13 +61,9 @@ const MyMenu: React.FC<{
 
     return (
         <Menu
-            id="basic-menu"
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleClose}
-            MenuListProps={{
-                "aria-labelledby": "basic-button",
-            }}
             PaperProps={{
                 elevation: 0,
                 sx: {
@@ -84,10 +76,6 @@ const MyMenu: React.FC<{
             transformOrigin={{ horizontal: "right", vertical: "top" }}
             anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         >
-            <EditServerProfileDialog
-                open={open}
-                onClose={() => setOpen(false)}
-            />
             {checkPermissions(
                 permissions,
                 Permissions.CREATE_INSTANT_INVITE
@@ -110,22 +98,22 @@ const MyMenu: React.FC<{
                     <Settings />
                 </MyMenuItems>
             )}
-            {checkPermissions(permissions, Permissions.MANAGE_CHANNELS) && (
-                <>
-                    <MyMenuItems
-                        onClick={() => createChannelHandler("guild_text")}
-                        lable="Create Channel"
-                    >
-                        <AddCircle />
-                    </MyMenuItems>
-                    <MyMenuItems
-                        onClick={() => createChannelHandler("guild_category")}
-                        lable="Create Category"
-                    >
-                        <CreateNewFolder />
-                    </MyMenuItems>
-                </>
-            )}
+            {checkPermissions(permissions, Permissions.MANAGE_CHANNELS) && [
+                <MyMenuItems
+                    key="create-channel"
+                    onClick={() => createChannelHandler("guild_text")}
+                    lable="Create Channel"
+                >
+                    <AddCircle />
+                </MyMenuItems>,
+                <MyMenuItems
+                    key="create-category"
+                    onClick={() => createChannelHandler("guild_category")}
+                    lable="Create Category"
+                >
+                    <CreateNewFolder />
+                </MyMenuItems>,
+            ]}
             <Divider />
             {checkPermissions(permissions, Permissions.CHANGE_NICKNAME) && (
                 <MyMenuItems
@@ -138,58 +126,27 @@ const MyMenu: React.FC<{
             <MyMenuItems lable="Hide Muted Channels">
                 <CheckBox />
             </MyMenuItems>
-            {!(guild.owner_id === guildMember?.user?.id) && (
-                <>
-                    <Divider />
-                    <MyMenuItems
-                        onClick={async () => {
-                            const id = router.query.server_id as string;
-                            await mutateAsync(id);
-                            removeGuild(id);
-                            router.replace("/channels/@me");
-                        }}
-                        lable="Leave Server"
-                    >
-                        <ExitToApp />
-                    </MyMenuItems>
-                </>
-            )}
+            {!(guild.owner_id === guildMember?.user?.id) && [
+                <Divider key="divider-1" />,
+                <MyMenuItems
+                    key="leave-server"
+                    onClick={async () => {
+                        const id = router.query.server_id as string;
+                        await mutateAsync(id);
+                        removeGuild(id);
+                        router.replace("/channels/@me");
+                    }}
+                    lable="Leave Server"
+                >
+                    <ExitToApp />
+                </MyMenuItems>,
+            ]}
+            <EditServerProfileDialog
+                open={open}
+                onClose={() => setOpen(false)}
+            />
         </Menu>
     );
 };
 
-export const ServerNavbar: React.FC<{ name: string }> = ({ name }) => {
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-    return (
-        <div
-            style={{
-                borderBottom: "1px solid #ccc",
-                width: "100%",
-                padding: "1rem",
-                position: "sticky",
-                top: "0",
-                right: "0",
-                display: "flex",
-                justifyContent: "space-between",
-                gap: "2rem",
-                alignItems: "center",
-                maxHeight: "3.5rem",
-            }}
-        >
-            <Typography
-                sx={{
-                    textOverflow: "ellipsis",
-                    maxWidth: "100%",
-                    whiteSpace: "nowrap",
-                }}
-            >
-                {name}
-            </Typography>
-            <IconButton onClick={e => setAnchorEl(e.currentTarget)}>
-                {anchorEl ? <Close /> : <KeyboardArrowDown />}
-            </IconButton>
-            <MyMenu anchorEl={anchorEl} handleClose={() => setAnchorEl(null)} />
-        </div>
-    );
-};
+export default MyMenu;

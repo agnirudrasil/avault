@@ -8,10 +8,10 @@ import { Roles, useRolesStore } from "../stores/useRolesStore";
 
 export const usePermssions = (guildId: string, channelId: string) => {
     const roles = useRolesStore(state => state[guildId]);
-    const guild = useGuildsStore(state => state[guildId]) ?? {};
+    const guild = useGuildsStore(state => state.guilds[guildId]) ?? {};
     const guildMember = guild.members?.[getUser()] ?? {};
-    const channel = useChannelsStore(state => state[guildId]);
-    const currentChannel = channel?.find(c => c.id === channelId) || {};
+    const currentChannel =
+        useChannelsStore(state => state.channels[guildId]?.[channelId]) ?? {};
 
     const permissions = useMemo(
         () =>
@@ -42,7 +42,6 @@ export const usePermssions = (guildId: string, channelId: string) => {
         roles,
         guild,
         guildMember,
-        channel,
         currentChannel,
         memberRoles,
     };

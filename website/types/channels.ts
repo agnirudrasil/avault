@@ -33,5 +33,5 @@ export interface Overwrites {
 
 export interface ChannelStore {
     privateChannels: Channel[];
-    [key: string]: Channel[];
+    channels: Record<string, Record<string, Channel>>;
 }

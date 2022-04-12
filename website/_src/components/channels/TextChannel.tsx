@@ -17,7 +17,10 @@ import { Channel, Overwrites } from "../../../types/channels";
 import { checkPermissions } from "../../compute-permissions";
 import { hasUnread } from "../../has-unread";
 import { Permissions } from "../../permissions";
-import { ChannelIcon, PrivateChannelIcon } from "../ChannelIcon";
+import {
+    ChannelIcon,
+    PrivateChannelIcon,
+} from "../../../src/components/ChannelIcon";
 
 export const TextChannel: React.FC<{
     name: string;

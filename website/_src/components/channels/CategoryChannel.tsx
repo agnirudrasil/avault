@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { Draggable, Droppable } from "react-beautiful-dnd";
+import { Droppable } from "react-beautiful-dnd";
 import { useCreateChannel } from "../../../hooks/useCreateChannel";
 import { usePermssions } from "../../../hooks/usePermissions";
 import { checkPermissions } from "../../compute-permissions";
