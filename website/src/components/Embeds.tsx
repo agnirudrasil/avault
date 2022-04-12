@@ -174,10 +174,10 @@ export const Embeds: React.FC<{
                         </Typography>
                     )}
                     <Stack spacing={1}>
-                        {fields.map(row => (
-                            <Stack direction="row" spacing={2}>
-                                {row.map(field => (
-                                    <Box>
+                        {fields.map((row, index) => (
+                            <Stack key={index} direction="row" spacing={2}>
+                                {row.map((field, index) => (
+                                    <Box key={index}>
                                         <Typography variant="subtitle2">
                                             {field.name}
                                         </Typography>
@@ -197,7 +197,7 @@ export const Embeds: React.FC<{
                         embed.image && (
                             <img
                                 style={{
-                                    maxWidth: "300px",
+                                    maxWidth: "100%",
                                     display: "block",
                                     width: "auto",
                                     height: "auto",

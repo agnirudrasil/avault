@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30
     SERVER_NAME: str = "localhost:5000"
-    SERVER_HOST: AnyHttpUrl = "http://localhost:5000"
+    SERVER_HOST: AnyHttpUrl = os.getenv("HOST", "https://avault.agnirudra.me")
     RABBITMQ_HOST: str = os.getenv("RABBITMQ_HOST", "127.0.0.1")
     REDIS_HOST: str = os.getenv("REDIS_HOST", "127.0.0.1")
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ['http://localhost:3000']

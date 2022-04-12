@@ -1,7 +1,8 @@
-import {IdentifyObject} from "./event-objects";
+import { IdentifyObject } from "./event-objects";
 
 export interface ClientToServerEvents {
     IDENTIFY: (identify: IdentifyObject) => void;
+    USER_AUTHENTICATED: (id: { id: string }) => void;
 }
 
 export interface ServerToClientEvents {

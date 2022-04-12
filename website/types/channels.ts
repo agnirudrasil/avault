@@ -18,6 +18,9 @@ export interface Channel {
     guild_id?: string;
     owner_id?: string;
     parent_id?: string;
+    last_read?: string;
+    last_message_id?: string;
+    last_message_timestamp?: string;
     overwrites: Overwrites[];
 }
 

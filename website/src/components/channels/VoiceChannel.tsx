@@ -1,11 +1,10 @@
-import { PersonAdd, Settings } from "@mui/icons-material";
+import { PersonAdd, Settings, VolumeOff, VolumeUp } from "@mui/icons-material";
 import {
     IconButton,
     ListItemButton,
     ListItemIcon,
     ListItemSecondaryAction,
     ListItemText,
-    SvgIcon,
 } from "@mui/material";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -13,19 +12,15 @@ import { useMemo } from "react";
 import { useCreateInvite } from "../../../hooks/useCreateInvite";
 import { usePermssions } from "../../../hooks/usePermissions";
 import { useRoutesStore } from "../../../stores/useRoutesStore";
-import { Channel, Overwrites } from "../../../types/channels";
+import { Overwrites } from "../../../types/channels";
 import { checkPermissions } from "../../compute-permissions";
-import { hasUnread } from "../../has-unread";
 import { Permissions } from "../../permissions";
-import { ChannelIcon, PrivateChannelIcon } from "../ChannelIcon";
 
-export const TextChannel: React.FC<{
+export const VoiceChannel: React.FC<{
     name: string;
     id: string;
-    index: number;
-    channel: Channel;
     overwrites: Overwrites[];
-}> = ({ name, id, overwrites, channel }) => {
+}> = ({ name, id, overwrites }) => {
     const router = useRouter();
     const setRoute = useRoutesStore(s => s.setRoute);
     const { createInvite } = useCreateInvite();
@@ -36,7 +31,11 @@ export const TextChannel: React.FC<{
         );
         if (
             overwrite &&
-            checkPermissions(BigInt(overwrite.deny), Permissions.VIEW_CHANNEL)
+            checkPermissions(
+                BigInt(overwrite.deny),
+                Permissions.VIEW_CHANNEL
+            ) &&
+            checkPermissions(BigInt(overwrite.deny), Permissions.CONNECT)
         ) {
             return true;
         }
@@ -51,24 +50,6 @@ export const TextChannel: React.FC<{
                 borderRadius: "7px",
                 maxWidth: "100%",
                 textOverflow: "ellipsis",
-                position: "relative",
-                marginLeft: "0.5rem",
-                marginRight: "0.5rem",
-                "::before": {
-                    content: "''",
-                    position: "absolute",
-                    top: "50%",
-                    left: "-0.8rem",
-                    width: "7px",
-                    height: "10px",
-                    borderRadius: "0 100px 100px 0",
-                    backgroundColor: "black",
-                    transform: `translateY(-50%) scaleY(${
-                        hasUnread(channel.last_read, channel.last_message_id)
-                            ? 1
-                            : 0
-                    })`,
-                },
             }}
             selected={router.query.channel === id}
         >
@@ -78,13 +59,7 @@ export const TextChannel: React.FC<{
                 </Head>
             )}
             <ListItemIcon sx={{ minWidth: "30px" }}>
-                <SvgIcon>
-                    {isChannelPrivate ? (
-                        <PrivateChannelIcon />
-                    ) : (
-                        <ChannelIcon />
-                    )}
-                </SvgIcon>
+                {isChannelPrivate ? <VolumeOff /> : <VolumeUp />}
             </ListItemIcon>
             <ListItemText primary={name} />
             <ListItemSecondaryAction>

@@ -1,3 +1,4 @@
+import { VolumeUp } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import {
     Dialog,
@@ -18,7 +19,7 @@ import {
     RadioGroup,
     TextField,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useCreateChannel } from "../../../hooks/requests/useCreateChannel";
 import { ChannelIcon } from "../ChannelIcon";
 import { Android12Switch } from "../Form/AndroidSwitch";
@@ -38,9 +39,9 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
     type: channel_type,
     handleClose,
 }) => {
-    const [type, setType] = useState<"GUILD_TEXT" | "GUILD_CATEGORY">(
-        channel_type
-    );
+    const [type, setType] = useState<
+        "GUILD_TEXT" | "GUILD_CATEGORY" | "GUILD_VOICE"
+    >(channel_type);
     const [name, setName] = useState("");
     const [privateChannel, setPrivateChannel] = useState(false);
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,32 +50,25 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
     const { mutateAsync, isLoading } = useCreateChannel();
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        switch (type) {
+        switch (type.toUpperCase()) {
             case "GUILD_TEXT":
                 return setName(
                     e.target.value.replaceAll(" ", "-").toLowerCase()
                 );
             case "GUILD_CATEGORY":
                 return setName(e.target.value.toUpperCase());
+            case "GUILD_VOICE":
+                return setName(e.target.value);
         }
     };
-
-    useEffect(() => {
-        switch (type) {
-            case "GUILD_TEXT":
-                return setName(prevName =>
-                    prevName.replaceAll(" ", "-").toLowerCase()
-                );
-            case "GUILD_CATEGORY":
-                return setName(prevName => prevName.toUpperCase());
-        }
-    }, [type]);
 
     return (
         <Dialog fullWidth maxWidth="xs" open={open} onClose={handleClose}>
             <DialogTitle>
-                {type === "GUILD_TEXT"
+                {type.toUpperCase() === "GUILD_TEXT"
                     ? "Create Text Channel"
+                    : type.toUpperCase() === "GUILD_VOICE"
+                    ? "Create Voice Channel"
                     : "Create Category"}
             </DialogTitle>
             <DialogContent
@@ -93,7 +87,7 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
                     <RadioGroup
                         aria-label="channel"
                         name="controlled-radio-buttons-group"
-                        value={type}
+                        value={type.toLocaleLowerCase()}
                         onChange={handleChange}
                     >
                         <FormControlLabel
@@ -101,7 +95,9 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
                             control={<Radio />}
                             label={
                                 <ListItemButton
-                                    selected={type === "GUILD_TEXT"}
+                                    selected={
+                                        type.toUpperCase() === "GUILD_TEXT"
+                                    }
                                     sx={{ borderRadius: "5px" }}
                                 >
                                     <ListItemIcon>
@@ -111,7 +107,27 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
                                     </ListItemIcon>
                                     <ListItemText
                                         primary="Text Channel"
-                                        secondary="Create a group for similar channels"
+                                        secondary="Post links, GIFs, opinions, aand puns"
+                                    />
+                                </ListItemButton>
+                            }
+                        />
+                        <FormControlLabel
+                            value="guild_voice"
+                            control={<Radio />}
+                            label={
+                                <ListItemButton
+                                    selected={
+                                        type.toUpperCase() === "GUILD_VOICE"
+                                    }
+                                    sx={{ borderRadius: "5px" }}
+                                >
+                                    <ListItemIcon>
+                                        <VolumeUp />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary="Voice Channel"
+                                        secondary="Hang out with voice, video and screen sharing"
                                     />
                                 </ListItemButton>
                             }
@@ -122,7 +138,9 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
                             label={
                                 <ListItemButton
                                     sx={{ borderRadius: "5px" }}
-                                    selected={type === "GUILD_CATEGORY"}
+                                    selected={
+                                        type.toUpperCase() === "GUILD_CATEGORY"
+                                    }
                                 >
                                     <ListItemIcon>
                                         <SvgIcon>

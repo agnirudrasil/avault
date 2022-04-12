@@ -17,6 +17,7 @@ class ChannelType(str, enum.Enum):
     guild_public_thread = 'GUILD_PUBLIC_THREAD'
     guild_private_thread = 'GUILD_PRIVATE_THREAD'
     group_dm = 'GROUP_DM'
+    guild_voice = 'GUILD_VOICE'
 
 
 channel_members = Table('channel_members',
@@ -113,6 +114,8 @@ class Channel(Base):
     topic = Column(String(1024), nullable=True)
     nsfw = Column(Boolean, nullable=False)
     last_message_timestamp = Column(DateTime, nullable=True)
+    last_message_id = Column(BigInteger, ForeignKey(
+        'messages.id', ondelete="SET NULL"), nullable=True)
     owner_id = Column(BigInteger, ForeignKey(
         'users.id', ondelete="SET NULL"), nullable=True)
     parent_id = Column(BigInteger, ForeignKey(
@@ -132,7 +135,8 @@ class Channel(Base):
             'topic': self.topic,
             'nsfw': self.nsfw,
             'guild_id': str(self.guild_id),
-            'last_message_timestamp': self.last_message_timestamp,
+            'last_message_timestamp': self.last_message_timestamp.isoformat() if self.last_message_timestamp else None,
+            'last_message_id': str(self.last_message_id) if self.last_message_id else None,
             'owner_id': str(self.owner_id) if self.owner_id else None,
             'parent_id': str(self.parent_id) if self.parent_id else None,
         }
@@ -169,7 +173,7 @@ class Channel(Base):
         self.nsfw = bool(nsfw)
         self.owner_id = owner_id
         if parent_id:
-            if channel_type.upper() == ChannelType.guild_text:
+            if channel_type.upper() == ChannelType.guild_text or channel_type.upper() == ChannelType.guild_voice:
                 self.parent_id = parent_id
             else:
                 self.parent_id = None

@@ -1,10 +1,24 @@
 import random
 
-from sqlalchemy import BigInteger, Column, String, Text, UniqueConstraint, Boolean
-from sqlalchemy.orm import Session
+from sqlalchemy import BigInteger, Column, String, Text, UniqueConstraint, Boolean, Integer, ForeignKey
+from sqlalchemy.orm import Session, relationship
 
 from api.core.security import get_password_hash, verify_password, snowflake_id
 from api.db.base_class import Base
+
+
+class Unread(Base):
+    __tablename__ = "unread"
+    user_id = Column(BigInteger, ForeignKey("users.id"), primary_key=True)
+    channel_id = Column(BigInteger, ForeignKey("channels.id", ondelete="CASCADE"), primary_key=True)
+    last_message_id = Column(BigInteger)
+    mentions_count = Column(Integer, default=0)
+    channel = relationship("Channel")
+
+    def __init__(self, user_id: int, channel_id: int, message_id: int):
+        self.user_id = user_id
+        self.channel_id = channel_id
+        self.last_message_id = message_id
 
 
 class User(Base):
@@ -15,6 +29,7 @@ class User(Base):
     tag = Column(String(5), nullable=False)
     bot = Column(Boolean, nullable=False, default=True)
     email = Column(String(120), unique=True, nullable=False)
+    unread = relationship("Unread", cascade="all, delete-orphan")
     __table_args__ = (UniqueConstraint("username", "tag"),)
 
     def generate_tag(self, username, db):

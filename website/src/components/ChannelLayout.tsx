@@ -4,11 +4,13 @@ import { useChannelsStore } from "../../stores/useChannelsStore";
 import { Channel } from "../../types/channels";
 import { CategoryChannel } from "./channels/CategoryChannel";
 import { TextChannel } from "./channels/TextChannel";
+import { VoiceChannel } from "./channels/VoiceChannel";
 
 const createHierarchy = (channels: Channel[]) => {
     if (!channels) return {};
     const hierarchy: Record<string, { self: any; children: Channel[] }> = {};
     for (const channel of channels) {
+        console.log(channel.type);
         if (channel?.parent_id) {
             if (!hierarchy[channel.parent_id]) {
                 hierarchy[channel.parent_id] = { self: {}, children: [] };
@@ -43,12 +45,21 @@ export const ChannelLayout: React.FC = () => {
                             id={key}
                             index={index}
                         />
+                    ) : heirarchy[key].self.type ===
+                      "guild_voice".toUpperCase() ? (
+                        <VoiceChannel
+                            name={heirarchy[key].self.name}
+                            key={key}
+                            id={key}
+                            overwrites={heirarchy[key].self.overwrites}
+                        />
                     ) : (
                         <TextChannel
                             name={heirarchy[key].self.name}
                             key={key}
                             id={key}
                             index={index}
+                            channel={heirarchy[key].self}
                             overwrites={heirarchy[key].self.overwrites}
                         />
                     )
@@ -59,15 +70,25 @@ export const ChannelLayout: React.FC = () => {
                         name={heirarchy[key].self.name}
                         index={index}
                     >
-                        {heirarchy[key].children.map((channel, index) => (
-                            <TextChannel
-                                name={channel.name}
-                                key={channel.id}
-                                id={channel.id}
-                                index={index}
-                                overwrites={channel.overwrites}
-                            />
-                        ))}
+                        {heirarchy[key].children.map((channel, index) =>
+                            channel.type === "guild_voice".toUpperCase() ? (
+                                <VoiceChannel
+                                    name={channel.name}
+                                    key={channel.id}
+                                    id={channel.id}
+                                    overwrites={channel.overwrites}
+                                />
+                            ) : (
+                                <TextChannel
+                                    name={channel.name}
+                                    key={channel.id}
+                                    id={channel.id}
+                                    index={index}
+                                    channel={channel}
+                                    overwrites={channel.overwrites}
+                                />
+                            )
+                        )}
                     </CategoryChannel>
                 )
             )}

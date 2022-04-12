@@ -41,6 +41,7 @@ import { useGetReactions } from "../../hooks/requests/useGetReactions";
 import { usePinMessage } from "../../hooks/requests/usePinMessage";
 import { getUser } from "../user-cache";
 import { useUnpinMessage } from "../../hooks/requests/useUnpinMessage";
+import { UnreadNotifier } from "./UnreadNotifier";
 
 const ToolBar: React.FC<{
     editFn: () => any;
@@ -126,11 +127,7 @@ const ToolBar: React.FC<{
                         <Delete />
                     </Button>
                 )}
-                {(message.author_id === guildMember.user?.id ||
-                    checkPermissions(
-                        permissions,
-                        Permissions.MANAGE_MESSAGES
-                    )) && (
+                {checkPermissions(permissions, Permissions.MANAGE_MESSAGES) && (
                     <Button
                         color={message.pinned ? "error" : "primary"}
                         onClick={() => {
@@ -202,8 +199,9 @@ export const Message: React.FC<{
     onOpenPins: () => void;
     message: Messages;
     reference?: Messages;
+    lastRead?: string;
     setReference: (message: Messages) => void;
-}> = ({ message, type, setReference, reference, onOpenPins }) => {
+}> = ({ message, type, setReference, reference, onOpenPins, lastRead }) => {
     const [editing, setEditing] = useState(false);
     const router = useRouter();
     const { mutate } = useEditMessage(router.query.channel as string);
@@ -251,15 +249,19 @@ export const Message: React.FC<{
         });
     };
 
+    if (message.type === 1) {
+        console.log(message);
+    }
+
     return (
-        <>
+        <div>
             {message.type === 2 ? (
                 <PinnedMessage
                     onOpenPins={onOpenPins}
                     message={message}
                     guildMember={guildMember}
                 />
-            ) : message.reply ? (
+            ) : message.type === 1 ? (
                 <ReplyingMessage
                     members={members}
                     addReactionFn={addReactionFn}
@@ -558,7 +560,8 @@ export const Message: React.FC<{
                     />
                 </ListItem>
             )}
-        </>
+            {lastRead && lastRead === message.id && <UnreadNotifier />}
+        </div>
     );
 };
 
@@ -708,131 +711,64 @@ export const ReplyingMessage: React.FC<{
 }) => {
     const router = useRouter();
     return (
-        <Box
-            sx={{
-                "&:hover": { background: "rgba(0, 0, 0, 0.05)" },
-                maxWidth: "100%",
-                overflow: "hidden",
-                borderLeft:
-                    message.reply!.author.id === getUser()
-                        ? "3px solid #BFBF3F"
-                        : "",
-                backgroundColor:
-                    reference?.id === message.id
-                        ? "rgba(63, 191, 191, 0.31)"
-                        : message.reply!.author.id === getUser()
-                        ? "rgba(191, 191, 63, 0.2)"
-                        : "transparent",
-            }}
-        >
+        <div>
             <Box
                 sx={{
-                    ml: "4.5rem",
-                    display: "flex",
+                    "&:hover": { background: "rgba(0, 0, 0, 0.05)" },
                     maxWidth: "100%",
-                    alignItems: "center",
-                    justifyContent: "flex-start",
-                    gap: "0.25rem",
-                    marginBottom: "-5px",
+                    overflow: "hidden",
+                    borderLeft:
+                        message.reply!.author.id === getUser()
+                            ? "3px solid #BFBF3F"
+                            : "",
+                    backgroundColor:
+                        reference?.id === message.id
+                            ? "rgba(63, 191, 191, 0.31)"
+                            : message.reply!.author.id === getUser()
+                            ? "rgba(191, 191, 63, 0.2)"
+                            : "transparent",
                     position: "relative",
-                    "::before": {
-                        position: "absolute",
-                        content: '""',
-                        width: "2.25rem",
-                        height: "16px",
-                        top: "40%",
-                        left: "-0.25rem",
-                        borderLeft: "2px solid #ccc",
-                        borderTop: "2px solid #ccc",
-                        borderTopLeftRadius: "10px",
-                        transform: "translateX(-100%)",
-                    },
+                    height: "max-content",
                 }}
             >
-                <Avatar sx={{ width: "18px", height: "18px" }}>
-                    <DefaultProfilePic
-                        width={18}
-                        height={18}
-                        tag={message.reply!.author.tag}
-                    />
-                </Avatar>
-                <Typography>
-                    <GuildMember id={message.reply!.author.id}>
-                        @
-                        {(members && members[message.reply!.author.id]?.nick) ||
-                            message.reply!.author.username}{" "}
-                        {message.reply?.author.bot && (
-                            <Chip
-                                size="small"
-                                sx={{ borderRadius: "3px" }}
-                                label="BOT"
-                                color="primary"
-                            />
-                        )}
-                    </GuildMember>
-                </Typography>
-                <Typography
+                <Box
                     sx={{
+                        ml: "4.5rem",
+                        display: "flex",
                         maxWidth: "100%",
-                        overflow: "hidden",
-                        whiteSpace: "nowrap",
-                        "> img": { width: "18px", height: "18px" },
+                        alignItems: "center",
+                        justifyContent: "flex-start",
+                        gap: "0.25rem",
+                        marginBottom: "-5px",
+                        position: "relative",
+                        "::before": {
+                            position: "absolute",
+                            content: '""',
+                            width: "2.25rem",
+                            height: "16px",
+                            top: "40%",
+                            left: "-0.25rem",
+                            borderLeft: "2px solid #ccc",
+                            borderTop: "2px solid #ccc",
+                            borderTopLeftRadius: "10px",
+                            transform: "translateX(-100%)",
+                        },
                     }}
-                    color="GrayText"
                 >
-                    <Markdown
-                        style={{
-                            whiteSpace: "nowrap",
-                            maxWidth: "100%",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                        }}
-                        content={message.reply!.content}
-                    />
-                </Typography>
-            </Box>
-            <ListItem
-                sx={{
-                    "&:hover .toolbar": {
-                        visibility: "visible",
-                    },
-                }}
-                key={message.id}
-                dense
-            >
-                <ToolBar
-                    setReference={() => setReference(message)}
-                    editFn={() => setEditing((prev: any) => !prev)}
-                    deleteFn={() => deleteFn(message.id)}
-                    addReactionFn={addReactionFn}
-                    permissions={permissions}
-                    guildMember={guildMember}
-                    message={message}
-                />
-                <ListItemAvatar>
-                    <Avatar>
-                        <DefaultProfilePic tag={message.author.tag} />
+                    <Avatar sx={{ width: "18px", height: "18px" }}>
+                        <DefaultProfilePic
+                            width={18}
+                            height={18}
+                            tag={message.reply!.author.tag}
+                        />
                     </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                    primary={
-                        <Stack direction="row" spacing={1}>
-                            <Link
-                                sx={{ color: "inherit", cursor: "pointer" }}
-                                underline="hover"
-                            >
-                                <GuildMember id={message.author.id}>
-                                    <Typography
-                                        style={{ userSelect: "none" }}
-                                        variant="subtitle2"
-                                    >
-                                        {(members &&
-                                            members[message.author.id]?.nick) ||
-                                            message.author.username}
-                                    </Typography>
-                                </GuildMember>
-                            </Link>
-                            {message.author.bot && (
+                    <Typography>
+                        <GuildMember id={message.reply!.author.id}>
+                            @
+                            {(members &&
+                                members[message.reply!.author.id]?.nick) ||
+                                message.reply!.author.username}{" "}
+                            {message.reply?.author.bot && (
                                 <Chip
                                     size="small"
                                     sx={{ borderRadius: "3px" }}
@@ -840,35 +776,111 @@ export const ReplyingMessage: React.FC<{
                                     color="primary"
                                 />
                             )}
-                        </Stack>
-                    }
-                    secondary={
-                        <div>
-                            {editing ? (
-                                <div style={{ width: "80%" }}>
-                                    <Typography component="div">
-                                        <EditMessageField
-                                            disabled={
-                                                !checkPermissions(
-                                                    permissions,
-                                                    Permissions.SEND_MESSAGES
-                                                )
-                                            }
-                                            defaultValue={message.content}
-                                            editFn={value =>
-                                                editFn(message.id, value)
-                                            }
-                                            setEditing={() => setEditing(false)}
-                                        />
-                                        escape to{" "}
-                                        <Link
-                                            sx={{ cursor: "pointer" }}
-                                            underline="hover"
-                                            onClick={() => setEditing(false)}
+                        </GuildMember>
+                    </Typography>
+                    <Typography
+                        sx={{
+                            maxWidth: "100%",
+                            overflow: "hidden",
+                            whiteSpace: "nowrap",
+                            "> img": { width: "18px", height: "18px" },
+                        }}
+                        color="GrayText"
+                    >
+                        <Markdown
+                            style={{
+                                whiteSpace: "nowrap",
+                                maxWidth: "100%",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                            }}
+                            content={message.reply!.content}
+                        />
+                    </Typography>
+                </Box>
+                <ListItem
+                    sx={{
+                        "&:hover .toolbar": {
+                            visibility: "visible",
+                        },
+                    }}
+                    key={message.id}
+                    dense
+                >
+                    <ToolBar
+                        setReference={() => setReference(message)}
+                        editFn={() => setEditing((prev: any) => !prev)}
+                        deleteFn={() => deleteFn(message.id)}
+                        addReactionFn={addReactionFn}
+                        permissions={permissions}
+                        guildMember={guildMember}
+                        message={message}
+                    />
+                    <ListItemAvatar>
+                        <Avatar>
+                            <DefaultProfilePic tag={message.author.tag} />
+                        </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                        primary={
+                            <Stack direction="row" spacing={1}>
+                                <Link
+                                    sx={{ color: "inherit", cursor: "pointer" }}
+                                    underline="hover"
+                                >
+                                    <GuildMember id={message.author.id}>
+                                        <Typography
+                                            style={{ userSelect: "none" }}
+                                            variant="subtitle2"
                                         >
-                                            cancel
-                                        </Link>{" "}
-                                        {/* • enter to{" "}
+                                            {(members &&
+                                                members[message.author.id]
+                                                    ?.nick) ||
+                                                message.author.username}
+                                        </Typography>
+                                    </GuildMember>
+                                </Link>
+                                {message.author.bot && (
+                                    <Chip
+                                        size="small"
+                                        sx={{ borderRadius: "3px" }}
+                                        label="BOT"
+                                        color="primary"
+                                    />
+                                )}
+                            </Stack>
+                        }
+                        secondary={
+                            <div>
+                                {editing ? (
+                                    <div style={{ width: "80%" }}>
+                                        <Typography component="div">
+                                            <EditMessageField
+                                                disabled={
+                                                    !checkPermissions(
+                                                        permissions,
+                                                        Permissions.SEND_MESSAGES
+                                                    )
+                                                }
+                                                defaultValue={message.content}
+                                                editFn={value =>
+                                                    editFn(message.id, value)
+                                                }
+                                                setEditing={() =>
+                                                    setEditing(false)
+                                                }
+                                            />
+                                            escape to{" "}
+                                            <Link
+                                                sx={{ cursor: "pointer" }}
+                                                underline="hover"
+                                                onClick={() =>
+                                                    setEditing(false)
+                                                }
+                                            >
+                                                cancel
+                                            </Link>{" "}
+                                            {/* • enter to{" "}
                                             <Link
                                                 sx={{ cursor: "pointer" }}
                                                 underline="hover"
@@ -882,40 +894,43 @@ export const ReplyingMessage: React.FC<{
                                             >
                                                 save
                                             </Link> */}
+                                        </Typography>
+                                    </div>
+                                ) : (
+                                    <Typography color="ButtonText">
+                                        <Markdown content={message.content} />
                                     </Typography>
-                                </div>
-                            ) : (
-                                <Typography color="ButtonText">
-                                    <Markdown content={message.content} />
-                                </Typography>
-                            )}
-                            <div>
-                                <Stack spacing={1}>
-                                    {message.embeds?.map((e, i) => (
-                                        <Embeds
-                                            message={message}
-                                            permissions={permissions}
-                                            author={message.author.id}
-                                            embed={e}
-                                            key={i}
+                                )}
+                                <div>
+                                    <Stack spacing={1}>
+                                        {message.embeds?.map((e, i) => (
+                                            <Embeds
+                                                message={message}
+                                                permissions={permissions}
+                                                author={message.author.id}
+                                                embed={e}
+                                                key={i}
+                                            />
+                                        ))}
+                                    </Stack>
+                                    {message.reactions.map(reaction => (
+                                        <Reaction
+                                            channel={
+                                                router.query.channel as string
+                                            }
+                                            message={message.id}
+                                            reaction={reaction}
+                                            key={reaction.emoji}
+                                            addReactionFn={addReactionFn}
+                                            deleteFn={deleteReactionFn}
                                         />
                                     ))}
-                                </Stack>
-                                {message.reactions.map(reaction => (
-                                    <Reaction
-                                        channel={router.query.channel as string}
-                                        message={message.id}
-                                        reaction={reaction}
-                                        key={reaction.emoji}
-                                        addReactionFn={addReactionFn}
-                                        deleteFn={deleteReactionFn}
-                                    />
-                                ))}
+                                </div>
                             </div>
-                        </div>
-                    }
-                />
-            </ListItem>
-        </Box>
+                        }
+                    />
+                </ListItem>
+            </Box>
+        </div>
     );
 };

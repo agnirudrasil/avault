@@ -64,6 +64,21 @@ services:
       - rabbit
       - redis
       - api
+  celery:
+    image: agnirudrasil/avaultbot
+    restart: on-failure
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile.celery
+    links:
+      - rabbit
+      - redis
+      - postgres
+    networks:
+      - network
+    depends_on:
+      - rabbit
+      - api
   api:
     image: agnirudrasil/avault-api
     build:

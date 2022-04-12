@@ -2,15 +2,16 @@ import json
 from asyncio import AbstractEventLoop
 
 import aio_pika
+from jose import jwt
+from pydantic import ValidationError
+from sqlalchemy.orm import Session
+
 from api import models
 from api.api.deps import get_db
 from api.core import emitter
 from api.core.config import settings
 from api.core.security import verify_jwt
 from api.models.user import User
-from jose import jwt
-from pydantic import ValidationError
-from sqlalchemy.orm import Session
 
 
 async def handle_message(message):
@@ -27,6 +28,10 @@ async def handle_message(message):
                 guilds = user.guilds
                 guild_data = []
                 merged_members = []
+                unread = db.query(models.Unread).filter_by(user_id=user.id).all()
+                unread_dict = {}
+                for unread in unread:
+                    unread_dict[unread.channel_id] = unread.last_message_id
                 for guild in guilds:
                     rooms.append(str(guild.guild.id))
                     guild_data.append(guild.guild.serialize())
@@ -35,7 +40,8 @@ async def handle_message(message):
                 await emitter.in_room(socket_id).emit(
                     "READY", {"guilds": guild_data, "user": user.json(),
                               "private_channels": [channel.serialize() for channel in user.channel_members],
-                              'merged_members': merged_members}
+                              'merged_members': merged_members,
+                              "unread": unread_dict}
                 )
                 return
             await emitter.to(msgobj["id"]).disconnect_sockets(True)

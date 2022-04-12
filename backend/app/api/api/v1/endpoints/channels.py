@@ -161,13 +161,30 @@ async def edit_message(channel_id: int,
                     prev_message.edited_timestamp = datetime.utcnow()
                 prev_message.content = message.content.strip()
             db.commit()
-            prev_message.embeds = message.embeds
+            prev_message.embeds = [embed.json() for embed in message.embeds] if message.embeds else []
             await (websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_UPDATE,
                                      prev_message.serialize(current_user.id, db)))
             return prev_message.serialize(current_user.id, db)
         response.status_code = 403
         return {"message": "Not authorized"}
     response.status_code = 404
+    return
+
+
+@router.post('/{channel_id}/messages/{message_id}/ack', status_code=204)
+async def message_ack(channel_id: int, message_id: int, current_user: User = Depends(deps.get_current_user),
+                      db: Session = Depends(deps.get_db)):
+    unread = db.query(models.Unread).filter_by(user_id=current_user.id).filter_by(channel_id=channel_id).first()
+    if unread:
+        unread.last_message_id = message_id
+    else:
+        unread = models.Unread(user_id=current_user.id, channel_id=channel_id, message_id=message_id)
+        db.add(unread)
+    db.commit()
+    await websocket_emitter(None, None, event=Events.MESSAGE_ACK,
+                            args={"channel_id": str(channel_id), "message_id": str(message_id),
+                                  "guild_id": str(unread.channel.guild_id)},
+                            user_id=current_user.id)
     return
 
 

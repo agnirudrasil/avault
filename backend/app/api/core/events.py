@@ -39,6 +39,7 @@ class Events(str, enum.Enum):
     MESSAGE_REACTION_REMOVE_EMOJI = 'MESSAGE_REACTION_REMOVE_EMOJI'
     TYPING_START = 'TYPING_START'
     WEBHOOKS_UPDATE = 'WEBHOOKS_UPDATE'
+    MESSAGE_ACK = 'MESSAGE_ACK'
 
 
 def get_dm_channel_recipients(db, channel_id: int) -> list[str]:
@@ -66,6 +67,8 @@ def get_recipients(event: Events, guild_id: Optional[int] = None, channel_id: Op
                    user_id: Optional[int] = None, db=None) -> list[str]:
     if db is None:
         db = next(get_db())
+    if event == Events.MESSAGE_ACK:
+        return [str(user_id)]
     if event == Events.GUILD_CREATE or (event == Events.GUILD_DELETE and user_id):
         return [str(user_id)]
     if event in SPECIAL_EVENTS:

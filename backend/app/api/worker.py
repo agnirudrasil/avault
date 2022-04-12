@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from sqlalchemy.orm import Session
 
 from api import models
+from api.core import settings
 from api.core.celery_app import app, sync_websocket_emitter
 from api.core.events import Events
 from api.db.session import SessionLocal
@@ -66,7 +67,7 @@ class Webscraper:
                 "url": twitter_player["content"] if twitter_player else None,
                 "width": twitter_player_width["content"] if twitter_player_width else None,
                 "height": twitter_player_height["content"] if twitter_player_height else None
-            },
+            } if twitter_player else None,
             "site_name": site_name["content"] if site_name else None,
             "card": twitter_card["content"] if twitter_card else None,
         }
@@ -121,7 +122,7 @@ def embed_message(message_text, message_id, guild_id, current_user):
         embeds.append(Embeds(**{
             "title": value.get("title", ""),
             "image": {
-                "url": f'http://localhost:8000/api/v1/proxy?path={urllib.parse.quote_plus(value.get("image", "") if value.get("image", "").startswith("http") else urllib.parse.urljoin(key, value.get("image")))} '
+                "url": f'{settings.SERVER_HOST}/api/v1/proxy?path={urllib.parse.quote_plus(value.get("image", "") if value.get("image", "").startswith("http") else urllib.parse.urljoin(key, value.get("image")))} '
             } if value.get(
                 "image", None) else None,
             "description": value.get("description", ""),
@@ -131,7 +132,7 @@ def embed_message(message_text, message_id, guild_id, current_user):
                 "url": value.get("player", {}).get("url", ""),
                 "width": value.get("player", {}).get("width", None),
                 "height": value.get("player", {}).get("height", None)
-            } if value.get("player") else None,
+            } if value.get("player", None) else None,
             "provider": {
                 "name": value.get("site_name", None),
             },

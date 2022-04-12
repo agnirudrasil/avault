@@ -4,9 +4,10 @@ import msgpack
 import redis
 from celery import Celery
 
+from api.core import settings
 from api.core.events import get_recipients, Events
 
-app = Celery('tasks', broker='pyamqp://guest@localhost//')
+app = Celery('tasks', broker=f'pyamqp://guest:guest@{settings.RABBITMQ_HOST}:5672//')
 
 
 @app.task
@@ -16,7 +17,7 @@ def add(x, y):
 
 UID = "emitter"
 
-pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
+pool = redis.ConnectionPool(host=settings.REDIS_HOST, port=6379, db=0)
 r = redis.Redis(connection_pool=pool)
 
 

@@ -36,6 +36,26 @@ export const useChannelsStore = create(
                     }
                 });
             }),
+        updateLastRead: (guild: string, channel: string, message: string) => {
+            set(state =>
+                produce(state, draft => {
+                    const index = draft[guild].findIndex(c => c.id === channel);
+                    draft[guild][index].last_read = message;
+                })
+            );
+        },
+        updateLastMessage: (
+            guild: string,
+            channel: string,
+            message: string
+        ) => {
+            set(state =>
+                produce(state, draft => {
+                    const index = draft[guild].findIndex(c => c.id === channel);
+                    draft[guild][index].last_message_id = message;
+                })
+            );
+        },
         addGuild: (guild: string, channels: Channel[]) => {
             set(state =>
                 produce(state, draft => {

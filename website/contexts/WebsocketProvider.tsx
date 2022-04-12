@@ -82,17 +82,25 @@ export const WebsocketProvider: React.FC = ({ children }) => {
         }),
         shallow
     );
-    const { setChannels, updateChannel, deleteChannel, addChannel } =
-        useChannelsStore(
-            state => ({
-                setChannels: state.setChannels,
-                updateChannel: state.updateChannel,
-                deleteGuildChannel: state.deleteGuildChannel,
-                addChannel: state.addChannel,
-                deleteChannel: state.deleteChannel,
-            }),
-            shallow
-        );
+    const {
+        setChannels,
+        updateChannel,
+        deleteChannel,
+        addChannel,
+        updateLastMessage,
+        updateLastRead,
+    } = useChannelsStore(
+        state => ({
+            setChannels: state.setChannels,
+            updateChannel: state.updateChannel,
+            deleteGuildChannel: state.deleteGuildChannel,
+            addChannel: state.addChannel,
+            deleteChannel: state.deleteChannel,
+            updateLastMessage: state.updateLastMessage,
+            updateLastRead: state.updateLastRead,
+        }),
+        shallow
+    );
 
     useEffect(() => {
         const socket = io(process.env.NEXT_PUBLIC_GATEWAY_URL || "", {
@@ -122,11 +130,14 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 const guildChannels: Record<string, Channel[]> = {};
                 const guildsRoles: Record<string, Roles[]> = {};
                 for (const guild of data.guilds) {
-                    guildChannels[guild.id] = guild.channels;
+                    guildChannels[guild.id] = guild.channels.map((c: any) => {
+                        return { ...c, last_read: data.unread[c.id] };
+                    });
                     guildsRoles[guild.id] = guild.roles;
                 }
                 setChannels({
                     ...guildChannels,
+                    unread: data.unread,
                     privateChannels: data.private_channels,
                 });
                 setUserId(data.user.id);
@@ -134,6 +145,9 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 setRoles(guildsRoles);
                 setGuilds(data.guilds);
                 setLoading(false);
+            });
+            socket.on("MESSAGE_ACK", data => {
+                updateLastRead(data.guild_id, data.channel_id, data.message_id);
             });
             socket.on("CHANNEL_CREATE", data => {
                 addChannel(data);
@@ -177,8 +191,9 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 removeMember(data);
             });
             socket.on("MESSAGE_CREATE", data => {
-                console.log(data);
+                console.log("MESSAGE_CREATE");
                 addMessage(data);
+                updateLastMessage(data.guild_id, data.channel_id, data.id);
             });
             socket.on("MESSAGE_UPDATE", data => {
                 updateMessage(data);

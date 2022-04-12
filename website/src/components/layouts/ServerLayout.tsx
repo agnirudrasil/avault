@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Clear, LooksOne, PushPin } from "@mui/icons-material";
+import { Clear, LooksOne, MarkChatRead, PushPin } from "@mui/icons-material";
 import {
     Avatar,
     Box,
@@ -13,17 +13,21 @@ import {
     Divider,
     IconButton,
     List,
+    ListItem,
     ListItemAvatar,
     ListItemButton,
     ListItemSecondaryAction,
     ListItemText,
     Popover,
+    Stack,
     SvgIcon,
     Typography,
+    useTheme,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import shallow from "zustand/shallow";
+import { useAckMessage } from "../../../hooks/requests/useAckMessage";
 import { useBanMember } from "../../../hooks/requests/useBanMember";
 import { useGetPinnedMessage } from "../../../hooks/requests/useGetPinnedMessages";
 import { useKickMember } from "../../../hooks/requests/useKickMember";
@@ -36,6 +40,7 @@ import { Messages, useMessagesStore } from "../../../stores/useMessagesStore";
 import { Roles, useRolesStore } from "../../../stores/useRolesStore";
 import { checkPermissions } from "../../compute-permissions";
 import { copyToClipboard } from "../../copy";
+import { hasUnread } from "../../has-unread";
 import { Permissions } from "../../permissions";
 import { rolesSort } from "../../sort-roles";
 import { getUser } from "../../user-cache";
@@ -51,6 +56,7 @@ import { MembersBar } from "../MembersBar";
 import { Message } from "../Message";
 import { MessageBox } from "../MessageBox";
 import { ServersBar } from "../ServerBar";
+import { UnreadNotifier } from "../UnreadNotifier";
 
 const Container = styled.div`
     display: flex;
@@ -64,7 +70,8 @@ export const organizeMessages = (
     messages: Messages[],
     setReference: (message: Messages) => void,
     onOpenPins: () => void,
-    reference?: Messages
+    reference?: Messages,
+    lastRead?: string
 ): React.ReactNode => {
     return !messages || !Array.isArray(messages)
         ? null
@@ -76,6 +83,7 @@ export const organizeMessages = (
                       reference={reference}
                       setReference={setReference}
                       key={m.id}
+                      lastRead={lastRead}
                       type={
                           m.author.id === array[index + 1]?.author.id &&
                           timestamp.getTime() -
@@ -92,6 +100,7 @@ export const organizeMessages = (
 
 export const ServerLayout: React.FC = () => {
     const router = useRouter();
+    const theme = useTheme();
     const { data } = useGetPinnedMessage(router.query.channel as string);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [open, setOpen] = useState(false);
@@ -99,6 +108,7 @@ export const ServerLayout: React.FC = () => {
         router.query.server_id as string,
         router.query.channel as string
     );
+    const { mutateAsync } = useAckMessage();
     const [reference, setReference] = useState<Messages | null>(null);
     const ref = useRef<HTMLButtonElement | null>(null);
     const guild = useGuildsStore(
@@ -107,7 +117,7 @@ export const ServerLayout: React.FC = () => {
     const channels = useChannelsStore(
         state => state[router.query.server_id as string]
     );
-    const channel = channels.find(c => c.id === router.query.channel)!;
+    const channel = channels.find(c => c.id === router.query.channel);
 
     const handleClick = () => {
         setAnchorEl(ref.current);
@@ -120,7 +130,7 @@ export const ServerLayout: React.FC = () => {
     const { mutate } = useUnpinMessage(router.query.channel as string);
 
     const isChannelPrivate = useMemo(() => {
-        const overwrite = channel.overwrites.find(
+        const overwrite = channel?.overwrites?.find(
             o => o.id === (router.query.server_id as string)
         );
         if (
@@ -261,8 +271,8 @@ export const ServerLayout: React.FC = () => {
                 open={open}
                 onClose={handleClose}
             >
-                <DialogTitle>#{channel.name}</DialogTitle>
-                <DialogContent>{channel.topic}</DialogContent>
+                <DialogTitle>#{channel?.name}</DialogTitle>
+                <DialogContent>{channel?.topic}</DialogContent>
             </Dialog>
             <div
                 style={{
@@ -276,59 +286,99 @@ export const ServerLayout: React.FC = () => {
                     height: "100vh",
                 }}
             >
-                <Box
-                    sx={{
-                        height: "3.5rem",
-                        borderBottom: "1px solid #ccc",
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.15rem",
-                        padding: "1.98rem",
-                        justifyContent: "flex-start",
-                    }}
-                >
-                    <SvgIcon>
-                        {isChannelPrivate ? (
-                            <PrivateChannelIcon />
-                        ) : (
-                            <ChannelIcon />
+                <Stack alignItems="center" sx={{ width: "100%" }}>
+                    <Box
+                        sx={{
+                            height: "3.5rem",
+                            borderBottom: "1px solid #ccc",
+                            width: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.15rem",
+                            padding: "1.98rem",
+                            justifyContent: "flex-start",
+                        }}
+                    >
+                        <SvgIcon>
+                            {isChannelPrivate ? (
+                                <PrivateChannelIcon />
+                            ) : (
+                                <ChannelIcon />
+                            )}
+                        </SvgIcon>
+                        <Typography variant="h6">{channel?.name}</Typography>
+                        {channel?.topic && (
+                            <>
+                                <Divider
+                                    orientation="vertical"
+                                    sx={{
+                                        ml: "0.6rem",
+                                        mr: "0.6rem",
+                                        height: "1.5rem",
+                                    }}
+                                />
+                                <Typography
+                                    onClick={handleOpen}
+                                    sx={{
+                                        whiteSpace: "nowrap",
+                                        textOverflow: "ellipsis",
+                                        cursor: "pointer",
+                                        maxWidth: "100%",
+                                        overflow: "hidden",
+                                        width: "100%",
+                                    }}
+                                >
+                                    {channel?.topic}
+                                </Typography>
+                            </>
                         )}
-                    </SvgIcon>
-                    <Typography variant="h6">{channel.name}</Typography>
-                    {channel.topic && (
-                        <>
-                            <Divider
-                                orientation="vertical"
-                                sx={{
-                                    ml: "0.6rem",
-                                    mr: "0.6rem",
-                                    height: "1.5rem",
-                                }}
-                            />
+                        <IconButton
+                            sx={{ ml: "auto" }}
+                            ref={ref}
+                            onClick={handleClick}
+                        >
+                            <PushPin />
+                        </IconButton>
+                    </Box>
+                    {hasUnread(
+                        channel?.last_read,
+                        channel?.last_message_id
+                    ) && (
+                        <Stack
+                            direction="row"
+                            justifyContent="space-between"
+                            sx={{
+                                width: "98%",
+                                background: theme.palette.primary.main,
+                                borderRadius: "0 0 6px 6px",
+                                color: "white",
+                                padding: "0 1rem",
+                                cursor: "pointer",
+                            }}
+                            onClick={async () => {
+                                await mutateAsync({
+                                    channel: channel?.id || "",
+                                    message: channel?.last_message_id || "",
+                                });
+                            }}
+                        >
+                            <Typography sx={{ userSelect: "none" }}>
+                                You have unread messages
+                            </Typography>
                             <Typography
-                                onClick={handleOpen}
                                 sx={{
-                                    whiteSpace: "nowrap",
-                                    textOverflow: "ellipsis",
-                                    cursor: "pointer",
-                                    maxWidth: "100%",
-                                    overflow: "hidden",
-                                    width: "100%",
+                                    display: "flex",
+                                    userSelect: "none",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    gap: "0.2rem",
                                 }}
                             >
-                                {channel.topic}
+                                Mark as read <MarkChatRead fontSize="small" />
                             </Typography>
-                        </>
+                        </Stack>
                     )}
-                    <IconButton
-                        sx={{ ml: "auto" }}
-                        ref={ref}
-                        onClick={handleClick}
-                    >
-                        <PushPin />
-                    </IconButton>
-                </Box>
+                </Stack>
                 <List
                     style={{
                         overflowY: "auto",
@@ -348,8 +398,17 @@ export const ServerLayout: React.FC = () => {
                             messages,
                             setReference,
                             handleClick,
-                            reference as any
+                            reference as any,
+                            channel?.last_read
                         )
+                    )}
+                    {(!channel?.last_read ||
+                        (channel.last_read &&
+                            BigInt(channel.last_read) <
+                                BigInt(messages[0].id))) && (
+                        <ListItem sx={{ padding: 0, margin: "0" }}>
+                            <UnreadNotifier />
+                        </ListItem>
                     )}
                 </List>
                 <Box sx={{ pl: "1rem", pr: "1rem", width: "100%", pb: "1rem" }}>

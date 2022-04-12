@@ -31,6 +31,7 @@ class EmbedAuthor(BaseModel):
     icon_url: Optional[HttpUrl] = None
     url: Optional[HttpUrl] = None
 
+    @classmethod
     @validator("name")
     def validate_name(cls, v):
         if len(v) > 256:
@@ -43,12 +44,14 @@ class EmbedFields(BaseModel):
     value: str
     inline: Optional[bool] = True
 
+    @classmethod
     @validator("name")
     def validate_name(cls, v):
         if len(v) > 256:
             raise ValueError("field.name is longer that 256 characters")
         return v
 
+    @classmethod
     @validator("value")
     def validate_value(cls, v):
         if len(v) > 1024:
@@ -72,18 +75,21 @@ class Embeds(BaseModel):
     video: Optional[EmbedImage] = None
     provider: Optional[EmbedProvider] = None
 
+    @classmethod
     @validator("title")
     def validate_title(cls, v):
         if len(v) > 256:
             raise ValueError("embed.title is longer than 256 characters")
         return v
 
+    @classmethod
     @validator("description")
     def validate_embed_len(cls, v):
         if len(v) > 4096:
             raise ValueError("embed.description is longer than 256 characters")
         return v
 
+    @classmethod
     @root_validator
     def validate_fields(cls, v):
         fields = v.get("fields")
@@ -91,6 +97,7 @@ class Embeds(BaseModel):
             raise ValueError("embed has more than 25 fields")
         return v
 
+    @classmethod
     @root_validator
     def validate_length(cls, v):
         embed_length = 0

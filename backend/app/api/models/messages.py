@@ -73,7 +73,7 @@ class Message(Base):
     attachments = Column(JSONB)
     pinned = Column(Boolean, nullable=False, default=False)
     reactions = relationship('Reactions', back_populates='message')
-    channel: Channel = relationship('Channel')
+    channel: Channel = relationship('Channel', primaryjoin="Message.channel_id==Channel.id")
     author = relationship('User')
     reply = relationship('Message', remote_side=[id])
 
@@ -95,6 +95,7 @@ class Message(Base):
             'pinned': self.pinned,
             'timestamp': self.timestamp.isoformat(),
             'type': self.message_type,
+            "guild_id": str(self.channel.guild_id),
             'edited_timestamp': self.edited_timestamp.isoformat() if self.edited_timestamp else None,
             'tts': self.tts,
             'embeds': [json.loads(embed) for embed in self.embeds] if self.embeds else [],
