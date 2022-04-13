@@ -21,11 +21,11 @@ export const ServerBar: React.FC = () => {
         >
             <GuildItem />
             <Divider flexItem />
-            {guildPreview.map((guild, index, array) => (
-                <Fragment key={guild.id}>
-                    <GuildItem guild={guild} key={guild.id} />
+            {Object.keys(guildPreview).map((guild, index, array) => (
+                <Fragment key={guild}>
+                    <GuildItem guild={guildPreview[guild]} key={guild} />
                     {index === array.length - 1 && (
-                        <Divider key={`divider-${guild.id}`} flexItem />
+                        <Divider key={`divider-${guild}`} flexItem />
                     )}
                 </Fragment>
             ))}

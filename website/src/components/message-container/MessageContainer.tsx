@@ -2,6 +2,7 @@ import {
     AddCircle,
     EmojiEmotions,
     Gif,
+    MarkChatRead,
     PushPin,
     Send,
 } from "@mui/icons-material";
@@ -15,11 +16,14 @@ import {
     ListItemSecondaryAction,
     ListItemText,
     Paper,
+    Stack,
     Typography,
+    Button,
 } from "@mui/material";
 import { ChannelIcon } from "../ChannelIcon";
 import { useChannelsStore } from "../../../stores/useChannelsStore";
 import { useRouter } from "next/router";
+import { Messages } from "./Messages";
 
 export const MessageContainer: React.FC = () => {
     const router = useRouter();
@@ -35,17 +39,52 @@ export const MessageContainer: React.FC = () => {
             disablePadding
             sx={{
                 width: "100%",
+                maxWidth: "100%",
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
+                overflow: "hidden",
             }}
         >
             {channel && (
-                <ListItem sx={{ width: "100%", bgcolor: "grey.800" }}>
+                <ListItem
+                    sx={{
+                        maxWidth: "100%",
+                        width: "100%",
+                        bgcolor: "grey.800",
+                    }}
+                >
                     <ListItemIcon sx={{ minWidth: "32px" }}>
                         <ChannelIcon />
                     </ListItemIcon>
-                    <ListItemText primary={<Typography>general</Typography>} />
+                    <ListItemText
+                        sx={{ maxWidth: "100%" }}
+                        primary={
+                            <Stack
+                                spacing={1}
+                                direction="row"
+                                divider={
+                                    <Divider flexItem orientation="vertical" />
+                                }
+                            >
+                                <Typography>{channel.name}</Typography>
+                                {channel.topic && (
+                                    <Typography
+                                        sx={{
+                                            maxWidth: "100%",
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                            userSelect: "none",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        {channel.topic}
+                                    </Typography>
+                                )}
+                            </Stack>
+                        }
+                    />
                     <ListItemSecondaryAction>
                         <IconButton>
                             <PushPin />
@@ -53,6 +92,32 @@ export const MessageContainer: React.FC = () => {
                     </ListItemSecondaryAction>
                 </ListItem>
             )}
+            <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{
+                    width: "98%",
+                    bgcolor: "primary.dark",
+                    m: "auto",
+                    p: "0px 12px",
+                    borderBottomLeftRadius: 7,
+                    borderBottomRightRadius: 7,
+                }}
+            >
+                <Typography sx={{ userSelect: "none" }}>
+                    You have unread messages
+                </Typography>
+                <Button
+                    size="small"
+                    disableRipple
+                    disableElevation
+                    endIcon={<MarkChatRead />}
+                >
+                    Mark as read
+                </Button>
+            </Stack>
+            <Messages />
             <Paper
                 component="form"
                 sx={{

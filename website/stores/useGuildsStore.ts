@@ -24,7 +24,7 @@ export const useGuildsStore = create(
     combine(
         {
             guilds: {} as Record<string, Guild>,
-            guildPreview: [] as GuildPreview[],
+            guildPreview: {} as Record<string, GuildPreview>,
         },
         set => ({
             setGuilds: (guilds: Guild[]) =>
@@ -37,10 +37,10 @@ export const useGuildsStore = create(
                             }
                             guild.members = members;
                             state.guilds[guild.id] = guild;
-                            state.guildPreview.push({
+                            state.guildPreview[guild.id] = {
                                 name: guild.name,
                                 id: guild.id,
-                            });
+                            };
                         }
                     })
                 ),
@@ -48,12 +48,10 @@ export const useGuildsStore = create(
                 set(state =>
                     produce(state, draft => {
                         draft.guilds[guild.id] = guild;
-                        draft.guildPreview = draft.guildPreview.map(
-                            guildPreview =>
-                                guildPreview.id === guild.id
-                                    ? { name: guild.name, id: guild.id }
-                                    : guildPreview
-                        );
+                        draft.guildPreview[guild.id] = {
+                            name: guild.name,
+                            id: guild.id,
+                        };
                     })
                 );
             },
@@ -97,10 +95,10 @@ export const useGuildsStore = create(
                 return set(state =>
                     produce(state, draft => {
                         draft.guilds[guild.id] = guild;
-                        draft.guildPreview.push({
+                        draft.guildPreview[guild.id] = {
                             name: guild.name,
                             id: guild.id,
-                        });
+                        };
                         draft.guilds[guild.id].members = (
                             guild.members as unknown as GuildMembers[]
                         ).reduce(

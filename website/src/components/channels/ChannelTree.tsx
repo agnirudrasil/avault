@@ -77,13 +77,7 @@ export const ChannelTree: React.FC = () => {
         [channels]
     );
     const [expanded, setExpanded] = useState<string[]>(Object.keys(richObject));
-    const [selected, setSelected] = useState<string[]>([
-        router.query.channel as string,
-    ]);
-
-    const handleSelect = (_: React.SyntheticEvent, nodeIds: string[]) => {
-        setSelected(nodeIds);
-    };
+    const [selected] = useState<string>(router.query.channel as string);
 
     const handleToggle = (_: React.SyntheticEvent, nodeIds: string[]) => {
         setExpanded(nodeIds);
@@ -98,7 +92,6 @@ export const ChannelTree: React.FC = () => {
             onNodeToggle={handleToggle}
             sx={{ m: 1 }}
             selected={selected}
-            onNodeSelect={handleSelect}
         >
             {Object.keys(richObject).map(key =>
                 richObject[key].children.length === 0 ? (

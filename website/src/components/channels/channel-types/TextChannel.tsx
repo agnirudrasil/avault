@@ -1,5 +1,5 @@
 import { PersonAdd, Settings } from "@mui/icons-material";
-import { TreeItemProps } from "@mui/lab";
+import { treeItemClasses, TreeItemProps } from "@mui/lab";
 import {
     IconButton,
     ListItem,
@@ -10,6 +10,7 @@ import {
     Typography,
     Link as MuiLink,
 } from "@mui/material";
+import { Box } from "@mui/system";
 import Link from "next/link";
 import { usePermssions } from "../../../../hooks/usePermissions";
 import { Channel } from "../../../../types/channels";
@@ -17,16 +18,39 @@ import { checkPermissions } from "../../../compute-permissions";
 import { Permissions } from "../../../permissions";
 import { ChannelIcon } from "../../ChannelIcon";
 import { StyledTreeItemRoot } from "./StyledTreeItemRoot";
+import { memo } from "react";
 
 type Props = TreeItemProps & {
     channel: Channel;
 };
+
+export const UnreadBadge = memo(() => {
+    return (
+        <Box
+            sx={{
+                position: "absolute",
+                width: "4px",
+                height: "8px",
+                bgcolor: "common.white",
+                top: "50%",
+                left: "-14px",
+                transform: "translateY(-50%)",
+                borderRadius: "0 10px 10px 0",
+            }}
+        />
+    );
+});
 
 export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
     const { permissions } = usePermssions(channel.guild_id || "", channel.id);
 
     return (
         <StyledTreeItemRoot
+            sx={{
+                [`& .${treeItemClasses.iconContainer}`]: {
+                    width: 0,
+                },
+            }}
             label={
                 <Link
                     href={`/channels/${channel.guild_id || "@me"}/${
@@ -40,10 +64,12 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
                             sx={{
                                 display: "flex",
                                 alignItems: "center",
-                                p: 0.5,
-                                pr: 0,
+                                pl: 0,
+                                position: "relative",
                             }}
+                            disableGutters
                         >
+                            <UnreadBadge />
                             <ListItemIcon sx={{ minWidth: 32 }}>
                                 <ChannelIcon />
                             </ListItemIcon>
@@ -64,7 +90,10 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
                                     </Typography>
                                 }
                             />
-                            <ListItemSecondaryAction>
+                            <ListItemSecondaryAction
+                                sx={{ visibility: "hidden" }}
+                                className="channel-settings"
+                            >
                                 <Stack direction="row">
                                     {checkPermissions(
                                         permissions,

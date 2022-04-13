@@ -1,5 +1,5 @@
 import { PersonAdd, Settings, VolumeUp } from "@mui/icons-material";
-import { TreeItemProps } from "@mui/lab";
+import { treeItemClasses, TreeItemProps } from "@mui/lab";
 import {
     IconButton,
     ListItem,
@@ -24,15 +24,20 @@ export const VoiceChannel: React.FC<Props> = ({ channel, ...other }) => {
 
     return (
         <StyledTreeItemRoot
+            sx={{
+                [`& .${treeItemClasses.iconContainer}`]: {
+                    width: 0,
+                },
+            }}
             label={
                 <ListItem
                     dense
                     sx={{
                         display: "flex",
                         alignItems: "center",
-                        p: 0.5,
-                        pr: 0,
+                        pl: 0,
                     }}
+                    disableGutters
                 >
                     <ListItemIcon sx={{ minWidth: 32 }}>
                         <VolumeUp />
@@ -54,7 +59,10 @@ export const VoiceChannel: React.FC<Props> = ({ channel, ...other }) => {
                             </Typography>
                         }
                     />
-                    <ListItemSecondaryAction>
+                    <ListItemSecondaryAction
+                        sx={{ visibility: "hidden" }}
+                        className="channel-settings"
+                    >
                         <Stack direction="row">
                             {checkPermissions(
                                 permissions,

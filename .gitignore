@@ -142,3 +142,4 @@ node_modules
 
 data/db
 firebase.*
+_src/

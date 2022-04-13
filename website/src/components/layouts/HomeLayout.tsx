@@ -8,9 +8,22 @@ import { ServerBar } from "../ServerBar";
 export const HomeLayout: React.FC = () => {
     const router = useRouter();
     return (
-        <Stack sx={{ height: "100vh" }} direction="row">
+        <Stack
+            sx={{
+                height: "100vh",
+                maxHeight: "100vh",
+                maxWidth: "100vw",
+                overflow: "hidden",
+            }}
+            direction="row"
+        >
             <ServerBar />
-            <ChannelBar key={router.query.guild as string | undefined} />
+            <ChannelBar
+                key={
+                    ((((router.query.guild as string) ?? "") +
+                        router.query.channel) as string) ?? ""
+                }
+            />
             <MessageContainer />
             <MembarsBar />
         </Stack>
