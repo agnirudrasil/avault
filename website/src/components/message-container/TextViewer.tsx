@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Prism } from "@mantine/prism";
-import { Box, Button, Paper, Stack, Typography } from "@mui/material";
+import { Button, Paper, Stack, Typography } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { bytesToSize } from "../../bytes-to-size";
 
