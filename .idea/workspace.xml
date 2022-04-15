@@ -5,7 +5,45 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/app/api/core/storage.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/api/utils/attachment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/payload_json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/schemas/message.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/schemas/message.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/poetry.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/pyproject.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useMessageCreate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useMessageCreate.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useMessages.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useMessages.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/next.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/website/next.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/website/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/_app.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/slate.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/slate.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/SkeletonLoader.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/ChannelIcon.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ChannelIcon.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/GuildItem.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/GuildItem.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/channels/ChannelBottom.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/channels/ChannelBottom.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/channels/channel-types/TextChannel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/channels/channel-types/TextChannel.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/dialogs/CreateInviteDialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/dialogs/CreateInviteDialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/MessageContainer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/MessageContainer.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/Messages.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/Messages.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/has-unread.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/has-unread.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/index.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/stores/useChannelsStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useChannelsStore.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/stores/useMessagesStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useMessagesStore.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/stores/useUserStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useUserStore.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/styles/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/website/styles/styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/website/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,11 +79,11 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/backend/app/api/db/__init__.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/backend/app/api/db/base.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/docker-compose.yaml" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/nginx.conf" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/sql/permissions.csv" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/backend/app/api/db/base.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/backend/app/api/db/__init__.py" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -64,27 +102,15 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
-    <property name="DatabaseDriversLRU" value="postgresql" />
-    <property name="RunOnceActivity.OpenDatabaseViewOnStart" value="true" />
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="add_unversioned_files" value="$PROJECT_DIR$/backend/app/.env" />
-    <property name="database.data.extractors.current.export.id" value="JSON-Groovy.json.groovy" />
-    <property name="database.data.extractors.current.id" value="JSON-Groovy.json.groovy" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/sql" />
-    <property name="node.js.detected.package.eslint" value="true" />
-    <property name="node.js.selected.package.eslint" value="(autodetect)" />
-    <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="nodejs_package_manager_path" value="yarn" />
-    <property name="run.code.analysis.last.selected.profile" value="aDefault" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
-    <property name="ts.external.directory.path" value="$PROJECT_DIR$/backend/gateway/node_modules/typescript/lib" />
-    <property name="vue.rearranger.settings.migration" value="true" />
-  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;
+  }
+}</component>
   <component name="ReaderModeSettings">
     <option name="showLigatures" value="true" />
   </component>
@@ -103,7 +129,7 @@
       <command value="yarn run dev" />
     </option>
   </component>
-  <component name="RunManager" selected="Python.celery">
+  <component name="RunManager" selected="FastAPI.Backend">
     <configuration name="celery" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="avault" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -243,6 +269,13 @@
       <workItem from="1649696788350" duration="3383000" />
       <workItem from="1649741186890" duration="3845000" />
       <workItem from="1649763288962" duration="2737000" />
+      <workItem from="1649857193215" duration="133000" />
+      <workItem from="1649857335300" duration="6146000" />
+      <workItem from="1649917662189" duration="81000" />
+      <workItem from="1649917767401" duration="1234000" />
+      <workItem from="1649948167875" duration="9407000" />
+      <workItem from="1649993704899" duration="9961000" />
+      <workItem from="1650021008714" duration="727000" />
     </task>
     <servers />
   </component>
@@ -271,7 +304,7 @@
     <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/avault$celery.coverage" NAME="celery Coverage Results" MODIFIED="1649763513890" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
-    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1649785173096" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1650026301416" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+    <SUITE FILE_PATH="coverage/avault$celery.coverage" NAME="celery Coverage Results" MODIFIED="1650021054153" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
   </component>
 </project>

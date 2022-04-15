@@ -2,8 +2,13 @@ import { Home } from "@mui/icons-material";
 import { Box, Typography, Link as MuiLink } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useMemo } from "react";
+import shallow from "zustand/shallow";
+import { useChannelsStore } from "../../stores/useChannelsStore";
 import { GuildPreview } from "../../stores/useGuildsStore";
+import { useUserStore } from "../../stores/useUserStore";
 import { getGuildInitials } from "../get-guild-intials";
+import { hasUnread } from "../has-unread";
 import { LightTooltip } from "./LightTooltip";
 
 interface Props {
@@ -11,6 +16,22 @@ interface Props {
 }
 export const GuildItem: React.FC<Props> = ({ guild }) => {
     const router = useRouter();
+
+    const channels = useChannelsStore(state => state.channels[guild?.id || ""]);
+
+    const unread = useUserStore(
+        state => Object.keys(channels || {}).map(key => state.unread[key]),
+        shallow
+    );
+
+    const isGuildUnread = useMemo(
+        () =>
+            unread.some(({ lastMessageId, lastRead }) =>
+                hasUnread(lastRead, lastMessageId)
+            ),
+        [unread]
+    );
+
     return (
         <Link href={`/channels/${guild ? guild.id : "@me"}`} passHref>
             <MuiLink underline="none" sx={{ color: "common.white" }}>
@@ -46,7 +67,7 @@ export const GuildItem: React.FC<Props> = ({ guild }) => {
                                 height:
                                     router.query.guild === guild?.id
                                         ? "70%"
-                                        : false
+                                        : isGuildUnread
                                         ? "20%"
                                         : 0,
                                 top: "50%",

@@ -1,7 +1,7 @@
 import { AppProps } from "next/app";
 import { ThemeProvider } from "@mui/material/styles";
 import { createEmotionCache } from "../src/createEmotionCache";
-import { CacheProvider, EmotionCache } from "@emotion/react";
+import { CacheProvider, css, EmotionCache, Global } from "@emotion/react";
 import { CssBaseline } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { useState } from "react";
@@ -62,6 +62,38 @@ const MyApp = (props: MyAppProps) => {
                 />
                 <link rel="manifest" href="/site.webmanifest"></link>
             </Head>
+            <Global
+                styles={css`
+                    *::-webkit-scrollbar {
+                        width: 16px;
+                        height: 16px;
+                    }
+
+                    *::-webkit-scrollbar-button {
+                        display: none;
+                        width: 0;
+                        height: 0;
+                    }
+
+                    *::-webkit-scrollbar-corner {
+                        background-color: transparent;
+                    }
+
+                    *::-webkit-scrollbar-track {
+                        background-color: ${darkTheme.palette.grey[800]};
+                        border: 4px solid transparent;
+                        border-radius: 8px;
+                        background-clip: padding-box;
+                    }
+
+                    *::-webkit-scrollbar-thumb {
+                        background-color: ${darkTheme.palette.grey[900]};
+                        border: 4px solid transparent;
+                        border-radius: 8px;
+                        background-clip: padding-box;
+                    }
+                `}
+            />
             <CacheProvider value={emotionCache}>
                 <ThemeProvider theme={darkTheme}>
                     <CssBaseline />

@@ -5,25 +5,3 @@ img.emoji {
     display: inline-block;
     object-fit: contain;
 }
-
-*::-webkit-scrollbar {
-    width: 13px;
-    background-color: transparent;
-}
-
-*::-webkit-scrollbar-button {
-    display: none;
-    width: 0;
-    height: 0;
-}
-
-*::-webkit-scrollbar-corner {
-    background-color: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-    background-color: #ccc;
-    border: 4px solid #ffffff;
-    border-radius: 10px;
-    background-clip: padding-box;
-}

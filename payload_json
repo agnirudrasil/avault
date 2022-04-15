@@ -1,0 +1,8 @@
+{
+    "embeds": [
+        {
+            "title": "Test",
+            "image": "attachment://profile.jpg"
+        }
+    ]
+}

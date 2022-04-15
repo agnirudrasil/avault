@@ -4,48 +4,81 @@ import { HistoryEditor } from "slate-history";
 import { MentionTypes } from "./types/mentions";
 import { EmojiData } from "emoji-mart";
 
-type CustomElement = ParagraphElement | EmojiElement | MentionsElement;
-
-type ParagraphElement = {
-    type: "paragraph";
-    children: CustomText[];
+export type BlockQuoteElement = {
+    type: "block-quote";
+    align?: string;
+    children: Descendant[];
 };
 
-type MentionsElement = {
-    type: "mentions";
-    mentionType: MentionTypes;
-    name: string;
-    id: string;
-    emjoi?: EmojiData;
-    children: CustomText[];
+export type BulletedListElement = {
+    type: "bulleted-list";
+    align?: string;
+    children: Descendant[];
 };
 
-type EmojiElement = {
-    type: "emoji";
-    id: string;
-    emoji: string;
-    name: string;
-    src: string;
-    children: CustomText[];
+export type CheckListItemElement = {
+    type: "check-list-item";
+    checked: boolean;
+    children: Descendant[];
 };
 
-type CustomText = {
+export type EditableVoidElement = {
+    type: "editable-void";
+    children: EmptyText[];
+};
+
+export type HeadingElement = {
+    type: "heading";
+    align?: string;
+    children: Descendant[];
+};
+
+export type HeadingTwoElement = {
+    type: "heading-two";
+    align?: string;
+    children: Descendant[];
+};
+
+export type ImageElement = {
+    type: "image";
+    url: string;
+    children: EmptyText[];
+};
+
+type CustomElement =
+    | BlockQuoteElement
+    | BulletedListElement
+    | CheckListItemElement
+    | EditableVoidElement
+    | HeadingElement
+    | HeadingTwoElement
+    | ImageElement
+    | LinkElement
+    | ButtonElement
+    | ListItemElement
+    | MentionElement
+    | ParagraphElement
+    | TableElement
+    | TableRowElement
+    | TableCellElement
+    | TitleElement
+    | VideoElement;
+
+export type CustomText = {
+    bold?: boolean;
+    italic?: boolean;
+    code?: boolean;
     text: string;
-    strong?: boolean;
-    emphasis?: boolean;
-    inlineCode?: boolean;
-    underline?: boolean;
-    url?: boolean;
-    blockquote?: boolean;
-    strikethrough?: boolean;
-    spoiler?: boolean;
-    emoji?: boolean;
+};
+
+export type EmptyText = {
+    text: string;
 };
 
 declare module "slate" {
     interface CustomTypes {
         Editor: BaseEditor & ReactEditor & HistoryEditor;
         Element: CustomElement;
-        Text: CustomText;
+        Text: CustomText | EmptyText;
     }
 }

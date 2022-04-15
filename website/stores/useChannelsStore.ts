@@ -17,9 +17,11 @@ export const useChannelsStore = create(
             getFirstGuildChannel: (guildId: string) => {
                 const channels = get().channels[guildId];
                 if (channels) {
-                    return Object.keys(channels).find(
-                        c => channels[c].type === ChannelTypes.guild_text
-                    );
+                    return channels[
+                        Object.keys(channels).find(
+                            c => channels[c].type === ChannelTypes.guild_text
+                        ) || ""
+                    ];
                 }
             },
             updateChannel: (channel: Channel) =>

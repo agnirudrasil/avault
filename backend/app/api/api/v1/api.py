@@ -1,7 +1,10 @@
+import base64
 import io
+from typing import List
 
+import boto3
 import requests
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, Request, Body, File, UploadFile
 from sqlalchemy.orm import Session
 from starlette.responses import StreamingResponse
 
@@ -14,6 +17,37 @@ from api.models.invites import Invite
 from api.models.user import User
 
 api_router = APIRouter()
+
+
+@api_router.post("/base64")
+async def upload_base64(img: str = Body(...)):
+    s3 = boto3.resource('s3',
+                        endpoint_url="https://nyc3.digitaloceanspaces.com",
+                        region_name="nyc3",
+                        aws_access_key_id="3SPU74SXTFBWHTWDEFSZ",
+                        aws_secret_access_key="Ts+g94ci+zeDoKqF0i1pz4UXGNa3Q+5UeM6BAsPI6o8")
+    obj = s3.Object("avault", "attachments/hello.jpeg")
+    obj.put(Body=base64.b64decode(img),
+            ACL="public-read", ContentType="image/jpeg")
+    return "Success"
+
+
+@api_router.post('/form')
+async def form(request: Request, files: List[UploadFile] = File(...)):
+    session = boto3.session.Session()
+    s3_client = session.client('s3',
+                               endpoint_url="https://nyc3.digitaloceanspaces.com",
+                               region_name="nyc3",
+                               aws_access_key_id="3SPU74SXTFBWHTWDEFSZ",
+                               aws_secret_access_key="Ts+g94ci+zeDoKqF0i1pz4UXGNa3Q+5UeM6BAsPI6o8")
+    for file in files:
+        print(file.filename)
+        file.file.seek(0, 2)
+        print(file.file.tell())
+        file.file.seek(0)
+        s3_client.upload_fileobj(file.file, "avault", "attachments/" + file.filename,
+                                 ExtraArgs={'ACL': "public-read", "ContentType": file.content_type})
+    return Response(status_code=200)
 
 
 @api_router.get("/proxy")
@@ -38,7 +72,8 @@ async def join_guild(code: str,
         if guild_id:
             guild_member = db.query(GuildMembers).filter_by(guild_id=guild_id).filter_by(
                 user_id=current_user.id).first()
-            guild_ban = db.query(GuildBans).filter_by(guild_id=guild_id).filter_by(user_id=current_user.id).first()
+            guild_ban = db.query(GuildBans).filter_by(
+                guild_id=guild_id).filter_by(user_id=current_user.id).first()
             if guild_ban:
                 response.status_code = 403
                 return {"error": "You are banned from this server"}
@@ -60,7 +95,8 @@ async def join_guild(code: str,
             await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_MEMBER_ADD,
                                     guild_member.serialize())
             await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_CREATE,
-                                    {"guild": guild.serialize(), "member": guild_member.serialize()},
+                                    {"guild": guild.serialize(
+                                    ), "member": guild_member.serialize()},
                                     current_user.id)
             return guild.serialize()
         return "Success"

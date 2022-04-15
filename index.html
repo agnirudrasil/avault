@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <form onsubmit="handleSubmit">
+            <input type="file" />
+        </form>
+    </body>
+    <script>
+        const handleSubmit = async () => {
+            const obj = { content: "Hello, There!" };
+            const json = JSON.stringify(obj);
+
+            const blob = new Blob([json], { type: "application/json" });
+            const data = new FormData();
+
+            data.append("payload_json", blob, "payload.json");
+            await fetch(
+                "http://localhost:8000/api/v1/channels/6913101889622463040/messages",
+                {
+                    method: "POST",
+                    body: data,
+                    credentials: "include",
+                    headers: {
+                        authorization:
+                            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NTA2OTEwMTQsInN1YiI6IjY5MDM2MjIwNTQ1NTA2OTg1NjAifQ.rKstH42S3gji6mYtfG2RoZdPaeYmHxJOrEY125QAH_k",
+                    },
+                }
+            );
+        };
+    </script>
+</html>

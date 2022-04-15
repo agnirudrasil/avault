@@ -17,20 +17,31 @@ export interface GuildMembers {
     is_owner: boolean;
 }
 
+export interface Unread {
+    lastMessageId?: string;
+    lastMessageTimestamp?: Date;
+    lastRead?: string;
+}
+
 export const useUserStore = create(
     combine(
         {
             user: {} as User,
             members: {} as Record<string, GuildMembers>,
+            unread: {} as Record<string, Unread>,
         },
         (set, get) => ({
-            setUser: (user: User, guildMembers: GuildMembers[]) => {
+            setUser: (
+                user: User,
+                guildMembers: GuildMembers[],
+                unread: Record<string, Unread>
+            ) => {
                 set(() => {
                     const membersMap: Record<string, GuildMembers> = {};
                     guildMembers.forEach(m => {
                         membersMap[m.guild_id] = m;
                     });
-                    return { user, members: membersMap };
+                    return { user, members: membersMap, unread };
                 });
             },
             addGuildMembers: (m: GuildMembers) => {
@@ -55,6 +66,42 @@ export const useUserStore = create(
             isUserMe: (id: string) => {
                 const user = get().user;
                 return user.id === id;
+            },
+            updateLastMessage: (
+                channelId: string,
+                {
+                    lastMessageId,
+                    lastMessageTimestamp,
+                }: { lastMessageId: string; lastMessageTimestamp: Date }
+            ) => {
+                set(state =>
+                    produce(state, draft => {
+                        if (draft.unread[channelId]) {
+                            draft.unread[channelId].lastMessageId =
+                                lastMessageId;
+                            draft.unread[channelId].lastMessageTimestamp =
+                                lastMessageTimestamp;
+                        } else {
+                            draft.unread[channelId] = {
+                                lastMessageId,
+                                lastMessageTimestamp,
+                            };
+                        }
+                    })
+                );
+            },
+            updateUnread: (lastMessageId: string, channelId: string) => {
+                set(state =>
+                    produce(state, draft => {
+                        if (draft.unread[channelId]) {
+                            draft.unread[channelId].lastRead = lastMessageId;
+                        } else {
+                            draft.unread[channelId] = {
+                                lastRead: lastMessageId,
+                            };
+                        }
+                    })
+                );
             },
         })
     )

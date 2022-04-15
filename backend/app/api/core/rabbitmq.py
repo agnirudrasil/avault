@@ -31,7 +31,7 @@ async def handle_message(message):
                 unread = db.query(models.Unread).filter_by(user_id=user.id).all()
                 unread_dict = {}
                 for unread in unread:
-                    unread_dict[unread.channel_id] = unread.last_message_id
+                    unread_dict[str(unread.channel_id)] = str(unread.last_message_id)
                 for guild in guilds:
                     rooms.append(str(guild.guild.id))
                     guild_data.append(guild.guild.serialize())

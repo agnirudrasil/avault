@@ -32,7 +32,7 @@ export const CreateInviteDialog: React.FC<CreateInviteDialogProps> = ({
 }) => {
     const router = useRouter();
     const guilds = useGuildsStore(
-        state => state[router.query.server_id as string]
+        state => state.guilds[router.query.guild as string]
     );
     const channel = useChannelsStore(state => state.getFirstGuildChannel);
     const [max_uses, setMaxUses] = useState(0);

@@ -65,6 +65,12 @@ export const useMessagesStore = create(
                                 ...draft[message.channel_id],
                             ];
                         }
+                        useUserStore
+                            .getState()
+                            .updateLastMessage(message.channel_id, {
+                                lastMessageId: message.id,
+                                lastMessageTimestamp: message.timestamp,
+                            });
                     })
                 ),
             deleteBulkMessages: (data: {
@@ -225,10 +231,12 @@ export const useMessagesStore = create(
             updateMessage: (message: Messages) =>
                 set(state =>
                     produce(state, draft => {
-                        const index = draft[message.channel_id].findIndex(
+                        const index = draft[message.channel_id]?.findIndex(
                             m => m.id === message.id
                         );
-                        draft[message.channel_id][index] = message;
+                        if (index && index !== -1) {
+                            draft[message.channel_id][index] = message;
+                        }
                     })
                 ),
         })

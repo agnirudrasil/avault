@@ -35,6 +35,8 @@ beautifulsoup4 = "^4.11.1"
 mistune = "^2.0.2"
 asgiref = "^3.5.0"
 redis = "^4.2.2"
+boto3 = "^1.21.40"
+Werkzeug = "^2.1.1"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.770"

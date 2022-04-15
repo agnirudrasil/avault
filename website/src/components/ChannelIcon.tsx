@@ -1,8 +1,9 @@
-import { SvgIcon } from "@mui/material";
+import { SvgIcon, Theme } from "@mui/material";
+import { SxProps } from "@mui/system";
 
-export const ChannelIcon = () => {
+export const ChannelIcon: React.FC<{ sx?: SxProps<Theme> }> = ({ sx }) => {
     return (
-        <SvgIcon>
+        <SvgIcon sx={sx}>
             <svg width="24" height="24" viewBox="0 0 24 24">
                 <path
                     fill="currentColor"

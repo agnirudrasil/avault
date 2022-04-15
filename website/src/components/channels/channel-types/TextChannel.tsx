@@ -10,36 +10,18 @@ import {
     Typography,
     Link as MuiLink,
 } from "@mui/material";
-import { Box } from "@mui/system";
 import Link from "next/link";
 import { usePermssions } from "../../../../hooks/usePermissions";
 import { Channel } from "../../../../types/channels";
 import { checkPermissions } from "../../../compute-permissions";
 import { Permissions } from "../../../permissions";
 import { ChannelIcon } from "../../ChannelIcon";
+import { UnreadBadge } from "../UnreadBadge";
 import { StyledTreeItemRoot } from "./StyledTreeItemRoot";
-import { memo } from "react";
 
 type Props = TreeItemProps & {
     channel: Channel;
 };
-
-export const UnreadBadge = memo(() => {
-    return (
-        <Box
-            sx={{
-                position: "absolute",
-                width: "4px",
-                height: "8px",
-                bgcolor: "common.white",
-                top: "50%",
-                left: "-14px",
-                transform: "translateY(-50%)",
-                borderRadius: "0 10px 10px 0",
-            }}
-        />
-    );
-});
 
 export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
     const { permissions } = usePermssions(channel.guild_id || "", channel.id);
@@ -69,7 +51,7 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
                             }}
                             disableGutters
                         >
-                            <UnreadBadge />
+                            <UnreadBadge channel_id={channel.id} />
                             <ListItemIcon sx={{ minWidth: 32 }}>
                                 <ChannelIcon />
                             </ListItemIcon>

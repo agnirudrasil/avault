@@ -12,30 +12,13 @@ import {
     ListItemText,
     Typography,
     ToggleButton,
-    styled,
-    ToggleButtonGroup,
 } from "@mui/material";
 import { useState } from "react";
 import { useUserStore } from "../../../stores/useUserStore";
 import { copyToClipboard } from "../../copy";
 import { DefaultProfilePic } from "../DefaultProfilePic";
 import { LightTooltip } from "../LightTooltip";
-
-const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
-    "& .MuiToggleButtonGroup-grouped": {
-        border: 0,
-        margin: theme.spacing(0.3),
-        "&.Mui-disabled": {
-            border: 0,
-        },
-        "&:not(:first-of-type)": {
-            borderRadius: theme.shape.borderRadius,
-        },
-        "&:first-of-type": {
-            borderRadius: theme.shape.borderRadius,
-        },
-    },
-}));
+import { StyledToggleButtonGroup } from "../StyledToggleButtonGroup";
 
 export const ChannelBottom = () => {
     const [alignment, setAlignment] = useState(() => ["mic", "deafen"]);

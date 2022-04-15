@@ -120,8 +120,22 @@ class Embeds(BaseModel):
         return v
 
 
+class Attachments(BaseModel):
+    id: int
+    description: Optional[str] = None
+    filename: Optional[str] = None
+
+
 class MessageCreate(BaseModel):
     content: Optional[str] = ""
     tts: bool = False
     embeds: Optional[list[Embeds]] = []
     message_reference: Optional[int] = None
+    attachments: Optional[list[Attachments]] = []
+
+    @classmethod
+    @validator("attachments")
+    def validate_content(cls, v):
+        if len(v) > 10:
+            raise ValueError("attachments is longer than 10")
+        return v
