@@ -1,4 +1,4 @@
-import { Add } from "@mui/icons-material";
+import { Add, CheckBox, CheckBoxOutlineBlank } from "@mui/icons-material";
 import { TreeItemProps } from "@mui/lab";
 import {
     IconButton,
@@ -6,22 +6,127 @@ import {
     ListItemSecondaryAction,
     ListItemText,
     Typography,
+    useTheme,
 } from "@mui/material";
+import produce from "immer";
+import { Dispatch, SetStateAction } from "react";
+import { useDeleteChannel } from "../../../../hooks/requests/useDeleteChannel";
+import { useContextMenu } from "../../../../hooks/useContextMenu";
+import { useCreateChannel } from "../../../../hooks/useCreateChannel";
 import { usePermssions } from "../../../../hooks/usePermissions";
 import { Channel } from "../../../../types/channels";
 import { checkPermissions } from "../../../compute-permissions";
+import { copyToClipboard } from "../../../copy";
 import { Permissions } from "../../../permissions";
+import { ContextMenu } from "../../context-menus/ContextMenu";
+import { ContextMenuShape } from "../../context-menus/types";
 import { StyledTreeItemRoot } from "./StyledTreeItemRoot";
 
 type Props = TreeItemProps & {
     channel: Channel;
+    expanded: string[];
+    categories: string[];
+    setExpanded: Dispatch<SetStateAction<string[]>>;
 };
 
-export const CategoryChannel: React.FC<Props> = ({ channel, ...other }) => {
+export const CategoryChannel: React.FC<Props> = ({
+    channel,
+    expanded,
+    setExpanded,
+    categories,
+    ...other
+}) => {
+    const theme = useTheme();
     const { permissions } = usePermssions(channel.guild_id || "", channel.id);
+
+    const { createChannel } = useCreateChannel();
+
+    const { mutate } = useDeleteChannel(channel.id);
+
+    const { handleContextMenu, ...props } = useContextMenu();
+    const menuObject: ContextMenuShape[][] = [
+        [
+            {
+                label: "Mark As Read",
+                visible: true,
+                disabled: true,
+                action: handleClose => {
+                    handleClose();
+                },
+            },
+        ],
+        [
+            {
+                label: "Collapse Category",
+                visible: true,
+                action: () => {
+                    if (expanded.includes(channel.id)) {
+                        setExpanded(x => x.filter(id => id !== channel.id));
+                    } else {
+                        setExpanded(
+                            produce(draft => {
+                                draft.push(channel.id);
+                            })
+                        );
+                    }
+                },
+                icon: expanded.includes(channel.id) ? (
+                    <CheckBoxOutlineBlank />
+                ) : (
+                    <CheckBox />
+                ),
+            },
+            {
+                label: "Collapse All Categories",
+                visible: expanded.length > 0,
+                action: handleClose => {
+                    setExpanded([]);
+                    handleClose();
+                },
+            },
+            {
+                label: "Edit Category",
+                visible: checkPermissions(
+                    permissions,
+                    Permissions.MANAGE_CHANNELS
+                ),
+                action: handleClose => {
+                    mutate();
+                    handleClose();
+                },
+            },
+        ],
+        [
+            {
+                label: "Delete Category",
+                visible: checkPermissions(
+                    permissions,
+                    Permissions.MANAGE_CHANNELS
+                ),
+                action: handleClose => {
+                    handleClose();
+                },
+                color: theme.palette.error.dark,
+            },
+        ],
+        [
+            {
+                label: "Copy ID",
+                visible: true,
+                action: handleClose => {
+                    copyToClipboard(channel.id);
+                    handleClose();
+                },
+            },
+        ],
+    ];
 
     return (
         <StyledTreeItemRoot
+            onContextMenu={e => {
+                e.stopPropagation();
+                handleContextMenu(e);
+            }}
             label={
                 <ListItem
                     dense
@@ -32,6 +137,7 @@ export const CategoryChannel: React.FC<Props> = ({ channel, ...other }) => {
                         pr: 0,
                     }}
                 >
+                    <ContextMenu menuObject={menuObject} {...props} />
                     <ListItemText
                         primary={
                             <Typography
@@ -50,7 +156,11 @@ export const CategoryChannel: React.FC<Props> = ({ channel, ...other }) => {
                             <IconButton
                                 onClick={e => {
                                     e.stopPropagation();
-                                    console.log("Hello World");
+                                    createChannel({
+                                        guild_id: channel.guild_id,
+                                        type: "GUILD_TEXT",
+                                        parent_id: channel.id,
+                                    });
                                 }}
                                 size="small"
                             >

@@ -4,7 +4,7 @@ import { CreateChannelDialog } from "../src/components/dialogs/CreateChannelDial
 export interface CreateChannelConfig {
     guild_id?: string;
     parent_id?: string;
-    type: "GUILD_TEXT" | "GUILD_CATEGORY";
+    type: "GUILD_TEXT" | "GUILD_CATEGORY" | "GUILD_VOICE";
 }
 
 export const CreateChannelDialogContext = createContext<{

@@ -49,13 +49,14 @@ const MyMenu: React.FC<{
     const routeSetter = useRoutesStore(state => state.setRoute);
 
     const createChannelHandler = (type: any) => {
-        createChannel({ guild_id: router.query.server_id as string, type });
+        createChannel({ guild_id: router.query.guild as string, type });
     };
+
     const removeGuild = useGuildsStore(state => state.removeGuild);
     const { createInvite } = useCreateInvite();
     const { mutateAsync } = useLeaveServer(() => {});
     const { permissions, guild, guildMember } = usePermssions(
-        router.query.server_id as string,
+        router.query.guild as string,
         router.query.channel as string
     );
 
@@ -131,7 +132,7 @@ const MyMenu: React.FC<{
                 <MyMenuItems
                     key="leave-server"
                     onClick={async () => {
-                        const id = router.query.server_id as string;
+                        const id = router.query.guild as string;
                         await mutateAsync(id);
                         removeGuild(id);
                         router.replace("/channels/@me");
@@ -142,6 +143,7 @@ const MyMenu: React.FC<{
                 </MyMenuItems>,
             ]}
             <EditServerProfileDialog
+                guild={router.query.guild as string}
                 open={open}
                 onClose={() => setOpen(false)}
             />

@@ -12,7 +12,7 @@ const ChannelsPage: NextPage<Props> = () => {
 
 ChannelsPage.getInitialProps = async ctx => {
     return {
-        serverId: ctx.query.server_id as string,
+        serverId: ctx.query.guild as string,
         channelId: ctx.query.channel as string,
     };
 };

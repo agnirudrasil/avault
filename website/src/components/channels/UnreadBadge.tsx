@@ -10,8 +10,8 @@ export const UnreadBadge: React.FC<{ unread: Unread }> = memo(({ unread }) => {
                 position: "absolute",
                 width: "4px",
                 height:
-                    hasUnread(unread.lastRead, unread.lastMessageId) ||
-                    unread.mentionCount
+                    hasUnread(unread?.lastRead, unread?.lastMessageId) ||
+                    unread?.mentionCount
                         ? "8px"
                         : "0px",
                 bgcolor: "common.white",

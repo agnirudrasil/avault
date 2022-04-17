@@ -66,6 +66,7 @@ export const useMessageCreate = (channelId: string, user: any) => {
                 channel_id: channelId,
                 confirmed: true,
                 author: user,
+                timestamp: Date.now(),
             } as any);
         },
         onSuccess: data => {

@@ -8,7 +8,6 @@ import {
     Button,
 } from "@mui/material";
 import { Formik, Form, Field } from "formik";
-import { useRouter } from "next/router";
 import { useUpdateOtherNickname } from "../../../hooks/requests/useUpdateOtherNickname";
 import { useUpdateSelfNickname } from "../../../hooks/requests/useUpdateSelfNickname";
 import { CustomTextField } from "../CustomTextField";
@@ -17,18 +16,14 @@ export interface EditServerProfileDialogProps {
     open: boolean;
     onClose: () => void;
     id?: string;
+    guild: string;
 }
 
 export const EditServerProfileDialog: React.FC<
     EditServerProfileDialogProps
-> = ({ onClose, open, id }) => {
-    const router = useRouter();
-    const { mutateAsync } = useUpdateSelfNickname(
-        router.query.server_id as string
-    );
-    const { mutateAsync: updateOther } = useUpdateOtherNickname(
-        router.query.server_id as string
-    );
+> = ({ onClose, open, id, guild }) => {
+    const { mutateAsync } = useUpdateSelfNickname(guild);
+    const { mutateAsync: updateOther } = useUpdateOtherNickname(guild);
     const handleClose = () => {
         onClose();
     };

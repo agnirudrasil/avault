@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
+import { useTheme } from "@mui/material";
 
-export const CodeBlockContainer = styled.pre`
+export const StyledCodeBlockContainer = styled.pre`
     max-width: 90%;
     margin: 6px 0 0;
     padding: 0.5em;
@@ -80,3 +81,18 @@ export const CodeBlockContainer = styled.pre`
         font-weight: 700;
     }
 `;
+
+export const CodeBlockContainer: React.FC<any> = ({ children, ...props }) => {
+    const theme = useTheme();
+    return (
+        <StyledCodeBlockContainer
+            {...props}
+            style={{
+                border: `1px solid ${theme.palette.divider}`,
+                background: theme.palette.grey[800],
+            }}
+        >
+            {children}
+        </StyledCodeBlockContainer>
+    );
+};

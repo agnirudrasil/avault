@@ -37,35 +37,6 @@ const createHierarchy = (channels: Channel[]) => {
     return hierarchy;
 };
 
-export const getChannelComponent = (channel: Channel) => {
-    switch (channel.type.toUpperCase()) {
-        case "GUILD_CATEGORY":
-            return (
-                <CategoryChannel
-                    nodeId={channel.id}
-                    channel={channel}
-                    key={channel.id}
-                />
-            );
-        case "GUILD_TEXT":
-            return (
-                <TextChannel
-                    nodeId={channel.id}
-                    channel={channel}
-                    key={channel.id}
-                />
-            );
-        case "GUILD_VOICE":
-            return (
-                <VoiceChannel
-                    nodeId={channel.id}
-                    channel={channel}
-                    key={channel.id}
-                />
-            );
-    }
-};
-
 export const ChannelTree: React.FC = () => {
     const router = useRouter();
     const channels = useChannelsStore(
@@ -98,6 +69,13 @@ export const ChannelTree: React.FC = () => {
                     richObject[key].self.type ===
                     "guild_category".toUpperCase() ? (
                         <CategoryChannel
+                            categories={Object.keys(richObject).filter(
+                                k =>
+                                    richObject[k].self.type ===
+                                    "guild_category".toUpperCase()
+                            )}
+                            setExpanded={setExpanded}
+                            expanded={expanded}
                             key={key}
                             nodeId={key}
                             channel={richObject[key].self}
@@ -118,6 +96,13 @@ export const ChannelTree: React.FC = () => {
                     )
                 ) : (
                     <CategoryChannel
+                        categories={Object.keys(richObject).filter(
+                            k =>
+                                richObject[k].self.type ===
+                                "guild_category".toUpperCase()
+                        )}
+                        setExpanded={setExpanded}
+                        expanded={expanded}
                         channel={richObject[key].self}
                         nodeId={key}
                         key={key}

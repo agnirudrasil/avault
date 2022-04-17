@@ -1,98 +1,30 @@
-import {
-    Avatar,
-    Box,
-    List,
-    ListItemAvatar,
-    ListItemButton,
-    ListItemText,
-    Stack,
-    Typography,
-} from "@mui/material";
+import { Divider } from "@mantine/core";
+import { Box, List, Typography } from "@mui/material";
+import { differenceInSeconds } from "date-fns";
 import { useRouter } from "next/router";
 import { Fragment, memo, useMemo } from "react";
 import { Waypoint } from "react-waypoint";
 import { useMessages } from "../../../hooks/requests/useMessages";
-import { useGuildsStore } from "../../../stores/useGuildsStore";
-import type { Messages as MessagesType } from "../../../stores/useMessagesStore";
 import { useUserStore } from "../../../stores/useUserStore";
 import type { Channel } from "../../../types/channels";
-import { getUser } from "../../user-cache";
+import { groupBy } from "../../group-by";
 import { ChannelIcon } from "../ChannelIcon";
-import { DefaultProfilePic } from "../DefaultProfilePic";
-import { Markdown } from "../markdown/Markdown";
 import { SkeletonLoader } from "../SkeletonLoader";
-import { Attachments } from "./Attachments";
+import { Message } from "./message";
 import { NewIndicator } from "./NewIndicator";
-
-export const Message: React.FC<{ message: MessagesType; guild: string }> = memo(
-    ({ message, guild }) => {
-        const member = useGuildsStore(
-            state => state.guilds[guild]?.members[getUser()]
-        );
-
-        const isMention = useMemo(
-            () =>
-                message.mention_everyone ||
-                message.mention?.includes(getUser()) ||
-                message.mention_roles?.some(m => member?.roles?.includes(m)),
-            [message, member]
-        );
-
-        return (
-            <ListItemButton
-                disableRipple
-                selected={isMention}
-                sx={{
-                    cursor: "default",
-                    borderLeft: isMention ? `3px solid white` : undefined,
-                }}
-                id={message.id}
-                key={message.id}
-            >
-                <ListItemAvatar
-                    sx={{
-                        alignSelf: "flex-start",
-                        position: "sticky",
-                        top: "0",
-                        left: "0",
-                        mt: 1,
-                    }}
-                >
-                    <Avatar>
-                        <DefaultProfilePic tag={message.author.tag} />
-                    </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                    primary={
-                        <Typography color="GrayText" variant="subtitle1">
-                            {message.author.username}
-                        </Typography>
-                    }
-                    secondary={
-                        <Stack>
-                            <Markdown content={message.content} />
-                            <Stack spacing={1}>
-                                {message.attachments &&
-                                    message.attachments.map(attachment => (
-                                        <Attachments
-                                            key={attachment.id}
-                                            attachment={attachment}
-                                        />
-                                    ))}
-                            </Stack>
-                        </Stack>
-                    }
-                />
-            </ListItemButton>
-        );
-    }
-);
 
 export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
     const router = useRouter();
     const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
         useMessages(router.query.channel as string);
-    const lastRead = useUserStore(state => state.unread[channel.id].lastRead);
+    const lastRead = useUserStore(state => state.unread[channel.id]?.lastRead);
+
+    const group = useMemo(() => {
+        if (data) {
+            return groupBy(data.pages.flat());
+        }
+        return {};
+    }, [data, data?.pages]);
 
     return (
         <List
@@ -105,19 +37,31 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
             }}
             dense
         >
-            {data?.pages.map((page, pageIndex) =>
-                page?.map((message: MessagesType, index) => (
-                    <Fragment key={message.id}>
-                        {index !== 0 &&
-                            pageIndex === 0 &&
-                            lastRead === message.id && <NewIndicator />}
-                        <Message
-                            guild={router.query.guild as string}
-                            message={message}
-                        />
+            {Object.keys(group).map(time => {
+                const messageGroups = group[time];
+                return (
+                    <Fragment key={time}>
+                        {messageGroups.map((message, i, array) => (
+                            <Message
+                                key={message.id}
+                                disableHeader={
+                                    array[i + 1]?.author.id ===
+                                        message.author.id &&
+                                    i !== array.length - 1 &&
+                                    differenceInSeconds(
+                                        new Date(message.timestamp),
+                                        new Date(array[i + 1].timestamp)
+                                    ) < 300
+                                }
+                                newMessage={i !== 0 && lastRead === message.id}
+                                guild={router.query.guild as string}
+                                message={message}
+                            />
+                        ))}
+                        <Divider my="xs" label={time} labelPosition="center" />
                     </Fragment>
-                ))
-            )}
+                );
+            })}
             <Waypoint
                 onEnter={() => {
                     if (hasNextPage && !isFetchingNextPage) {

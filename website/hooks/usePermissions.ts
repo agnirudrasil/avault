@@ -1,5 +1,8 @@
 import { useMemo } from "react";
-import { computePermissions } from "../src/compute-permissions";
+import {
+    computeBasePermissions,
+    computePermissions,
+} from "../src/compute-permissions";
 import { rolesSort } from "../src/sort-roles";
 import { getUser } from "../src/user-cache";
 import { useChannelsStore } from "../stores/useChannelsStore";
@@ -43,6 +46,38 @@ export const usePermssions = (guildId: string, channelId: string) => {
         guild,
         guildMember,
         currentChannel,
+        memberRoles,
+    };
+};
+
+export const useBasePermissions = (guildId: string) => {
+    const roles = useRolesStore(state => state[guildId]);
+    const guild = useGuildsStore(state => state.guilds[guildId]) ?? {};
+    const guildMember = guild.members?.[getUser()] ?? {};
+
+    const permissions = useMemo(
+        () => computeBasePermissions(roles, guild, guildMember),
+        [roles, guild, guildMember]
+    );
+
+    const memberRoles = useMemo(() => {
+        if (guildMember) {
+            const myRoles = guildMember.roles?.map(r =>
+                roles.find(role => role.id === r)
+            ) as Roles[];
+
+            myRoles?.sort(rolesSort);
+
+            return myRoles;
+        }
+        return [];
+    }, [roles, guildMember]);
+
+    return {
+        permissions,
+        roles,
+        guild,
+        guildMember,
         memberRoles,
     };
 };

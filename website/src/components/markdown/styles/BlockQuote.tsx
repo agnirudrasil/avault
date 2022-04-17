@@ -6,10 +6,9 @@ const BlockQuoteContainer = styled.div`
 `;
 
 const BlockQuoteDivider = styled.div`
-    min-width: 4px;
-    max-width: 4px;
-    border-radius: 4px;
-
+    min-width: 1px;
+    max-width: 1px;
+    border-radius: 1px;
     background: #ccc;
 `;
 

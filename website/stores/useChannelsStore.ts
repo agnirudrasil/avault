@@ -19,7 +19,14 @@ export const useChannelsStore = create(
                 if (channels) {
                     return channels[
                         Object.keys(channels).find(
-                            c => channels[c].type === ChannelTypes.guild_text
+                            c =>
+                                channels[c].type === ChannelTypes.guild_text &&
+                                !channels[c].overwrites.find(
+                                    o =>
+                                        o.id === guildId &&
+                                        (BigInt(o.deny) & BigInt(1024)) ===
+                                            BigInt(1024)
+                                )
                         ) || ""
                     ];
                 }

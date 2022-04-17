@@ -19,6 +19,7 @@ import {
     RadioGroup,
     TextField,
 } from "@mui/material";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { useCreateChannel } from "../../../hooks/requests/useCreateChannel";
 import { ChannelIcon } from "../ChannelIcon";
@@ -28,7 +29,7 @@ export interface CreateChannelDialogProps {
     guild_id?: string;
     parent_id?: string;
     open: boolean;
-    type: "GUILD_TEXT" | "GUILD_CATEGORY";
+    type: "GUILD_TEXT" | "GUILD_CATEGORY" | "GUILD_VOICE";
     handleClose: () => void;
 }
 
@@ -42,6 +43,7 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
     const [type, setType] = useState<
         "GUILD_TEXT" | "GUILD_CATEGORY" | "GUILD_VOICE"
     >(channel_type);
+    const router = useRouter();
     const [name, setName] = useState("");
     const [privateChannel, setPrivateChannel] = useState(false);
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -198,13 +200,18 @@ export const CreateChannelDialog: React.FC<CreateChannelDialogProps> = ({
                     variant="contained"
                     loading={isLoading}
                     onClick={async () => {
-                        await mutateAsync({
+                        const data = await mutateAsync({
                             guild_id,
                             parent_id,
                             name,
                             type,
                             privateChannel,
                         });
+                        if (data.type === "guild_text".toUpperCase()) {
+                            router.replace(
+                                `/channels/${data.guild_id}/${data.id}`
+                            );
+                        }
                         handleClose();
                     }}
                 >

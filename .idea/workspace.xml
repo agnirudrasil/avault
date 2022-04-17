@@ -5,47 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sql/process-mentions.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/storage.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/storage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/messages.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/messages.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/utils/attachment.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/utils/attachment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/poetry.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/pyproject.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/hooks/requests/useMessageCreate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useMessageCreate.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useMessages.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useMessages.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/_app.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/slate.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/slate.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/GifPicker/GifPicker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/GifPicker/GifPicker.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/website/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/channels/[guild]/[channel].tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/channels/[guild]/[channel].tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/channels/[guild]/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/channels/[guild]/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/GuildItem.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/GuildItem.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/ServerNavbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ServerNavbar.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/channels/UnreadBadge.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/channels/UnreadBadge.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/channels/channel-types/TextChannel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/channels/channel-types/TextChannel.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/helpers/parseUrl.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/helpers/parseUrl.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/dialogs/CreateChannelDialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/dialogs/CreateChannelDialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/dialogs/EditServerProfileDialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/dialogs/EditServerProfileDialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/layouts/HomeLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/layouts/HomeLayout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/markdown/parsers/parseMessageContent.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/parsers/parseMessageContent.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/link.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/link.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/mention.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/mention.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/strikethrough.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/strikethrough.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/strong.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/strong.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/underline.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/underline.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/styles/Mention.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/Attachments.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/Attachments.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/MarkAsRead.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/MarkAsRead.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/paragraph.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/styles/Emoji.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/styles/Emoji.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/message-container/Messages.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/Messages.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/TextViewer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/TextViewer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/message-box/ImagePreview.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/message-box/ImagePreview.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/message-box/MessageBox.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/message-box/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/message-box/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/stores/useMessagesStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useMessagesStore.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/stores/useUserStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useUserStore.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/website/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,16 +80,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;
   }
-}]]></component>
+}</component>
   <component name="ReaderModeSettings">
     <option name="showLigatures" value="true" />
   </component>
@@ -132,7 +108,7 @@
       <command value="yarn run dev" />
     </option>
   </component>
-  <component name="RunManager" selected="FastAPI.Backend">
+  <component name="RunManager" selected="Python.celery">
     <configuration name="celery" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="avault" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -283,7 +259,8 @@
       <workItem from="1650081148465" duration="635000" />
       <workItem from="1650109082631" duration="3205000" />
       <workItem from="1650131460807" duration="2422000" />
-      <workItem from="1650166391221" duration="6810000" />
+      <workItem from="1650166391221" duration="8770000" />
+      <workItem from="1650192560133" duration="593000" />
     </task>
     <servers />
   </component>
@@ -312,7 +289,7 @@
     <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1650166662644" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
-    <SUITE FILE_PATH="coverage/avault$celery.coverage" NAME="celery Coverage Results" MODIFIED="1650166659183" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1650193680438" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+    <SUITE FILE_PATH="coverage/avault$celery.coverage" NAME="celery Coverage Results" MODIFIED="1650193685712" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
   </component>
 </project>

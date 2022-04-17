@@ -22,83 +22,83 @@ import { createASTParser, createParser } from "./createParser";
 
 export const extraSpaces = {
     blockQuote: {
-        syntaxBefore: 2,
-        syntaxAfter: 0,
+        syntaxBefore: "> ",
+        syntaxAfter: "",
         length: 2,
     },
     codeBlock: {
         length: 2,
-        syntaxBefore: 3,
-        syntaxAfter: 3,
+        syntaxBefore: "```",
+        syntaxAfter: "```",
     },
     emphasis: {
-        syntaxBefore: 1,
-        syntaxAfter: 1,
+        syntaxBefore: "*",
+        syntaxAfter: "*",
         length: 2,
     },
     escape: {
-        syntaxBefore: 1,
-        syntaxAfter: 0,
+        syntaxBefore: "\\",
+        syntaxAfter: "",
         length: 1,
     },
     inlineCode: {
-        syntaxBefore: 1,
-        syntaxAfter: 1,
+        syntaxBefore: "`",
+        syntaxAfter: "`",
         length: 2,
     },
     emoji: {
-        syntaxBefore: 0,
-        syntaxAfter: 0,
+        syntaxBefore: "",
+        syntaxAfter: "",
         length: 0,
     },
     link: {
-        syntaxBefore: 0,
-        syntaxAfter: 0,
+        syntaxBefore: "",
+        syntaxAfter: "",
         length: 4,
     },
     mention: {
-        syntaxBefore: 2,
-        syntaxAfter: 1,
+        syntaxBefore: "<@",
+        syntaxAfter: ">",
         length: 3,
     },
     newline: {
-        syntaxBefore: 0,
-        syntaxAfter: 0,
+        syntaxBefore: "",
+        syntaxAfter: "",
         length: 2,
     },
     spoiler: {
-        syntaxBefore: 2,
-        syntaxAfter: 2,
+        syntaxBefore: "||",
+        syntaxAfter: "||",
         length: 4,
     },
     strikethrough: {
-        syntaxBefore: 2,
-        syntaxAfter: 2,
+        syntaxBefore: "~~",
+        syntaxAfter: "~~",
         length: 4,
     },
     strong: {
-        syntaxBefore: 2,
-        syntaxAfter: 2,
+        syntaxBefore: "**",
+        syntaxAfter: "**",
         length: 4,
     },
     underline: {
-        syntaxBefore: 2,
-        syntaxAfter: 2,
+        syntaxBefore: "__",
+        syntaxAfter: "__",
         length: 4,
     },
     url: {
-        syntaxBefore: 0,
-        syntaxAfter: 0,
+        syntaxBefore: "",
+        syntaxAfter: "",
         length: 0,
     },
     text: {
-        syntaxBefore: 0,
-        syntaxAfter: 0,
+        syntaxBefore: "",
+        syntaxAfter: "",
         length: 0,
     },
 };
 
-export const syntaxTree = createASTParser({
+const AST_PARSERS = {
     autolink,
     codeBlock,
     customEmoji,
@@ -117,7 +117,14 @@ export const syntaxTree = createASTParser({
     text,
     underline,
     url,
+};
+
+export const deserializeSyntaxTree = createASTParser({
+    ...AST_PARSERS,
+    blockQuote,
 });
+
+export const syntaxTree = createASTParser(AST_PARSERS);
 
 export const parseEmoji = createASTParser({
     emoji,
