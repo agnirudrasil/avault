@@ -10,7 +10,9 @@ export const MarkAsRead: React.FC<{ channelId?: string }> = memo(
         const unread = useUserStore(state => state.unread[channelId ?? ""]);
         const { mutateAsync } = useAckMessage();
 
-        return unread && hasUnread(unread.lastRead, unread.lastMessageId) ? (
+        return unread &&
+            (hasUnread(unread.lastRead, unread.lastMessageId) ||
+                unread.mentionCount) ? (
             <Stack
                 direction="row"
                 justifyContent="space-between"

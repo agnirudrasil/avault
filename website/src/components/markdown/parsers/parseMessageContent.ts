@@ -9,7 +9,6 @@ import { emphasis } from "../rules/emphasis";
 import { escape } from "../rules/escape";
 import { inlineCode } from "../rules/inlineCode";
 import { lineBreak } from "../rules/lineBreak";
-import { link } from "../rules/link";
 import { mention } from "../rules/mention";
 import { newline } from "../rules/newline";
 import { paragraph } from "../rules/paragraph";
@@ -22,25 +21,85 @@ import { url } from "../rules/url";
 import { createASTParser, createParser } from "./createParser";
 
 export const extraSpaces = {
-    blockQuote: 2,
-    codeBlock: 6,
-    emphasis: 2,
-    escape: 1,
-    inlineCode: 2,
-    emoji: 0,
-    link: 4,
-    mention: 3,
-    newline: 2,
-    spoiler: 4,
-    strikethrough: 4,
-    strong: 4,
-    underline: 4,
-    url: 0,
+    blockQuote: {
+        syntaxBefore: 2,
+        syntaxAfter: 0,
+        length: 2,
+    },
+    codeBlock: {
+        length: 2,
+        syntaxBefore: 3,
+        syntaxAfter: 3,
+    },
+    emphasis: {
+        syntaxBefore: 1,
+        syntaxAfter: 1,
+        length: 2,
+    },
+    escape: {
+        syntaxBefore: 1,
+        syntaxAfter: 0,
+        length: 1,
+    },
+    inlineCode: {
+        syntaxBefore: 1,
+        syntaxAfter: 1,
+        length: 2,
+    },
+    emoji: {
+        syntaxBefore: 0,
+        syntaxAfter: 0,
+        length: 0,
+    },
+    link: {
+        syntaxBefore: 0,
+        syntaxAfter: 0,
+        length: 4,
+    },
+    mention: {
+        syntaxBefore: 2,
+        syntaxAfter: 1,
+        length: 3,
+    },
+    newline: {
+        syntaxBefore: 0,
+        syntaxAfter: 0,
+        length: 2,
+    },
+    spoiler: {
+        syntaxBefore: 2,
+        syntaxAfter: 2,
+        length: 4,
+    },
+    strikethrough: {
+        syntaxBefore: 2,
+        syntaxAfter: 2,
+        length: 4,
+    },
+    strong: {
+        syntaxBefore: 2,
+        syntaxAfter: 2,
+        length: 4,
+    },
+    underline: {
+        syntaxBefore: 2,
+        syntaxAfter: 2,
+        length: 4,
+    },
+    url: {
+        syntaxBefore: 0,
+        syntaxAfter: 0,
+        length: 0,
+    },
+    text: {
+        syntaxBefore: 0,
+        syntaxAfter: 0,
+        length: 0,
+    },
 };
 
 export const syntaxTree = createASTParser({
     autolink,
-    blockQuote,
     codeBlock,
     customEmoji,
     emoji,
@@ -49,7 +108,6 @@ export const syntaxTree = createASTParser({
     escape,
     inlineCode,
     lineBreak,
-    link,
     mention,
     newline,
     paragraph,
@@ -77,7 +135,6 @@ export const parseMessageContent = createParser(
         escape,
         inlineCode,
         lineBreak,
-        link,
         mention,
         newline,
         paragraph,
@@ -86,7 +143,6 @@ export const parseMessageContent = createParser(
         strong,
         text,
         underline,
-        url,
     },
     jumbosizeEmojis
 );

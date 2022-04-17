@@ -9,24 +9,43 @@ import {
     Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { Fragment, memo } from "react";
+import { Fragment, memo, useMemo } from "react";
 import { Waypoint } from "react-waypoint";
 import { useMessages } from "../../../hooks/requests/useMessages";
+import { useGuildsStore } from "../../../stores/useGuildsStore";
 import type { Messages as MessagesType } from "../../../stores/useMessagesStore";
 import { useUserStore } from "../../../stores/useUserStore";
 import type { Channel } from "../../../types/channels";
+import { getUser } from "../../user-cache";
 import { ChannelIcon } from "../ChannelIcon";
 import { DefaultProfilePic } from "../DefaultProfilePic";
+import { Markdown } from "../markdown/Markdown";
 import { SkeletonLoader } from "../SkeletonLoader";
 import { Attachments } from "./Attachments";
 import { NewIndicator } from "./NewIndicator";
 
-export const Message: React.FC<{ message: MessagesType }> = memo(
-    ({ message }) => {
+export const Message: React.FC<{ message: MessagesType; guild: string }> = memo(
+    ({ message, guild }) => {
+        const member = useGuildsStore(
+            state => state.guilds[guild]?.members[getUser()]
+        );
+
+        const isMention = useMemo(
+            () =>
+                message.mention_everyone ||
+                message.mention?.includes(getUser()) ||
+                message.mention_roles?.some(m => member?.roles?.includes(m)),
+            [message, member]
+        );
+
         return (
             <ListItemButton
                 disableRipple
-                sx={{ cursor: "default" }}
+                selected={isMention}
+                sx={{
+                    cursor: "default",
+                    borderLeft: isMention ? `3px solid white` : undefined,
+                }}
                 id={message.id}
                 key={message.id}
             >
@@ -51,15 +70,7 @@ export const Message: React.FC<{ message: MessagesType }> = memo(
                     }
                     secondary={
                         <Stack>
-                            <Typography
-                                color={
-                                    (message as any).confirmed
-                                        ? "GrayText"
-                                        : undefined
-                                }
-                            >
-                                {message.content}
-                            </Typography>
+                            <Markdown content={message.content} />
                             <Stack spacing={1}>
                                 {message.attachments &&
                                     message.attachments.map(attachment => (
@@ -100,7 +111,10 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
                         {index !== 0 &&
                             pageIndex === 0 &&
                             lastRead === message.id && <NewIndicator />}
-                        <Message message={message} />
+                        <Message
+                            guild={router.query.guild as string}
+                            message={message}
+                        />
                     </Fragment>
                 ))
             )}

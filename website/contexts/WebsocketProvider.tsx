@@ -10,10 +10,14 @@ import { Unread, useUserStore } from "../stores/useUserStore";
 import { Messages, useMessagesStore } from "../stores/useMessagesStore";
 import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/router";
-import { setUserId } from "../src/user-cache";
-import { InfiniteData, useQueryClient } from "react-query";
-import produce from "immer";
+import { getUser, setUserId } from "../src/user-cache";
+import { useQueryClient } from "react-query";
 import { addMessage } from "../src/components/addMessage";
+import {
+    checkPermissions,
+    computeBasePermissions,
+} from "../src/compute-permissions";
+import { Permissions } from "../src/permissions";
 
 export const WebsocketContext = createContext<{ socket: Socket | null }>({
     socket: null as any,
@@ -75,16 +79,18 @@ export const WebsocketProvider: React.FC = ({ children }) => {
         shallow
     );
 
-    const { setUser, updateLastMessage, updateUnread } = useUserStore(
-        state => ({
-            setUser: state.setUser,
-            isUserMe: state.isUserMe,
-            updateGuildMember: state.updateGuildMembers,
-            updateLastMessage: state.updateLastMessage,
-            updateUnread: state.updateUnread,
-        }),
-        shallow
-    );
+    const { setUser, updateLastMessage, updateUnread, incrementMentions } =
+        useUserStore(
+            state => ({
+                setUser: state.setUser,
+                isUserMe: state.isUserMe,
+                updateGuildMember: state.updateGuildMembers,
+                updateLastMessage: state.updateLastMessage,
+                updateUnread: state.updateUnread,
+                incrementMentions: state.incrementMentions,
+            }),
+            shallow
+        );
     const { setChannels, updateChannel, deleteChannel, addChannel } =
         useChannelsStore(
             state => ({
@@ -136,7 +142,8 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                         unread[curr.id] = {
                             lastMessageId: curr.last_message_id,
                             lastMessageTimestamp: curr.last_message_timestamp,
-                            lastRead: data.unread[curr.id] as string,
+                            lastRead: data.unread[curr.id]?.last_read,
+                            mentionCount: data.unread[curr.id]?.mentions_count,
                         };
                         return acc;
                     }, {});
@@ -154,7 +161,11 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 setLoading(false);
             });
             socket.on("MESSAGE_ACK", data => {
-                updateUnread(data.message_id, data.channel_id);
+                updateUnread(
+                    data.message_id,
+                    data.channel_id,
+                    data.mentions_count
+                );
             });
             socket.on("CHANNEL_CREATE", data => {
                 addChannel(data);
@@ -196,12 +207,40 @@ export const WebsocketProvider: React.FC = ({ children }) => {
             socket.on("GUILD_MEMBER_REMOVE", data => {
                 removeMember(data);
             });
-            socket.on("MESSAGE_CREATE", data => {
+            socket.on("MESSAGE_CREATE", (data: Messages) => {
                 addMessage(queryClient, data);
                 updateLastMessage(data.channel_id, {
                     lastMessageId: data.id,
                     lastMessageTimestamp: data.timestamp,
                 });
+                const guild =
+                    useGuildsStore.getState().guilds[data.guild_id || ""];
+                if (
+                    data.mention_everyone ||
+                    data.mention.includes(getUser()) ||
+                    data.mention_roles.find(r =>
+                        guild.members[getUser()].roles.includes(r)
+                    )
+                ) {
+                    if (data.mention_everyone) {
+                        const roles =
+                            useRolesStore.getState()[data.guild_id || ""];
+                        if (
+                            checkPermissions(
+                                computeBasePermissions(
+                                    roles,
+                                    guild,
+                                    guild.members[data.author.id]
+                                ),
+                                Permissions.MENTION_EVERYONE
+                            )
+                        ) {
+                            incrementMentions(data.channel_id);
+                        }
+                    } else {
+                        incrementMentions(data.channel_id);
+                    }
+                }
             });
             socket.on("MESSAGE_UPDATE", data => {
                 updateMessage(data);

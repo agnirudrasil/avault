@@ -8,6 +8,8 @@ interface Attachments {
     filename: string;
     description?: string;
     processing?: boolean;
+    content_type: string;
+    size: number;
 }
 
 interface MessageCreate {

@@ -108,7 +108,7 @@ async def create_message(channel_id: int,
         except ValidationError as e:
             return {'error': e.json()}
     else:
-        return Response(content={"data": "Invalid content type"}, status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, )
+        return Response(content="Invalid content type", status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, )
     channel, current_user = dependency
     my_attachments = []
     if body and body.attachments:
@@ -121,6 +121,7 @@ async def create_message(channel_id: int,
                       replies_to=body.message_reference if body else None,
                       message_type=MessageTypes.REPLY if body and body.message_reference else MessageTypes.DEFAULT,
                       attachments=my_attachments)
+    message.process_mentions(channel.guild_id, db)
     db.add(message)
     db.commit()
     if not message.embeds and await embed_checker.is_valid(channel, current_user, db):
@@ -220,12 +221,14 @@ async def message_ack(channel_id: int, message_id: int, current_user: User = Dep
     unread = db.query(models.Unread).filter_by(user_id=current_user.id).filter_by(channel_id=channel_id).first()
     if unread:
         unread.last_message_id = message_id
+        unread.mentions_count = 0
     else:
         unread = models.Unread(user_id=current_user.id, channel_id=channel_id, message_id=message_id)
         db.add(unread)
     db.commit()
     await websocket_emitter(None, None, event=Events.MESSAGE_ACK,
-                            args={"channel_id": str(channel_id), "message_id": str(message_id)},
+                            args={"channel_id": str(channel_id), "message_id": str(message_id),
+                                  "mentions_count": unread.mentions_count},
                             user_id=current_user.id)
     return
 

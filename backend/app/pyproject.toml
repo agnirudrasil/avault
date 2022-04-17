@@ -37,6 +37,7 @@ asgiref = "^3.5.0"
 redis = "^4.2.2"
 boto3 = "^1.21.40"
 Werkzeug = "^2.1.1"
+Pillow = "^9.1.0"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.770"

@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "prismjs": "^1.27.0",
     "react-dropzone": "^12.0.5"
   }
 }

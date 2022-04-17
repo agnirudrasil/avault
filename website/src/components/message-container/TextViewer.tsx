@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { Prism } from "@mantine/prism";
-import { Button, Paper, Stack, Typography } from "@mui/material";
+import {
+    Button,
+    CircularProgress,
+    Paper,
+    Stack,
+    Typography,
+} from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { bytesToSize } from "../../bytes-to-size";
 
@@ -9,7 +15,7 @@ export const TextViewer: React.FC<{
     type: string;
     attachment: any;
 }> = ({ url, type, attachment }) => {
-    const [text, setText] = useState("");
+    const [text, setText] = useState<string | null>(null);
     const [expanded, setExpanded] = useState(false);
     useEffect(() => {
         fetch(
@@ -28,20 +34,24 @@ export const TextViewer: React.FC<{
             });
     }, []);
 
-    const numLines = text.split("\n").length;
+    const numLines = text?.split("\n").length;
 
     return (
         <Paper sx={{ maxWidth: "80%" }}>
-            <Prism
-                sx={{
-                    maxWidth: "100%",
-                }}
-                withLineNumbers
-                colorScheme="dark"
-                language={type as any}
-            >
-                {expanded ? text : text.split("\n").slice(0, 6).join("\n")}
-            </Prism>
+            {text ? (
+                <Prism
+                    sx={{
+                        maxWidth: "100%",
+                    }}
+                    withLineNumbers
+                    colorScheme="dark"
+                    language={type as any}
+                >
+                    {expanded ? text : text.split("\n").slice(0, 6).join("\n")}
+                </Prism>
+            ) : (
+                <CircularProgress />
+            )}
             <Stack
                 alignItems="center"
                 justifyContent="space-between"

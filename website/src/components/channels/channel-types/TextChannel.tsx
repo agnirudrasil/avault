@@ -9,9 +9,11 @@ import {
     Stack,
     Typography,
     Link as MuiLink,
+    ListItemAvatar,
 } from "@mui/material";
 import Link from "next/link";
 import { usePermssions } from "../../../../hooks/usePermissions";
+import { useUserStore } from "../../../../stores/useUserStore";
 import { Channel } from "../../../../types/channels";
 import { checkPermissions } from "../../../compute-permissions";
 import { Permissions } from "../../../permissions";
@@ -25,6 +27,7 @@ type Props = TreeItemProps & {
 
 export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
     const { permissions } = usePermssions(channel.guild_id || "", channel.id);
+    const unread = useUserStore(state => state.unread[channel.id]);
 
     return (
         <StyledTreeItemRoot
@@ -51,7 +54,30 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
                             }}
                             disableGutters
                         >
-                            <UnreadBadge channel_id={channel.id} />
+                            <UnreadBadge unread={unread} />
+                            {unread.mentionCount &&
+                            unread.mentionCount !== 0 ? (
+                                <ListItemAvatar sx={{ minWidth: "0px" }}>
+                                    <Stack
+                                        justifyContent={"center"}
+                                        alignItems={"center"}
+                                        sx={{
+                                            width: "18px",
+                                            height: "18px",
+                                            bgcolor: "error.dark",
+                                            borderRadius: "50%",
+                                            mr: 1,
+                                        }}
+                                    >
+                                        <Typography
+                                            component="span"
+                                            variant="caption"
+                                        >
+                                            {unread.mentionCount}
+                                        </Typography>
+                                    </Stack>
+                                </ListItemAvatar>
+                            ) : null}
                             <ListItemIcon sx={{ minWidth: 32 }}>
                                 <ChannelIcon />
                             </ListItemIcon>

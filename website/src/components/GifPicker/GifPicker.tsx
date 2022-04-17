@@ -5,6 +5,7 @@ import {
     TrendingUp,
 } from "@mui/icons-material";
 import {
+    Box,
     Button,
     Card,
     CardContent,
@@ -63,7 +64,7 @@ const Item: React.FC<{
                 />
             )}
             {name && (
-                <div
+                <Box
                     style={{
                         position: "absolute",
                         top: 0,
@@ -78,7 +79,6 @@ const Item: React.FC<{
                     }}
                 >
                     <Typography
-                        color="white"
                         sx={{
                             textShadow: "1px 1px rgba(0, 0, 0, 0.5)",
                             fontWeight: "bold",
@@ -91,7 +91,7 @@ const Item: React.FC<{
                     >
                         {name}
                     </Typography>
-                </div>
+                </Box>
             )}
         </Paper>
     );
@@ -163,7 +163,7 @@ export const GifPicker: React.FC<{
                     top: 0,
                     left: 0,
                     zIndex: 5,
-                    background: "white",
+                    bgcolor: "background.default",
                     boxShadow: `0 1px 0 0 rgb(24 25 28 / 30%), 0 1px 2px 0 rgb(24 25 28 / 30%)`,
                 }}
                 title={

@@ -92,6 +92,25 @@ const MyApp = (props: MyAppProps) => {
                         border-radius: 8px;
                         background-clip: padding-box;
                     }
+                    code {
+                        background: ${darkTheme.palette.grey[800]};
+                        padding: 2px 4px;
+                        border-radius: 4px;
+                    }
+                    pre {
+                        background: ${darkTheme.palette.grey[900]};
+                        padding: 8px;
+                        border-radius: 4px;
+                        border: 1px solid ${darkTheme.palette.grey[800]};
+                    }
+                    blockquote {
+                        border-left: 2px solid #ddd;
+                        margin-left: 0;
+                        margin-right: 0;
+                        padding-left: 10px;
+                        color: #aaa;
+                        font-style: italic;
+                    }
                 `}
             />
             <CacheProvider value={emotionCache}>

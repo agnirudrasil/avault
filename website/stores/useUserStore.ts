@@ -21,6 +21,7 @@ export interface Unread {
     lastMessageId?: string;
     lastMessageTimestamp?: Date;
     lastRead?: string;
+    mentionCount?: number;
 }
 
 export const useUserStore = create(
@@ -67,6 +68,18 @@ export const useUserStore = create(
                 const user = get().user;
                 return user.id === id;
             },
+            incrementMentions: (channelId: string) => {
+                set(state =>
+                    produce(state, draft => {
+                        if (
+                            draft.unread[channelId].mentionCount !== null &&
+                            draft.unread[channelId].mentionCount !== undefined
+                        ) {
+                            draft.unread[channelId]!.mentionCount!++;
+                        }
+                    })
+                );
+            },
             updateLastMessage: (
                 channelId: string,
                 {
@@ -90,14 +103,20 @@ export const useUserStore = create(
                     })
                 );
             },
-            updateUnread: (lastMessageId: string, channelId: string) => {
+            updateUnread: (
+                lastMessageId: string,
+                channelId: string,
+                mentionCount: number
+            ) => {
                 set(state =>
                     produce(state, draft => {
                         if (draft.unread[channelId]) {
                             draft.unread[channelId].lastRead = lastMessageId;
+                            draft.unread[channelId].mentionCount = mentionCount;
                         } else {
                             draft.unread[channelId] = {
                                 lastRead: lastMessageId,
+                                mentionCount,
                             };
                         }
                     })

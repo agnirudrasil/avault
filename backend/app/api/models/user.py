@@ -15,10 +15,11 @@ class Unread(Base):
     mentions_count = Column(Integer, default=0)
     channel = relationship("Channel")
 
-    def __init__(self, user_id: int, channel_id: int, message_id: int):
+    def __init__(self, user_id: int, channel_id: int, message_id: int, mentions_count: int = 0):
         self.user_id = user_id
         self.channel_id = channel_id
         self.last_message_id = message_id
+        self.mentions_count = mentions_count
 
 
 class User(Base):

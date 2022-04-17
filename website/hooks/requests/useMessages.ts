@@ -9,7 +9,7 @@ export const messages: QueryFunction<Messages[], string[]> = async ({
     const data = await request(
         `${process.env.NEXT_PUBLIC_API_URL}/channels/${
             queryKey[1]
-        }/messages?limit=12${pageParam ? `&before=${pageParam}` : ""}`,
+        }/messages?limit=50${pageParam ? `&before=${pageParam}` : ""}`,
         {
             method: "GET",
             credentials: "include",

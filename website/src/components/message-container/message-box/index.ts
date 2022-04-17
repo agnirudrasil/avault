@@ -1,3 +1,3 @@
-import { MessageBox } from "./MessageBox";
+import { MessageEditor } from "./editor/Editor";
 
-export default MessageBox;
+export default MessageEditor;

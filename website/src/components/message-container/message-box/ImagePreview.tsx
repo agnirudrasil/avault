@@ -27,6 +27,7 @@ export const ImagePreview: React.FC<{
                 bgcolor: "background.paper",
                 p: 1,
                 maxWidth: "min-content",
+                borderRadius: 1,
             }}
         >
             {file.file.type.startsWith("image/") && preview ? (

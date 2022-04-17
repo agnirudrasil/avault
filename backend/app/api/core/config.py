@@ -15,7 +15,9 @@ class Settings(BaseSettings):
     RABBITMQ_HOST: str = os.getenv("RABBITMQ_HOST", "127.0.0.1")
     REDIS_HOST: str = os.getenv("REDIS_HOST", "127.0.0.1")
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ['http://localhost:3000', "http://127.0.0.1:5500"]
-    TENOR_API_KEY: str = os.getenv("TENOR_API_KEY", "ZXOQ05LGC2I9")
+    TENOR_API_KEY: str = os.getenv("TENOR_API_KEY")
+    AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY")
     TENOR_BASE_URL: str = "https://g.tenor.com/v1"
     FERNET_KEY: str = os.getenv("FERNET_KEY", "")
     CDN_URL: str = os.getenv("CDN_URL", "https://cdn.avault.agnirudra.me")

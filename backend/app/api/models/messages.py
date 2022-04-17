@@ -3,13 +3,14 @@ import json
 import re
 from datetime import datetime
 
-from sqlalchemy import Column, ForeignKey, DateTime, Boolean, UniqueConstraint, func, BigInteger, Text, Integer
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, DateTime, Boolean, UniqueConstraint, func, BigInteger, Text, Integer, cast, \
+    ARRAY
+from sqlalchemy.dialects.postgresql import JSONB, array
+from sqlalchemy.orm import relationship, Session
 
 from api.core.security import snowflake_id
 from api.db.base_class import Base
-from api.models.channels import Channel
+from . import Channel
 
 
 class MessageTypes(int, enum.Enum):
@@ -103,6 +104,10 @@ class Message(Base):
             'reactions': [{"emoji": reaction[0], "count": reaction[1], "me": reaction[2]} for reaction in
                           reactions_count],
             'author': author,
+            'mention': self.mention(),
+            'mention_everyone': self.mentions_everyone(),
+            'mention_roles': self.mentions_roles(),
+            'mention_channels': self.mentions_channels(),
             'reply': self.reply.serialize(current_user, db) if self.reply else None
         }
 
@@ -117,6 +122,17 @@ class Message(Base):
 
     def mentions_channels(self):
         return re.findall(r'<#(\d+)>', self.content)
+
+    def process_mentions(self, guild_id, db: Session):
+        print(self.mentions_everyone())
+        db.query(func.process_mention(
+            self.author_id,
+            self.channel_id,
+            guild_id,
+            cast(array([int(u) for u in self.mention()]), ARRAY(BigInteger)),
+            cast(array([int(r) for r in self.mentions_roles()]), ARRAY(BigInteger)),
+            self.mentions_everyone(),
+        )).all()
 
     def __init__(self,
                  content,
@@ -139,10 +155,6 @@ class Message(Base):
         self.replies_to = replies_to
         self.edited_timestamp = None
         self.timestamp = datetime.utcnow()
-        self.mentions_everyone = self.mentions_everyone()
-        self.mention = self.mention()
-        self.mention_role = self.mentions_roles()
-        self.mention_channel = self.mentions_channels()
         self.embeds = [embed.json() for embed in embeds] if embeds else None
         self.attachments = attachments
         self.webhook_author = webhook_author
