@@ -1,5 +1,6 @@
 import json
 from asyncio import AbstractEventLoop
+from datetime import datetime
 
 import aio_pika
 from jose import jwt
@@ -23,6 +24,9 @@ async def handle_message(message):
             socket_id = msgobj["id"]
             db: Session = next(get_db())
             user: User = db.query(models.User).filter_by(id=data.sub).first()
+            if user.last_login >= datetime.fromtimestamp(data.iat):
+                await emitter.to(msgobj["id"]).disconnect_sockets(True)
+                return
             if user:
                 rooms = [str(user.id)]
                 guilds = user.guilds

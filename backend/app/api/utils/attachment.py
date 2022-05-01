@@ -4,9 +4,10 @@ from werkzeug.utils import secure_filename
 
 from api.core.config import settings
 from api.core.security import snowflake_id
+from api.core.storage import storage
 
 
-def file_to_attachment(file: UploadFile, channel_id: int):
+async def file_to_attachment(file: UploadFile, channel_id: int):
     attachment_id = next(snowflake_id)
     filename = secure_filename(file.filename)
     file.file.seek(0, 2)
@@ -26,5 +27,9 @@ def file_to_attachment(file: UploadFile, channel_id: int):
             attachment["height"] = im.height
 
     file.file.seek(0)
+
+    storage.upload_file(file.file, "avault",
+                        f"attachments/{channel_id}/{attachment['id']}/{attachment['filename']}", "public",
+                        file.content_type)
 
     return attachment

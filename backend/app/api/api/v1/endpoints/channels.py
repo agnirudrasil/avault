@@ -1,3 +1,4 @@
+import asyncio
 import json
 from datetime import datetime
 from json import JSONDecodeError
@@ -14,7 +15,6 @@ from api import models
 from api.api import deps
 from api.core.events import Events, websocket_emitter
 from api.core.permissions import Permissions
-from api.core.storage import storage
 from api.models.channels import Channel, ChannelType, Overwrite, PinnedMessages
 from api.models.invites import Invite
 from api.models.messages import Message, Reactions, MessageTypes
@@ -76,7 +76,7 @@ def get_messages(channel_id: int,
 async def create_message(channel_id: int,
                          request: Request,
                          content_type: str = Header(...),
-                         content_length: int = Header(..., lt=1024 * 1024 * 5),
+                         content_length: int = Header(..., lt=1024 * 1024 * 10),
                          dependency: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES)),
                          db: Session = Depends(deps.get_db)) -> Any:
     embed_checker = deps.ChannelPerms(Permissions.EMBED_LINKS)
@@ -86,12 +86,11 @@ async def create_message(channel_id: int,
         form_body = await request.form()
         files: list[UploadFile] = form_body.getlist("files")
         if files:
+            tasks = []
             for file in files:
-                attachment = file_to_attachment(file, channel_id)
-                attachments.append(attachment)
-                storage.upload_file(file.file, "avault",
-                                    f"attachments/{channel_id}/{attachment['id']}/{attachment['filename']}", "public",
-                                    file.content_type)
+                tasks.append(file_to_attachment(file, channel_id))
+            attachments = await asyncio.gather(*tasks)
+
         payload_json: UploadFile = form_body.get('payload_json')
         if payload_json and payload_json.content_type == "application/json":
             try:
@@ -495,6 +494,10 @@ async def edit_channel(channel_id: int,
             channel.icon = body.icon
         if body.topic is not None:
             channel.topic = body.topic
+        if body.parent_id and channel.type != ChannelType.guild_category:
+            parent_channel = db.query(Channel).filter_by(id=body.parent_id).first()
+            if parent_channel and parent_channel.type == ChannelType.guild_category:
+                channel.parent_id = body.parent_id
         db.commit()
         await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_UPDATE,
                                 channel.serialize())
@@ -508,10 +511,17 @@ async def delete_channel(channel_id: int,
                          db: Session = Depends(deps.get_db)):
     channel = db.query(Channel).filter_by(id=channel_id).first()
     if channel:
+        affected_channels = None
+        if channel.type == ChannelType.guild_category:
+            affected_channels = db.query(Channel).filter_by(parent_id=channel.id).all()
         db.delete(channel)
         db.commit()
         await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_DELETE,
                                 channel.serialize())
+        if affected_channels:
+            for channel in affected_channels:
+                await websocket_emitter(channel.id, channel.guild_id, Events.CHANNEL_UPDATE,
+                                        channel.serialize())
         return {"success": True}
     return {"success": False}
 

@@ -35,6 +35,6 @@ export const StyledTreeItemRoot = styled(TreeItem)(({ theme }) => ({
         },
     },
     [`& .${treeItemClasses.group}`]: {
-        marginLeft: theme.spacing(0),
+        marginLeft: theme.spacing(2),
     },
 }));

@@ -18,7 +18,6 @@ export const useDeleteWebhook = () => {
     const queryClient = useQueryClient();
     return useMutation(deleteWebhook, {
         onSuccess: (_, { channel_id }) => {
-            console.log("Successful!");
             queryClient.invalidateQueries(["webhooks", channel_id]);
         },
     });

@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import Any
 
 from fastapi import APIRouter, Cookie, Form, Depends, Response, HTTPException, status
@@ -26,11 +26,10 @@ def register(
     email = email.lower().strip()
     username = username.strip()
     user = db.query(models.User).filter_by(email=email).first()
-    print(user)
     if user:
         response.status_code = 409
         return {"error": "User Already Exists"}
-    user = models.User(username, password, email, db)
+    user = models.User(db, username=username, password=password, email=email)
     db.add(user)
     db.commit()
     response.status_code = 201
@@ -56,14 +55,11 @@ def login_access_token(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(
         minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
+    iat = datetime.utcnow()
     return {
-        "access_token": security.create_access_token(
-            user.id, expires_delta=access_token_expires
-        ),
-        "refresh_token": security.create_refresh_token(
-            response, user.id,
-            expires_delta=refresh_token_expires
-        ),
+        "access_token": security.create_access_token(db, user.id, expires_delta=access_token_expires, iat=iat),
+        "refresh_token": security.create_refresh_token(db, response, user.id, iat=iat,
+                                                       expires_delta=refresh_token_expires),
         "token_type": "bearer",
     }
 
@@ -84,29 +80,32 @@ def refresh_token(response: Response, jid: str = Cookie(None), db: Session = Dep
             jid if jid is not None else "", settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
         token_data = schemas.TokenPayload(**payload)
+        print(token_data)
     except (jwt.JWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    user = db.query(models.User).filter_by(id=token_data.sub).first()
+
+    user: models.User = db.query(models.User).filter_by(id=token_data.sub).first()
+    
     if not user:
         response.delete_cookie(key="jid")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
-    access_token_expires = timedelta(
-        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    refresh_token_expires = timedelta(
-        minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
+
+    if user.last_login >= datetime.fromtimestamp(token_data.iat):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Token has expired",
+        )
+
+    iat = datetime.utcnow()
+
     return {
-        "access_token": security.create_access_token(
-            token_data.sub, expires_delta=access_token_expires
-        ),
-        "refresh_token": security.create_refresh_token(
-            response, token_data.sub,
-            expires_delta=refresh_token_expires
-        ),
+        "access_token": security.create_access_token(db, token_data.sub, iat=iat),
+        "refresh_token": security.create_refresh_token(db, response, token_data.sub, iat=iat),
         "token_type": "bearer",
     }

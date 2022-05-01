@@ -53,5 +53,6 @@ class ChannelValidate(BaseModel):
 
 class ChannelEdit(BaseModel):
     name: str
+    parent_id: Optional[int] = None
     topic: Optional[str] = None
     icon: Optional[str] = None

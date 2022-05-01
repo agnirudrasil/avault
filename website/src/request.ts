@@ -22,7 +22,7 @@ export const refetchToken = async (
         return data.access_token;
     } catch (e) {
         if (onError) {
-            console.log("error");
+            console.error(e);
             onError();
         }
     }

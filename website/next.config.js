@@ -11,6 +11,11 @@ module.exports = withBundleAnalyzer({
     async redirects() {
         return [
             {
+                source: "/developers",
+                destination: "/developers/applications",
+                permanent: false,
+            },
+            {
                 source: "/",
                 destination: "/channels/@me",
                 permanent: false,

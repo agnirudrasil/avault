@@ -179,16 +179,20 @@ export const GuildItemContextMenu: React.FC<Props> = ({
                         menuItems.length > 0 && (
                             <div>
                                 {menuItems.map(
-                                    ({
-                                        label,
-                                        disabled,
-                                        color,
-                                        icon,
-                                        action,
-                                        children,
-                                    }) =>
+                                    (
+                                        {
+                                            label,
+                                            disabled,
+                                            color,
+                                            icon,
+                                            action,
+                                            children,
+                                        },
+                                        i
+                                    ) =>
                                         children ? (
                                             <NestedMenuItem
+                                                key={`${i}-${label}`}
                                                 parentMenuOpen={
                                                     contextMenu !== null
                                                 }
@@ -198,35 +202,41 @@ export const GuildItemContextMenu: React.FC<Props> = ({
                                                     </Typography>
                                                 }
                                             >
-                                                {children.map(menuItem => (
-                                                    <StyledMenuItem
-                                                        sx={{
-                                                            color: menuItem.color,
-                                                            "&:hover": {
-                                                                color: "white",
-                                                                background:
-                                                                    color,
-                                                            },
-                                                        }}
-                                                        onClick={async e => {
-                                                            e.stopPropagation();
-                                                            await action();
-                                                            handleClose();
-                                                        }}
-                                                        disabled={
-                                                            menuItem.disabled
-                                                        }
-                                                    >
-                                                        <Typography variant="body2">
-                                                            {menuItem.label}
-                                                        </Typography>
-                                                        {menuItem.icon &&
-                                                            menuItem.icon}
-                                                    </StyledMenuItem>
-                                                ))}
+                                                {children.map(
+                                                    (menuItem, index) => (
+                                                        <StyledMenuItem
+                                                            key={`${index}-${label}`}
+                                                            sx={{
+                                                                color: menuItem.color,
+                                                                "&:hover": {
+                                                                    color: "white",
+                                                                    background:
+                                                                        color,
+                                                                },
+                                                            }}
+                                                            onClick={async e => {
+                                                                e.stopPropagation();
+                                                                await action(
+                                                                    handleClose
+                                                                );
+                                                                handleClose();
+                                                            }}
+                                                            disabled={
+                                                                menuItem.disabled
+                                                            }
+                                                        >
+                                                            <Typography variant="body2">
+                                                                {menuItem.label}
+                                                            </Typography>
+                                                            {menuItem.icon &&
+                                                                menuItem.icon}
+                                                        </StyledMenuItem>
+                                                    )
+                                                )}
                                             </NestedMenuItem>
                                         ) : (
                                             <StyledMenuItem
+                                                key={`${i}-${label}`}
                                                 sx={{
                                                     color,
                                                     "&:hover": {
@@ -236,7 +246,7 @@ export const GuildItemContextMenu: React.FC<Props> = ({
                                                 }}
                                                 onClick={async e => {
                                                     e.stopPropagation();
-                                                    await action();
+                                                    await action(handleClose);
                                                     handleClose();
                                                 }}
                                                 disabled={disabled}

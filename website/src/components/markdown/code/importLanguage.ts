@@ -11,8 +11,6 @@ export const importLanguage = async (alias: string) => {
     const language = getLanguageFromAlias(alias);
     if (!language) return;
 
-    console.log(language);
-
     if (language.dependencies) {
         await Promise.all(
             language.dependencies.map(async dependency => {
@@ -22,8 +20,4 @@ export const importLanguage = async (alias: string) => {
     }
 
     hljs.registerLanguage(language.name, await importRawLanguage());
-
-    if (typeof window !== "undefined") {
-        console.log("Registered highlight.js language:", language.name);
-    }
 };

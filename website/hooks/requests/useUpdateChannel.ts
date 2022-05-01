@@ -5,6 +5,7 @@ import { Channel } from "../../types/channels";
 interface Data {
     name: string;
     topic: string;
+    parent_id?: string;
 }
 
 export const channelUpdate = async ({

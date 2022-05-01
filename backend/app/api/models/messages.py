@@ -59,8 +59,7 @@ class Message(Base):
         'channels.id', ondelete='CASCADE'), nullable=False)
     author_id = Column(BigInteger, ForeignKey(
         'users.id', ondelete="SET NULL"))
-    webhook_id = Column(BigInteger, ForeignKey(
-        'webhooks.id', ondelete='SET NULL'))
+    webhook_id = Column(BigInteger)
     content = Column(Text)
     timestamp: datetime = Column(
         DateTime, nullable=False, default=func.now())
@@ -74,11 +73,11 @@ class Message(Base):
     attachments = Column(JSONB)
     pinned = Column(Boolean, nullable=False, default=False)
     reactions = relationship('Reactions', back_populates='message')
-    channel: Channel = relationship('Channel', primaryjoin="Message.channel_id==Channel.id")
+    channel: Channel = relationship('Channel', foreign_keys=channel_id)
     author = relationship('User')
     reply = relationship('Message', remote_side=[id])
 
-    def serialize(self, current_user, db):
+    def serialize(self, current_user, db, nonce=None):
         author = None
         if self.webhook_id:
             author = self.webhook_author
@@ -88,7 +87,7 @@ class Message(Base):
                                    func.bool_or(Reactions.user_id == current_user)).filter_by(
             message_id=self.id).group_by(Reactions.reaction).all()
 
-        return {
+        serialized = {
             'id': str(self.id),
             'channel_id': str(self.channel_id) if self.channel_id else None,
             'author_id': str(self.author_id) if self.author_id else None,
@@ -110,6 +109,10 @@ class Message(Base):
             'mention_channels': self.mentions_channels(),
             'reply': self.reply.serialize(current_user, db) if self.reply else None
         }
+
+        if nonce:
+            serialized['nonce'] = nonce
+        return serialized
 
     def mentions_everyone(self):
         return '@everyone' in self.content

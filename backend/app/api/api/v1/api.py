@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import StreamingResponse
 
 from api.api import deps
-from api.api.v1.endpoints import auth, channels, gifs, users, guilds, invites, default, oauth2, webhooks
+from api.api.v1.endpoints import auth, channels, gifs, users, guilds, invites, default, oauth2, webhooks, applications
 from api.core import emitter
 from api.core.events import Events, websocket_emitter
 from api.models.guilds import Guild, GuildMembers, GuildBans
@@ -114,4 +114,5 @@ api_router.include_router(guilds.router, prefix="/guilds", tags=["guilds"])
 api_router.include_router(invites.router, prefix='/invites', tags=["invites"])
 api_router.include_router(
     webhooks.router, prefix='/webhooks', tags=["webhooks"])
+api_router.include_router(applications.router, prefix='/applications', tags=["applications"])
 api_router.include_router(oauth2.router, prefix='/oauth2', tags=["oauth2"])

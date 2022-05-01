@@ -6,6 +6,7 @@ import {
     Typography,
     Stack,
     useTheme,
+    Theme,
 } from "@mui/material";
 import { format, isToday, isYesterday } from "date-fns";
 import { memo, useMemo } from "react";
@@ -15,7 +16,6 @@ import { getUser } from "../../../user-cache";
 import { DefaultProfilePic } from "../../DefaultProfilePic";
 import { Markdown } from "../../markdown/Markdown";
 import { Attachments } from "../Attachments";
-import enIn from "date-fns/locale/en-IN";
 import { GuildMembers } from "../../../../stores/useUserStore";
 import { useContextMenu } from "../../../../hooks/useContextMenu";
 import { ContextMenu } from "../../context-menus/ContextMenu";
@@ -34,6 +34,7 @@ import { Emoji, store } from "emoji-mart";
 import { usePermssions } from "../../../../hooks/usePermissions";
 import { checkPermissions } from "../../../compute-permissions";
 import { Permissions } from "../../../permissions";
+import { SxProps } from "@mui/system";
 
 export const Message: React.FC<{
     message: Messages;
@@ -173,32 +174,58 @@ export const Message: React.FC<{
         ],
     ];
 
+    const style: SxProps<Theme> = {
+        cursor: "default",
+        borderLeft: isMention ? `3px solid white` : undefined,
+        mt: disableHeader ? 0 : 2,
+        pt: 0,
+        pb: 0,
+        borderTopStyle: "solid",
+        borderTopWidth: newMessage ? 1 : 0,
+        borderTopColor: "error.dark",
+        position: "relative",
+        "&:hover .message-avatar": {
+            visibility: "visible",
+        },
+    };
+
+    if (newMessage) {
+        (style as any)["::after"] = {
+            content: "'NEW'",
+            position: "absolute",
+            top: "0",
+            right: "0",
+            bgcolor: "error.dark",
+            transform: "translateY(-50%)",
+            p: 0.2,
+            fontSize: "12px",
+            borderRadius: "3px",
+        } as any;
+    }
+
     return (
         <ListItemButton
             onContextMenu={handleContextMenu}
             disableRipple
             selected={isMention}
-            sx={{
-                cursor: "default",
-                borderLeft: isMention ? `3px solid white` : undefined,
-                mt: disableHeader ? 0 : 2,
-                pt: 0,
-                pb: 0,
-                borderBottomStyle: "solid",
-                borderBottomWidth: newMessage ? 1 : 0,
-                borderBottomColor: "error.dark",
-            }}
+            sx={style}
             id={message.id}
             key={message.id}
         >
             <ContextMenu {...props} menuObject={menuObject} />
             <ListItemAvatar
+                className="message-avatar"
                 sx={{
                     alignSelf: "flex-start",
-                    mt: 1,
+                    mt: disableHeader ? 0.3 : 1,
+                    visibility: disableHeader ? "hidden" : "visible",
                 }}
             >
-                {!disableHeader && (
+                {disableHeader ? (
+                    <Typography color="graytext" variant="caption">
+                        {format(date, "p")}
+                    </Typography>
+                ) : (
                     <Avatar>
                         <DefaultProfilePic tag={message.author.tag} />
                     </Avatar>
@@ -222,9 +249,7 @@ export const Message: React.FC<{
                                     ? `Today at ${format(date, "p")}`
                                     : isYesterday(date)
                                     ? `Yesterday at ${format(date, "p")}`
-                                    : format(date, "P", {
-                                          locale: enIn,
-                                      })}
+                                    : format(date, "p")}
                             </Typography>
                         </Typography>
                     )

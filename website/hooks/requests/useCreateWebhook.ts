@@ -24,7 +24,6 @@ export const useCreateWebhook = () => {
     const queryClient = useQueryClient();
     return useMutation(createWebhook, {
         onSuccess: webhook => {
-            console.log(webhook.channel_id);
             queryClient.invalidateQueries(["webhooks", webhook.channel_id]);
         },
     });

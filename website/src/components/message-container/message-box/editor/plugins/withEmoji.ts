@@ -23,7 +23,6 @@ export const withEmoji =
                     const tree = syntaxTree(text);
                     for (const item of tree) {
                         if (item.type === "emoji") {
-                            console.log(item);
                             Transforms.insertFragment(editor, [
                                 {
                                     type: "emoji",

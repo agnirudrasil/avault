@@ -115,7 +115,7 @@ class Channel(Base):
     nsfw = Column(Boolean, nullable=False)
     last_message_timestamp = Column(DateTime, nullable=True)
     last_message_id = Column(BigInteger, ForeignKey(
-        'messages.id', ondelete="SET NULL"), nullable=True)
+        'messages.id', ondelete="SET NULL", use_alter=True), nullable=True)
     owner_id = Column(BigInteger, ForeignKey(
         'users.id', ondelete="SET NULL"), nullable=True)
     parent_id = Column(BigInteger, ForeignKey(

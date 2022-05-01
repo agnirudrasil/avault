@@ -1,8 +1,9 @@
 import functools
 import operator
-from typing import Generator, List, Union, Optional
+from datetime import datetime
+from typing import Generator, List, Union
 
-from fastapi import Depends, HTTPException, status, Request, Cookie
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
@@ -28,24 +29,6 @@ def get_db() -> Generator[Session, None, None]:
         db.close()
 
 
-def get_current_user_refresh_token(jid: Optional[str] = Cookie(None), db: Session = Depends(get_db)) -> models.User:
-    try:
-        payload = jwt.decode(
-            jid, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
-        )
-        token_data = schemas.TokenPayload(**payload)
-    except (jwt.JWTError, ValidationError):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate credentials",
-        )
-
-    user = crud.user.get(db, id=token_data.sub)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
-
-
 def get_current_user(
         db: Session = Depends(get_db), token: str = Depends(reusable_oauth2)
 ) -> models.User:
@@ -61,8 +44,16 @@ def get_current_user(
         )
 
     user = crud.user.get(db, id=token_data.sub)
+
+    if user.last_login >= datetime.fromtimestamp(token_data.iat):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Token has expired",
+        )
+
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=403, detail="Could not validate credentials")
+
     return user
 
 

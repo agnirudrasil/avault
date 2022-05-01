@@ -48,16 +48,20 @@ export const ContextMenu: React.FC<Props> = ({
                     menuItems.length > 0 && (
                         <div>
                             {menuItems.map(
-                                ({
-                                    label,
-                                    disabled,
-                                    color,
-                                    icon,
-                                    action,
-                                    children,
-                                }) =>
+                                (
+                                    {
+                                        label,
+                                        disabled,
+                                        color,
+                                        icon,
+                                        action,
+                                        children,
+                                    },
+                                    i
+                                ) =>
                                     children ? (
                                         <NestedMenuItem
+                                            key={`${label}-${i}`}
                                             parentMenuOpen={
                                                 contextMenu !== null
                                             }
@@ -67,10 +71,11 @@ export const ContextMenu: React.FC<Props> = ({
                                                 </Typography>
                                             }
                                         >
-                                            {children.map(menuItem => (
+                                            {children.map((menuItem, index) => (
                                                 <StyledMenuItem
                                                     //@ts-ignore
                                                     component={ListItem}
+                                                    key={`${label}-${index}`}
                                                     sx={{
                                                         color: menuItem.color,
                                                         "&:hover": {
@@ -80,7 +85,7 @@ export const ContextMenu: React.FC<Props> = ({
                                                     }}
                                                     onClick={async e => {
                                                         e.stopPropagation();
-                                                        await action(
+                                                        await menuItem.action(
                                                             handleClose
                                                         );
                                                     }}
@@ -107,7 +112,9 @@ export const ContextMenu: React.FC<Props> = ({
                                                             <Typography
                                                                 sx={{
                                                                     maxWidth:
-                                                                        "80%",
+                                                                        menuItem.icon
+                                                                            ? "80%"
+                                                                            : "100%",
                                                                     overflow:
                                                                         "hidden",
                                                                     textOverflow:
@@ -126,6 +133,7 @@ export const ContextMenu: React.FC<Props> = ({
                                         <StyledMenuItem
                                             //@ts-ignore
                                             component={ListItem}
+                                            key={`${label}-${i}`}
                                             sx={{
                                                 display: "flex",
                                                 justifyContent: "space-between",
@@ -169,7 +177,9 @@ export const ContextMenu: React.FC<Props> = ({
                                                 primary={
                                                     <Typography
                                                         sx={{
-                                                            maxWidth: "80%",
+                                                            maxWidth: icon
+                                                                ? "80%"
+                                                                : "100%",
                                                             overflow: "hidden",
                                                             textOverflow:
                                                                 "ellipsis",

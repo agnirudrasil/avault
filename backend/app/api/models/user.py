@@ -1,6 +1,6 @@
 import random
 
-from sqlalchemy import BigInteger, Column, String, Text, UniqueConstraint, Boolean, Integer, ForeignKey
+from sqlalchemy import BigInteger, Column, String, Text, UniqueConstraint, Boolean, Integer, ForeignKey, DateTime, func
 from sqlalchemy.orm import Session, relationship
 
 from api.core.security import get_password_hash, verify_password, snowflake_id
@@ -30,10 +30,11 @@ class User(Base):
     tag = Column(String(5), nullable=False)
     bot = Column(Boolean, nullable=False, default=True)
     email = Column(String(120), unique=True, nullable=False)
+    last_login = Column(DateTime, nullable=False, default=func.now())
     unread = relationship("Unread", cascade="all, delete-orphan")
     __table_args__ = (UniqueConstraint("username", "tag"),)
 
-    def generate_tag(self, username, db):
+    def generate_tag(self, username, db: Session):
         tag = random.randint(1, 9999)
         tag_str = "#" + str(tag).zfill(4)
         user = db.query(User).filter_by(tag=tag_str, username=username).first()
@@ -59,11 +60,12 @@ class User(Base):
             "email": self.email,
         }
 
-    def __init__(self, username: str, password: str, email: str, db: Session, bot=False, user_id=None):
+    def __init__(self, db: Session, username: str, password: str = None, email: str = None, bot=False,
+                 user_id=None):
         self.id = user_id if user_id is not None else next(snowflake_id)
         self.username = username
-        self.email = email
-        self.password = get_password_hash(password)
+        self.email = email if email is not None else f"{self.id}@avault.agnirudra.me"
+        self.password = get_password_hash(password) if password is not None else ""
         self.tag = "#" + str(self.generate_tag(username, db)).zfill(4)
         self.bot = bot
 

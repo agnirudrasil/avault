@@ -1,4 +1,4 @@
-import { useTheme } from "@mui/material";
+import { Typography, useTheme } from "@mui/material";
 
 export const Element = ({ attributes, children, element }: any) => {
     const theme = useTheme();
@@ -7,20 +7,15 @@ export const Element = ({ attributes, children, element }: any) => {
             return <blockquote {...attributes}>{children}</blockquote>;
         case "emoji":
             return (
-                <span
-                    style={{
-                        verticalAlign: "baseline",
-                        display: "inline",
-                    }}
-                    {...attributes}
-                >
+                <span contentEditable={false} {...attributes}>
                     <img
                         style={{
-                            verticalAlign: "baseline",
-                            display: "inline",
+                            verticalAlign: "middle",
+                            display: "inline-block",
                         }}
-                        width="20px"
-                        height="auto"
+                        alt="emoji"
+                        width="22px"
+                        height="22px"
                         src={(element as any).src}
                     />
                     {children}
@@ -52,6 +47,10 @@ export const Element = ({ attributes, children, element }: any) => {
             );
         case "list-item":
         default:
-            return <div {...attributes}>{children}</div>;
+            return (
+                <Typography component="p" {...attributes}>
+                    {children}
+                </Typography>
+            );
     }
 };

@@ -1,15 +1,27 @@
-import { AddCircle, EmojiEmotions, Gif, Send } from "@mui/icons-material";
+import {
+    AddCircle,
+    EmojiEmotions,
+    Gif,
+    Send,
+    Upload,
+    Audiotrack,
+    Videocam,
+} from "@mui/icons-material";
 import {
     Divider,
     IconButton,
     List,
     ListItemButton,
+    ListItemIcon,
     ListItemText,
     ListSubheader,
+    Menu,
+    MenuItem,
     Paper,
     Popover,
     Stack,
     ToggleButton,
+    Typography,
 } from "@mui/material";
 import produce from "immer";
 import React, { Fragment, useCallback, useRef, useState } from "react";
@@ -53,8 +65,10 @@ import { Roles, useRolesStore } from "../../../../../stores/useRolesStore";
 
 export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
     const router = useRouter();
+    const [open, setOpen] = useState<HTMLElement | null>(null);
     const [files, setFiles] = useState<Attachment[]>([]);
     const [picker, setPicker] = useState<string | null>(null);
+    const fileRef = useRef<HTMLInputElement | null>(null);
 
     const [value, setValue] = useState<Descendant[]>([
         {
@@ -293,6 +307,112 @@ export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
             value={value}
             editor={editor}
         >
+            <input
+                ref={fileRef}
+                id="file-input"
+                type="file"
+                value={[]}
+                multiple
+                hidden
+                onChange={e => {
+                    if (!e.target.files) return;
+                    for (const file of e.target.files) {
+                        handleFileUpload(file);
+                    }
+                }}
+            />
+            <Menu
+                anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "left",
+                }}
+                transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "left",
+                }}
+                PaperProps={{
+                    sx: {
+                        p: 1,
+                    },
+                }}
+                anchorEl={open}
+                open={Boolean(open)}
+                onClose={() => setOpen(null)}
+            >
+                <MenuItem
+                    sx={{
+                        borderRadius: "4px",
+                        "&:hover": {
+                            bgcolor: "primary.dark",
+                        },
+                        "&:hover p": {
+                            color: "white",
+                        },
+                    }}
+                    disableRipple
+                    onClick={() => {
+                        fileRef.current?.click();
+                        setOpen(null);
+                    }}
+                >
+                    <ListItemIcon>
+                        <Upload />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary={
+                            <Typography variant="body2">
+                                Upload a file
+                            </Typography>
+                        }
+                    />
+                </MenuItem>
+                <MenuItem
+                    sx={{
+                        borderRadius: "4px",
+                        "&:hover": {
+                            bgcolor: "primary.dark",
+                        },
+                        "&:hover p": {
+                            color: "white",
+                        },
+                    }}
+                    disableRipple
+                >
+                    <ListItemIcon>
+                        <Audiotrack />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary={
+                            <Typography variant="body2">
+                                Record Audio
+                            </Typography>
+                        }
+                    />
+                </MenuItem>
+                <MenuItem
+                    sx={{
+                        borderRadius: "4px",
+                        "&:hover": {
+                            bgcolor: "primary.dark",
+                        },
+                        "&:hover p": {
+                            color: "white",
+                        },
+                    }}
+                    disableRipple
+                >
+                    <ListItemIcon>
+                        <Videocam />
+                    </ListItemIcon>
+                    <ListItemText
+                        primary={
+                            <Typography variant="body2">
+                                Record Video
+                            </Typography>
+                        }
+                    />
+                </MenuItem>
+            </Menu>
             <Paper
                 sx={{
                     m: 2,
@@ -420,30 +540,17 @@ export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
                     direction="row"
                     alignItems="center"
                     justifyContent="center"
-                    sx={{ width: "100%", m: 0.5, ml: 1, mr: 1 }}
+                    sx={{ width: "100%", m: 0.5, ml: 1, mr: 1, pl: 2, pr: 2 }}
                 >
-                    <label htmlFor="file-upload">
-                        <input
-                            type="file"
-                            multiple
-                            value={[]}
-                            id="file-upload"
-                            style={{ display: "none" }}
-                            onChange={e => {
-                                if (
-                                    e.target.files &&
-                                    e.target.files.length > 0
-                                ) {
-                                    for (const file of e.target.files) {
-                                        handleFileUpload(file);
-                                    }
-                                }
-                            }}
-                        />
-                        <IconButton component="span" disabled={!channel}>
-                            <AddCircle />
-                        </IconButton>
-                    </label>
+                    <IconButton
+                        onClick={e => {
+                            e.preventDefault();
+                            setOpen(e.currentTarget);
+                        }}
+                        disabled={!channel}
+                    >
+                        <AddCircle />
+                    </IconButton>
                     <Editable
                         readOnly={!channel}
                         autoFocus

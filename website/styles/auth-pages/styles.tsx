@@ -16,7 +16,6 @@ export const StyledForm = styled(Form)`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: white;
     width: 400px;
     border-radius: 7px;
     height: max-content;

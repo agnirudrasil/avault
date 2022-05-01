@@ -24,7 +24,6 @@ export const usePatchWebhook = () => {
     const queryClient = useQueryClient();
     return useMutation(patchWebhook, {
         onSuccess: webhook => {
-            console.log(webhook.channel_id);
             queryClient.invalidateQueries(["webhooks", webhook.channel_id]);
         },
     });

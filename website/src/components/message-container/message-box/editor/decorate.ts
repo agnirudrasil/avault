@@ -36,11 +36,13 @@ export const decorate: (node: NodeEntry<Node>) => BaseRange[] = ([
         const length = getLength(token);
         const syntaxBefore =
             start +
-            extraSpaces[token.type as keyof typeof extraSpaces].syntaxBefore;
+            extraSpaces[token.type as keyof typeof extraSpaces].syntaxBefore
+                .length;
         const end = syntaxBefore + length;
         const syntaxAfter =
             end +
-            extraSpaces[token.type as keyof typeof extraSpaces].syntaxAfter;
+            extraSpaces[token.type as keyof typeof extraSpaces].syntaxAfter
+                .length;
         if (token.type !== "text") {
             ranges.push({
                 punctuation: true,

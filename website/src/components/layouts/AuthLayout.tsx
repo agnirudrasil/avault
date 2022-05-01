@@ -2,6 +2,7 @@ import { Formik, FormikConfig, FormikProps, FormikValues } from "formik";
 import { AuthContainer, StyledForm } from "../../../styles/auth-pages/styles";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { Paper } from "@mui/material";
 
 export interface AuthLayoutProps extends FormikConfig<FormikValues> {
     children: (props: FormikProps<FormikValues>) => React.ReactNode;
@@ -21,16 +22,16 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
             </Head>
             <Formik {...props}>
                 {props => (
-                    <StyledForm>
-                        <div>
+                    <Paper>
+                        <StyledForm style={{}}>
                             <img
                                 style={{ width: "200px", marginBottom: "2rem" }}
                                 src="/logo.png"
                                 alt="logo"
                             />
-                        </div>
-                        {(children as any)(props)}
-                    </StyledForm>
+                            {(children as any)(props)}
+                        </StyledForm>
+                    </Paper>
                 )}
             </Formik>
         </AuthContainer>

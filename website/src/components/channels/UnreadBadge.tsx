@@ -16,7 +16,7 @@ export const UnreadBadge: React.FC<{ unread: Unread }> = memo(({ unread }) => {
                         : "0px",
                 bgcolor: "common.white",
                 top: "50%",
-                left: "-14px",
+                left: "-5.5px",
                 transform: "translateY(-50%)",
                 borderRadius: "0 10px 10px 0",
                 transition: "height 300ms ease",

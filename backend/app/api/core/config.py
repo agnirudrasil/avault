@@ -8,13 +8,13 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str = 'qLuRm_BFVNJ1AZZWDUd8xCiso2wzTYJz82qCKDgiAlU'
     # 60 minutes * 24 hours * 8 days = 8 days
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30
     SERVER_NAME: str = "localhost:5000"
     SERVER_HOST: AnyHttpUrl = os.getenv("HOST", "https://avault.agnirudra.me")
     RABBITMQ_HOST: str = os.getenv("RABBITMQ_HOST", "127.0.0.1")
     REDIS_HOST: str = os.getenv("REDIS_HOST", "127.0.0.1")
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ['http://localhost:3000', "http://127.0.0.1:5500"]
+    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ['http://localhost:3000', "http://127.0.0.1:5500", 'http://localhost:5000']
     TENOR_API_KEY: str = os.getenv("TENOR_API_KEY")
     AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY")

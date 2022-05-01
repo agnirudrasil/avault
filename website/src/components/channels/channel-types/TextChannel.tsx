@@ -13,10 +13,14 @@ import {
     useTheme,
 } from "@mui/material";
 import Link from "next/link";
+import shallow from "zustand/shallow";
+import { useDeleteChannel } from "../../../../hooks/requests/useDeleteChannel";
+import { useChannelUpdate } from "../../../../hooks/requests/useUpdateChannel";
 import { useContextMenu } from "../../../../hooks/useContextMenu";
 import { useCreateChannel } from "../../../../hooks/useCreateChannel";
 import { useCreateInvite } from "../../../../hooks/useCreateInvite";
 import { usePermssions } from "../../../../hooks/usePermissions";
+import { useChannelsStore } from "../../../../stores/useChannelsStore";
 import { useUserStore } from "../../../../stores/useUserStore";
 import { Channel } from "../../../../types/channels";
 import { checkPermissions } from "../../../compute-permissions";
@@ -35,10 +39,24 @@ type Props = TreeItemProps & {
 
 export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
     const { permissions } = usePermssions(channel.guild_id || "", channel.id);
+
+    const channels = useChannelsStore(
+        state =>
+            Object.keys(state.channels[channel.guild_id || ""] ?? {})
+                .filter(key => {
+                    const c = state.channels[channel.guild_id || ""]?.[key];
+                    return c?.type === "GUILD_CATEGORY";
+                })
+                .map(id => state.channels[channel.guild_id || ""][id]),
+        shallow
+    );
+    const { mutateAsync: editChannel } = useChannelUpdate();
+
     const unread = useUserStore(state => state.unread[channel.id]);
     const theme = useTheme();
     const { createInvite } = useCreateInvite();
     const { createChannel } = useCreateChannel();
+    const { mutateAsync } = useDeleteChannel(channel.id);
 
     const { handleContextMenu, ...props } = useContextMenu();
     const menuObject: ContextMenuShape[][] = [
@@ -88,6 +106,33 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
                 },
             },
             {
+                label: "Move To",
+                visible: checkPermissions(
+                    permissions,
+                    Permissions.MANAGE_CHANNELS
+                ),
+                action: handleClose => {
+                    handleClose();
+                },
+                children: channels
+                    .filter(({ id }) => id !== channel.parent_id)
+                    .map(c => ({
+                        label: c.name,
+                        visible: true,
+                        action: async handleClose => {
+                            await editChannel({
+                                channelId: channel.id,
+                                data: {
+                                    name: channel.name,
+                                    topic: channel.topic || "",
+                                    parent_id: c.id,
+                                },
+                            });
+                            handleClose();
+                        },
+                    })),
+            },
+            {
                 label: "Create Text Channel",
                 visible: checkPermissions(
                     permissions,
@@ -119,7 +164,8 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
                     permissions,
                     Permissions.MANAGE_CHANNELS
                 ),
-                action: handleClose => {
+                action: async handleClose => {
+                    await mutateAsync();
                     handleClose();
                 },
                 color: theme.palette.error.dark,
@@ -155,7 +201,16 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
                     }`}
                     passHref
                 >
-                    <MuiLink sx={{ color: "inherit" }} underline="none">
+                    <MuiLink
+                        onClick={() => {
+                            localStorage.setItem(
+                                `last-${channel.guild_id}`,
+                                channel.id
+                            );
+                        }}
+                        sx={{ color: "inherit" }}
+                        underline="none"
+                    >
                         <ListItem
                             dense
                             sx={{
@@ -166,8 +221,8 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
                             }}
                             disableGutters
                         >
-                            <ContextMenu menuObject={menuObject} {...props} />
                             <UnreadBadge unread={unread} />
+                            <ContextMenu menuObject={menuObject} {...props} />
                             {unread?.mentionCount &&
                             unread?.mentionCount !== 0 ? (
                                 <ListItemAvatar sx={{ minWidth: "0px" }}>

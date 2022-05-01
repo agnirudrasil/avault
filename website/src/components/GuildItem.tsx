@@ -53,8 +53,13 @@ export const GuildItem: React.FC<Props> = ({ guild }) => {
         [unread]
     );
 
+    const lastChannel = localStorage.getItem(`last-${guild?.id || ""}`);
+
     return (
-        <Link href={`/channels/${guild ? guild.id : "@me"}`} passHref>
+        <Link
+            href={`/channels/${guild ? guild.id : "@me"}/${lastChannel ?? ""}`}
+            passHref
+        >
             <MuiLink underline="none" sx={{ color: "common.white" }}>
                 <Box onContextMenu={handleContextMenu} sx={{ m: 1 }}>
                     <StyledBadge

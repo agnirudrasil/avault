@@ -17,8 +17,11 @@ const buildText = (token: SingleASTNode): string => {
     } else if (token?.type === "emoji" || token?.type === "mention") {
         return "";
     } else {
+        //@ts-ignore
         return `${extraSpaces[token?.type]?.syntaxBefore || ""}${token?.content
+            //@ts-ignore
             ?.map(t => buildText(t))
+            //@ts-ignore
             .join("")}${extraSpaces[token?.type]?.syntaxAfter || ""}`;
     }
 };
@@ -27,8 +30,6 @@ export const deserialize = (text: string) => {
     const tokens = deserializeSyntaxTree(text);
 
     const children = [];
-
-    console.log(tokens);
 
     for (const token of tokens) {
         if (token.type === "blockQuote") {

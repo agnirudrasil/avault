@@ -91,7 +91,6 @@ export const CategoryChannel: React.FC<Props> = ({
                     Permissions.MANAGE_CHANNELS
                 ),
                 action: handleClose => {
-                    mutate();
                     handleClose();
                 },
             },
@@ -104,6 +103,7 @@ export const CategoryChannel: React.FC<Props> = ({
                     Permissions.MANAGE_CHANNELS
                 ),
                 action: handleClose => {
+                    mutate();
                     handleClose();
                 },
                 color: theme.palette.error.dark,

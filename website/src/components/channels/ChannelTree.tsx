@@ -61,7 +61,25 @@ export const ChannelTree: React.FC = () => {
             expanded={expanded}
             defaultEndIcon={<div style={{ width: 24 }} />}
             onNodeToggle={handleToggle}
-            sx={{ m: 1 }}
+            sx={{
+                m: 1,
+                mr: "10px",
+                overflowY: "hidden",
+                "&:hover": {
+                    overflowY: "scroll",
+                    mr: 0,
+                },
+                "&::-webkit-scrollbar": {
+                    width: "10px",
+                },
+                "&::-webkit-scrollbar-track": {
+                    bgcolor: "grey.900",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                    border: "3px solid transparent",
+                    bgcolor: "background.paper",
+                },
+            }}
             selected={selected}
         >
             {Object.keys(richObject).map(key =>

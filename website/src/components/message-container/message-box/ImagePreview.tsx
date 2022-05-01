@@ -32,6 +32,7 @@ export const ImagePreview: React.FC<{
         >
             {file.file.type.startsWith("image/") && preview ? (
                 <img
+                    alt={file.filename}
                     style={{ minWidth: "100px", maxWidth: 100 }}
                     src={preview}
                 />

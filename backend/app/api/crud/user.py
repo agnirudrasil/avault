@@ -1,11 +1,11 @@
 from typing import Any, Dict, Optional, Union
-from api.models.guilds import GuildMembers
-from api.models.roles import Role
 
 from sqlalchemy.orm import Session
 
 from api.core.security import get_password_hash, verify_password
 from api.crud.base import CRUDBase
+from api.models.guilds import GuildMembers
+from api.models.roles import Role
 from api.models.user import User
 from api.schemas.user import UserCreate, UserUpdate
 
@@ -16,6 +16,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
         db_obj = User(
+            db,
             email=obj_in.email,
             password=obj_in.password,
             username=obj_in.username,
@@ -25,8 +26,8 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.refresh(db_obj)
         return db_obj
 
-    def get_permissions(self,
-                        db: Session, *,
+    @staticmethod
+    def get_permissions(db: Session, *,
                         user_id: int,
                         guild_id: int,
                         channel_id: Optional[int] = None) -> Optional[Union[int, str]]:
@@ -51,7 +52,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return permissions
 
     def update(
-        self, db: Session, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]
+            self, db: Session, *, db_obj: User, obj_in: Union[UserUpdate, Dict[str, Any]]
     ) -> User:
         if isinstance(obj_in, dict):
             update_data = obj_in

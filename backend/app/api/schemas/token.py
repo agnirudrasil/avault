@@ -11,3 +11,4 @@ class Token(BaseModel):
 
 class TokenPayload(BaseModel):
     sub: Optional[int] = None
+    iat: int = None

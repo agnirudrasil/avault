@@ -61,7 +61,6 @@ const InvitePage: NextPage<{ code: string }> = ({ code }) => {
                                             const path = `/login?next=${encodeURIComponent(
                                                 router.asPath
                                             )}`;
-                                            console.log(path);
                                             router.push(path);
                                             return {};
                                         },

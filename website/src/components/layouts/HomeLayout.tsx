@@ -9,6 +9,11 @@ import { ServerBar } from "../ServerBar";
 
 export const HomeLayout: React.FC = () => {
     const router = useRouter();
+
+    import("../../../languages.json").then(languages => {
+        console.log(languages.default);
+    });
+
     return (
         <CreateChannelDialogProvider>
             <CreateInviteDialogProvider>

@@ -9,8 +9,8 @@ import { WebsocketProvider } from "../contexts/WebsocketProvider";
 import "emoji-mart/css/emoji-mart.css";
 import "../styles/styles.css";
 import { useRouter } from "next/router";
-import Head from "next/head";
 import { darkTheme } from "../src/theme";
+import { PageHead } from "../src/components/PageHead";
 
 const clientSideCache = createEmotionCache();
 
@@ -26,6 +26,7 @@ const MyComponent: React.FC<MyAppProps & { overwrites: string[] }> = props => {
     return overwrites.includes(router.asPath) ||
         router.asPath.startsWith("/invite") ||
         router.asPath.startsWith("/login") ||
+        router.asPath.startsWith("/developers") ||
         router.asPath.startsWith("/register") ? (
         <Component {...pageProps} />
     ) : (
@@ -41,27 +42,7 @@ const MyApp = (props: MyAppProps) => {
 
     return (
         <QueryClientProvider client={queryClient}>
-            <Head>
-                <title>Avault</title>
-                <link
-                    rel="apple-touch-icon"
-                    sizes="180x180"
-                    href="/apple-touch-icon.png"
-                />
-                <link
-                    rel="icon"
-                    type="image/png"
-                    sizes="32x32"
-                    href="/favicon-32x32.png"
-                />
-                <link
-                    rel="icon"
-                    type="image/png"
-                    sizes="16x16"
-                    href="/favicon-16x16.png"
-                />
-                <link rel="manifest" href="/site.webmanifest"></link>
-            </Head>
+            <PageHead />
             <Global
                 styles={css`
                     *::-webkit-scrollbar {

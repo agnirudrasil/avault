@@ -1,14 +1,14 @@
 import secrets
+from datetime import datetime
 from typing import Optional
 
-from cryptography.fernet import Fernet
 from fastapi import APIRouter, Depends, Response
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from api import models
 from api.api import deps
-from api.core.config import settings
+from api.core import security
 
 router = APIRouter()
 
@@ -24,6 +24,12 @@ class ApplicationEdit(BaseModel):
     redirect_uris: Optional[list[str]] = None
 
 
+def generate_secret_token():
+    secret_token = secrets.token_urlsafe(32)
+    hashed_token = security.get_password_hash(secret_token)
+    return [hashed_token, secret_token]
+
+
 @router.get("/")
 async def get_applications(current_user: models.User = Depends(deps.get_current_user),
                            db: Session = Depends(deps.get_db)):
@@ -35,10 +41,8 @@ async def get_applications(current_user: models.User = Depends(deps.get_current_
 @router.post("/")
 async def create_application(body: ApplicationCreate, current_user: models.User = Depends(deps.get_current_user),
                              db: Session = Depends(deps.get_db)):
-    secret_token = secrets.token_urlsafe(32)
-    cipher_suite = Fernet(settings.FERNET_KEY)
-    encoded_token = cipher_suite.encrypt(secret_token.encode('utf-8'))
-    application = models.Application(name=body.name, secret=encoded_token.decode('utf-8'), owner_id=current_user.id,
+    hashed_token, secret_token = generate_secret_token()
+    application = models.Application(name=body.name, secret=hashed_token, owner_id=current_user.id,
                                      description=body.description)
     db.add(application)
     db.commit()
@@ -66,10 +70,8 @@ async def edit_application(application_id: int, body: ApplicationEdit, response:
         return {"detail": "Not Found"}
     if body.name:
         application.name = body.name
-    if body.description is not None:
-        application.description = body.description
-    if body.redirect_uris is not None:
-        application.redirect_uris = body.redirect_uris
+    application.description = body.description
+    application.redirect_uris = body.redirect_uris
     db.commit()
     return application.serialize()
 
@@ -78,16 +80,17 @@ async def edit_application(application_id: int, body: ApplicationEdit, response:
 async def reset_token(application_id: int, response: Response,
                       current_user: models.User = Depends(deps.get_current_user),
                       db: Session = Depends(deps.get_db)):
-    application = db.query(models.Application).filter_by(id=application_id).filter_by(owner_id=current_user.id).first()
+    application: models.Application = db.query(models.Application).filter_by(id=application_id).filter_by(
+        owner_id=current_user.id).first()
     if not application:
         response.status_code = 404
         return {"detail": "Not Found"}
-    secret_token = secrets.token_urlsafe(32)
-    cipher_suite = Fernet(settings.FERNET_KEY)
-    encoded_token = cipher_suite.encrypt(secret_token.encode('utf-8'))
-    application.secret = encoded_token.decode('utf-8')
+    hashed_token, secret_token = generate_secret_token()
+    application.secret = hashed_token
     db.commit()
-    return application.serialize()
+    return {
+        "token": secret_token
+    }
 
 
 @router.delete("/{application_id}", status_code=204)
@@ -103,9 +106,32 @@ async def delete_application(application_id: int,
 async def create_bot(application_id: int, response: Response,
                      current_user: models.User = Depends(deps.get_current_user),
                      db: Session = Depends(deps.get_db)):
-    application = db.query(models.Application).filter_by(id=application_id).filter_by(owner_id=current_user.id).first()
+    application: models.Application = db.query(models.Application).filter_by(id=application_id).filter_by(
+        owner_id=current_user.id).first()
     if application.bot:
         response.status_code = 409
         return {"detail": "Bot already exists"}
+    bot = models.User(db, username=application.name, bot=True)
+    application.bot = bot
+    db.commit()
+    return application.serialize()
 
+
+@router.post("/{application_id}/bot/reset")
+async def reset_bot_token(application_id: int, response: Response,
+                          current_user: models.User = Depends(deps.get_current_user),
+                          db: Session = Depends(deps.get_db)):
+    application: models.Application = db.query(models.Application).filter_by(id=application_id).filter_by(
+        owner_id=current_user.id).first()
+    if not application:
+        response.status_code = 404
+        return {"detail": "Not Found"}
+    if not application.bot:
+        response.status_code = 404
+        return {"detail": "Bot not found"}
+    iat = datetime.utcnow()
+    token = security.create_access_token(db, application.bot.id, expires_delta="na", iat=iat)
     
+    return {
+        "token": token
+    }

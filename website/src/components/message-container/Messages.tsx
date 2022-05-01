@@ -1,8 +1,7 @@
-import { Divider } from "@mantine/core";
 import { Box, List, Typography } from "@mui/material";
-import { differenceInSeconds } from "date-fns";
+import { differenceInSeconds, format, isToday, isYesterday } from "date-fns";
 import { useRouter } from "next/router";
-import { Fragment, memo, useMemo } from "react";
+import { memo, useMemo } from "react";
 import { Waypoint } from "react-waypoint";
 import { useMessages } from "../../../hooks/requests/useMessages";
 import { useUserStore } from "../../../stores/useUserStore";
@@ -11,7 +10,6 @@ import { groupBy } from "../../group-by";
 import { ChannelIcon } from "../ChannelIcon";
 import { SkeletonLoader } from "../SkeletonLoader";
 import { Message } from "./message";
-import { NewIndicator } from "./NewIndicator";
 
 export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
     const router = useRouter();
@@ -39,27 +37,56 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
         >
             {Object.keys(group).map(time => {
                 const messageGroups = group[time];
+                const date = new Date(time);
                 return (
-                    <Fragment key={time}>
-                        {messageGroups.map((message, i, array) => (
+                    <Box sx={{ position: "relative" }} key={time}>
+                        <Box
+                            sx={{
+                                bgcolor: "white",
+                                width: "max-content",
+                                color: "black",
+                                p: 0.5,
+                                borderRadius: "6px",
+                                margin: "0 auto",
+                                position: "sticky",
+                                top: 0,
+                                mt: 2,
+                            }}
+                        >
+                            <Typography
+                                sx={{ userSelect: "none" }}
+                                variant="body2"
+                            >
+                                {isToday(date)
+                                    ? "Today"
+                                    : isYesterday(date)
+                                    ? "Yesterday"
+                                    : format(date, "MMM d, yyyy")}
+                            </Typography>
+                        </Box>
+                        {messageGroups.reverse().map((message, i, array) => (
                             <Message
                                 key={message.id}
                                 disableHeader={
-                                    array[i + 1]?.author.id ===
+                                    i !== 0 &&
+                                    array[i - 1]?.author.id ===
                                         message.author.id &&
-                                    i !== array.length - 1 &&
                                     differenceInSeconds(
                                         new Date(message.timestamp),
-                                        new Date(array[i + 1].timestamp)
+                                        new Date(array[i - 1].timestamp)
                                     ) < 300
                                 }
-                                newMessage={i !== 0 && lastRead === message.id}
+                                newMessage={
+                                    lastRead === undefined
+                                        ? i === 0
+                                        : i !== 0 &&
+                                          array[i - 1]?.id === lastRead
+                                }
                                 guild={router.query.guild as string}
                                 message={message}
                             />
                         ))}
-                        <Divider my="xs" label={time} labelPosition="center" />
-                    </Fragment>
+                    </Box>
                 );
             })}
             <Waypoint
@@ -69,7 +96,7 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
                     }
                 }}
             />
-            {(!hasNextPage || !isFetchingNextPage) && (
+            {(!hasNextPage || !isFetching) && (
                 <Box sx={{ m: 2 }}>
                     <Box
                         sx={{
