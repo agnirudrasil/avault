@@ -82,6 +82,8 @@ An instant messaging website with messaging and administration features.
 - Previews of links in messages.
 - Permissions management through Roles and Channel specific overwrites
 - OAuth2 and Bots.
+- Message Embeds
+- File Uploads, Emojis and GIFs
 
 
 <!-- ROADMAP -->
