@@ -132,7 +132,7 @@ Please open a github [issue](LICENSE).
 ## Acknowledgments
 
 * [FastAPI Docs](https://fastapi.tiangolo.com)
-* [Stackoverflow](htt://stackoverflow.com)
+* [Stackoverflow](https://stackoverflow.com)
   
 
 [contributors-shield]: https://img.shields.io/github/contributors/agnirudrasil/avault
