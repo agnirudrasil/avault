@@ -77,6 +77,7 @@ An instant messaging website with messaging and administration features.
 - OAuth2 and Bots.
 - Message Embeds.
 - File Uploads, Emojis and GIFs.
+- Unread notifications and @user mentions
 
 
 <!-- ROADMAP -->
