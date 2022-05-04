@@ -124,8 +124,10 @@ Please open a github [issue](LICENSE).
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
+* Logo made by **[Alvin Ben George](https://github.com/alvinbengeorge)**
 * [FastAPI Docs](https://fastapi.tiangolo.com)
 * [Stackoverflow](https://stackoverflow.com)
+
   
 
 [contributors-shield]: https://img.shields.io/github/contributors/agnirudrasil/avault
