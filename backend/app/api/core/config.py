@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = 'qLuRm_BFVNJ1AZZWDUd8xCiso2wzTYJz82qCKDgiAlU'
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
+    OAUTH2_TOKEN_EXPIRES_IN: int = 60 * 60 * 24 * 7
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30
     SERVER_NAME: str = "localhost:5000"
     SERVER_HOST: AnyHttpUrl = os.getenv("HOST", "https://avault.agnirudra.me")

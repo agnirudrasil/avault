@@ -292,7 +292,10 @@ export const WebsocketProvider: React.FC = ({ children }) => {
             });
             socket.on("disconnect", reason => {
                 if (reason === "io server disconnect") {
-                    router.replace("/login");
+                    queryClient.invalidateQueries();
+                    router.replace(
+                        "/login?next=" + encodeURIComponent(router.asPath)
+                    );
                 }
                 console.log("Disconnected");
             });

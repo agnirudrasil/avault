@@ -100,4 +100,11 @@ export const computePermissions = (
 };
 
 export const checkPermissions = (base: bigint | "ALL", perm: string) =>
-    base === "ALL" ? true : (base & BigInt(perm)) === BigInt(perm);
+    base === "ALL"
+        ? true
+        : (base & BigInt(8)) === BigInt(8)
+        ? true
+        : (base & BigInt(perm)) === BigInt(perm);
+
+export const checkPermissionsRaw = (base: string, perm: string) =>
+    (BigInt(base) & BigInt(perm)) === BigInt(perm);

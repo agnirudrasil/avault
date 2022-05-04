@@ -18,5 +18,9 @@ export const useGetApplication = (
         "queryKey" | "queryFn"
     >
 ) => {
-    return useQuery(["applications", id], getApplication, options);
+    return useQuery(["applications", id], getApplication, {
+        ...options,
+        cacheTime: Infinity,
+        staleTime: Infinity,
+    });
 };

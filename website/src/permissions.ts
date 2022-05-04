@@ -1,4 +1,4 @@
-export const Permissions = {
+export const Permissions: Record<string, string> = {
     CREATE_INSTANT_INVITE: "1",
     KICK_MEMBERS: "2",
     BAN_MEMBERS: "4",

@@ -1,6 +1,13 @@
 import asyncio
+import time
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Response
+from fastapi.responses import JSONResponse
+from limits import parse
+from limits.aio import storage
+from limits.aio import strategies
+from starlette import status
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
 
 from api.api.v1.api import api_router
@@ -27,8 +34,57 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
+
+@app.exception_handler(StarletteHTTPException)
+def handle(_, exc):
+    return JSONResponse(status_code=exc.status_code,
+                        content=exc.detail if isinstance(exc.detail, dict) else {'detail': exc.detail},
+                        headers=exc.headers)
+
+
 app.include_router(api_router, prefix=settings.API_V1_STR)
 emitter = Emitter(redis)
+
+memory_storage = storage.RedisStorage(f"redis://{settings.REDIS_HOST}:6379/")
+
+fixed_window = strategies.FixedWindowRateLimiter(memory_storage)
+
+
+class RateLimit:
+    def __init__(self, limit_str: str, global_limit: bool = False):
+        self.item = parse(limit_str)
+        self.global_limit = global_limit
+
+    async def __call__(self, response: Response):
+        _, remaining = fixed_window.get_window_stats(self.item, "test")
+
+        reset_time = max(memory_storage.storage.pttl(self.item.key_for("test")), 0)
+
+        headers = {
+            "X-RateLimit-Limit": str(self.item.amount),
+            "X-RateLimit-Remaining": str(remaining),
+            "X-RateLimit-Reset": str(reset_time / 1000),
+            "X-RateLimit-Reset-After": str((reset_time + int(time.time() * 1000))),
+            "X-RateLimit-Scope": "global" if self.global_limit else "user"
+        }
+
+        response.headers.update(headers)
+
+        if not fixed_window.hit(self.item, "test"):
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                headers=headers,
+                detail={"message": "You are being rate limited",
+                        "retry_after": reset_time / 1000,
+                        "global": self.global_limit}
+            )
+
+        return
+
+
+@app.get("/")
+async def root():
+    return ":+1:"
 
 
 @app.on_event('startup')

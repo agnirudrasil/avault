@@ -64,7 +64,8 @@ async def get_application(application_id: int, response: Response,
 async def edit_application(application_id: int, body: ApplicationEdit, response: Response,
                            current_user: models.User = Depends(deps.get_current_user),
                            db: Session = Depends(deps.get_db)):
-    application = db.query(models.Application).filter_by(id=application_id).filter_by(owner_id=current_user.id).first()
+    application: models.Application = db.query(models.Application).filter_by(id=application_id).filter_by(
+        owner_id=current_user.id).first()
     if not application:
         response.status_code = 404
         return {"detail": "Not Found"}
@@ -131,7 +132,7 @@ async def reset_bot_token(application_id: int, response: Response,
         return {"detail": "Bot not found"}
     iat = datetime.utcnow()
     token = security.create_access_token(db, application.bot.id, expires_delta="na", iat=iat)
-    
+
     return {
         "token": token
     }

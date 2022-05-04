@@ -3,8 +3,8 @@ import operator
 from datetime import datetime
 from typing import Generator, List, Union
 
-from fastapi import Depends, HTTPException, status, Request
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, status, Request, Header
+from fastapi.security import OAuth2AuthorizationCodeBearer, SecurityScopes
 from jose import jwt
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
@@ -15,18 +15,52 @@ from api.core.compute_permissions import compute_overwrites
 from api.core.config import settings
 from api.core.permissions import Permissions
 from api.db.session import SessionLocal
+from api.schemas.oauth2 import OAUTH2_SCOPES
 
-reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}/auth/access-token"
+reusable_oauth2 = OAuth2AuthorizationCodeBearer(
+    tokenUrl=f"{settings.API_V1_STR}/oauth2/token",
+    authorizationUrl=f"{settings.API_V1_STR}/oauth2/authorize",
+    refreshUrl=f"{settings.API_V1_STR}/oauth2/token",
+    scopes=OAUTH2_SCOPES,
 )
 
 
+def ensure_header(content_type: str = Header(...)):
+    if content_type != "application/x-www-form-urlencoded":
+        raise HTTPException(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                            f"Unsupported media type {content_type}. It must be application/x-www-form-urlencoded")
+    return
+
+
 def get_db() -> Generator[Session, None, None]:
+    db = None
     try:
         db = SessionLocal()
         yield db
     finally:
         db.close()
+
+
+def get_oauth2_user(security_scopes: SecurityScopes, db: Session = Depends(get_db),
+                    token: str = Depends(reusable_oauth2)) -> tuple[models.User, str]:
+    authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
+    try:
+        user = get_current_user(db, token)
+        return user, "all"
+    except HTTPException:
+        token: models.Token = db.query(models.Token).filter_by(access_token=token).first()
+        if token and not token.is_expired():
+            for scope in security_scopes.scopes:
+                if scope not in token.scope.split(" "):
+                    raise HTTPException(
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        detail="Not enough permissions",
+                        headers={"WWW-Authenticate": authenticate_value},
+                    )
+            return token.user, token.scope
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Could not validate credentials",
+                            headers={"WWW-Authenticate": authenticate_value})
+    pass
 
 
 def get_current_user(

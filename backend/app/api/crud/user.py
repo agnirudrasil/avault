@@ -65,12 +65,14 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
     def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
-        user = self.get_by_email(db, email=email)
-        if not user:
+        my_user = self.get_by_email(db, email=email)
+        if not my_user:
             return None
-        if not verify_password(password, user.password):
+        if my_user.bot:
             return None
-        return user
+        if not verify_password(password, my_user.password):
+            return None
+        return my_user
 
 
 user = CRUDUser(User)

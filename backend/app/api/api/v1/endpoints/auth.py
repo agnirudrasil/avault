@@ -36,8 +36,8 @@ def register(
     return {'success': True}
 
 
-@router.post("/access-token", response_model=schemas.Token)
-def login_access_token(
+@router.post("/login", response_model=schemas.Token)
+def login(
         response: Response,
         db: Session = Depends(deps.get_db),
         form_data: OAuth2PasswordRequestForm = Depends()
@@ -60,7 +60,6 @@ def login_access_token(
         "access_token": security.create_access_token(db, user.id, expires_delta=access_token_expires, iat=iat),
         "refresh_token": security.create_refresh_token(db, response, user.id, iat=iat,
                                                        expires_delta=refresh_token_expires),
-        "token_type": "bearer",
     }
 
 
@@ -88,7 +87,7 @@ def refresh_token(response: Response, jid: str = Cookie(None), db: Session = Dep
         )
 
     user: models.User = db.query(models.User).filter_by(id=token_data.sub).first()
-    
+
     if not user:
         response.delete_cookie(key="jid")
         raise HTTPException(
@@ -107,5 +106,4 @@ def refresh_token(response: Response, jid: str = Cookie(None), db: Session = Dep
     return {
         "access_token": security.create_access_token(db, token_data.sub, iat=iat),
         "refresh_token": security.create_refresh_token(db, response, token_data.sub, iat=iat),
-        "token_type": "bearer",
     }

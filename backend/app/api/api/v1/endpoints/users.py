@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, Response, BackgroundTasks
+from fastapi import APIRouter, Depends, Response, BackgroundTasks, Security
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -28,7 +28,10 @@ class CreateGroup(BaseModel):
 
 
 @router.get("/@me")
-def get_me(current_user: User = Depends(deps.get_current_user)):
+def get_me(oauth2_user: tuple[User, str] = Security(deps.get_oauth2_user, scopes=["identify"])):
+    current_user, scope = oauth2_user
+    if "email" in scope.split(" "):
+        return current_user.json()
     return current_user.serialize()
 
 
@@ -96,7 +99,9 @@ def get_user(user_id: int, response: Response, db: Session = Depends(deps.get_db
 
 
 @router.get('/@me/guilds')
-def get_guilds(current_user: User = Depends(deps.get_current_user)):
+def get_guilds(oauth2_user: tuple[User, str] = Security(deps.get_oauth2_user, scopes=["guilds"])):
+    current_user, scope = oauth2_user
+
     return [guild.guild.preview() for guild in current_user.guilds]
 
 

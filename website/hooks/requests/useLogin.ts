@@ -5,8 +5,9 @@ export const login = async (credentials: any) => {
     for (const [key, value] of Object.entries(credentials)) {
         form.append(key, value as string);
     }
+
     const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/access-token`,
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
         {
             method: "POST",
             body: form,

@@ -29,6 +29,7 @@ class Role(Base):
     position = Column(Integer, nullable=False)
     permissions = Column(BigInteger, nullable=False)
     mentionable = Column(Boolean, nullable=False)
+    tag = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     guild = relationship('Guild', back_populates="roles")
     members = relationship('GuildMembers', secondary=role_members,
                            lazy='subquery', backref=backref('roles', order_by="Role.position.desc(), Role.id.desc()",

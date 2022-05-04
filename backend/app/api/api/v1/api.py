@@ -92,12 +92,12 @@ async def join_guild(code: str,
             db.commit()
             response.status_code = 200
             await emitter.in_room(str(current_user.id)).sockets_join(str(guild_id))
-            await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_MEMBER_ADD,
-                                    guild_member.serialize())
             await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_CREATE,
                                     {"guild": guild.serialize(
                                     ), "member": guild_member.serialize()},
                                     current_user.id)
+            await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_MEMBER_ADD,
+                                    guild_member.serialize())
             return guild.serialize()
         return "Success"
     response.status_code = 404

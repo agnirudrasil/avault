@@ -8,7 +8,6 @@ export const AuthContainer = styled.div`
     justify-content: center;
     height: 100vh;
     width: 100%;
-    background-color: #404eed;
 `;
 
 export const StyledForm = styled(Form)`

@@ -1,7 +1,7 @@
 # from datetime import datetime, timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, File, Form, Response, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Response, UploadFile, Security, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import asc, desc, func
 from sqlalchemy.exc import IntegrityError
@@ -369,6 +369,16 @@ async def create_channel(guild_id: int,
 
 # TODO change channel positions
 
+@router.get('/{guild_id}/members/@me')
+async def get_guild_member(guild_id: int,
+                           user: User = Security(deps.get_oauth2_user, scopes=['guilds.members.read']),
+                           db: Session = Depends(deps.get_db)):
+    current, scope = user
+    member: GuildMembers = db.query(GuildMembers).filter_by(guild_id=guild_id).filter_by(user_id=current.id).first()
+    if not member:
+        raise HTTPException(status_code=404, detail='User is not a member of this guild')
+    return member.serialize()
+
 
 @router.get('/{guild_id}/members/{user_id}')
 async def get_guild_member(guild_id: int, user_id: int, response: Response,
@@ -407,22 +417,30 @@ async def get_guild_members(guild_id: int, response: Response,
     return
 
 
-# TODO OAuth Route
-# @router.put('/{guild_id}/members/{user_id}')
-# def add_guild_member(guild_id: int, user_id: int,
-#                      db: Session = Depends(deps.get_db)):
-#     guild = db.query(Guild).filter_by(id=guild_id).first()
-#     if guild:
-#         member = db.query(GuildMembers).filter_by(
-#             guild_id=guild_id).filter_by(user_id=user_id).first()
-#         if member:
-#             return member.serialize()
-#         member = GuildMembers()
-#         guild.members.append(member)
-#         db.add(member)
-#         db.commit()
-#         await (websocket_emitter( member.id, guild_id, Events.GUILD_MEMBER_ADD, member.serialize()))
-#         return member.serialize()
+@router.put('/{guild_id}/members/{user_id}')
+async def add_guild_member(guild_id: int, user_id: int,
+                           response: Response,
+                           oauth2_user: tuple[User, str] = Security(deps.get_oauth2_user, scopes=['guilds.join']),
+                           db: Session = Depends(deps.get_db)):
+    current_user, scope = oauth2_user
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild:
+        member = db.query(GuildMembers).filter_by(
+            guild_id=guild_id).filter_by(user_id=user_id).first()
+        if member:
+            response.status_code = 204
+            return
+        member = GuildMembers()
+        guild.members.append(member)
+        db.add(member)
+        db.commit()
+        await emitter.in_room(str(current_user.id)).sockets_join(str(guild_id))
+        await websocket_emitter(None, guild_id, Events.GUILD_CREATE,
+                                {"guild": guild.serialize(
+                                ), "member": member.serialize()},
+                                current_user.id)
+        await (websocket_emitter(member.id, guild_id, Events.GUILD_MEMBER_ADD, member.serialize()))
+        return member.serialize()
 
 
 @router.patch('/{guild_id}/members/@me')
