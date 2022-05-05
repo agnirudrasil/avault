@@ -107,10 +107,13 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
             },
             {
                 label: "Move To",
-                visible: checkPermissions(
-                    permissions,
-                    Permissions.MANAGE_CHANNELS
-                ),
+                visible:
+                    checkPermissions(
+                        permissions,
+                        Permissions.MANAGE_CHANNELS
+                    ) &&
+                    channels.filter(({ id }) => id !== channel.parent_id)
+                        .length > 0,
                 action: handleClose => {
                     handleClose();
                 },
@@ -275,7 +278,14 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
                                         permissions,
                                         Permissions.CREATE_INSTANT_INVITE
                                     ) && (
-                                        <IconButton size="small">
+                                        <IconButton
+                                            onClick={() => {
+                                                createInvite({
+                                                    channel_id: channel.id,
+                                                });
+                                            }}
+                                            size="small"
+                                        >
                                             <PersonAdd />
                                         </IconButton>
                                     )}

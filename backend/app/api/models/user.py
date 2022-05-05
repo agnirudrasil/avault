@@ -50,6 +50,7 @@ class User(Base):
             "id": str(self.id),
             "username": self.username,
             "tag": self.tag,
+            "bot": self.bot,
         }
 
     def json(self):

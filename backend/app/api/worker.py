@@ -34,7 +34,7 @@ class Webscraper:
                     return url, og_tags
                 return url, {}
         except Exception as e:
-            print(str(e))
+            pass
 
     @staticmethod
     async def extract_og_tags(text):
@@ -47,13 +47,16 @@ class Webscraper:
         url = soup.find("meta", property="og:url")
         image = soup.find("meta", property="og:image")
         site_name = soup.find("meta", property="og:site_name")
-        twitter_description = soup.find("meta", attrs={"name": "twitter:description"})
+        twitter_description = soup.find(
+            "meta", attrs={"name": "twitter:description"})
         twitter_title = soup.find("meta", attrs={"name": "twitter:title"})
         twitter_image = soup.find("meta", attrs={"name": "twitter:image"})
         twitter_player = soup.find("meta", attrs={"name": "twitter:player"})
         twitter_card = soup.find("meta", attrs={"name": "twitter:card"})
-        twitter_player_width = soup.find("meta", attrs={"name": "twitter:player:width"})
-        twitter_player_height = soup.find("meta", attrs={"name": "twitter:player:height"})
+        twitter_player_width = soup.find(
+            "meta", attrs={"name": "twitter:player:width"})
+        twitter_player_height = soup.find(
+            "meta", attrs={"name": "twitter:player:height"})
 
         return {
             "title": twitter_title["content"] if twitter_title else og_title[
@@ -113,7 +116,8 @@ def embed_message(message_text, message_id, guild_id, current_user):
             if node["type"] == "link":
                 urls.append(node["link"])
 
-    markdown = mistune.create_markdown(renderer=mistune.AstRenderer(), plugins=["url"])
+    markdown = mistune.create_markdown(
+        renderer=mistune.AstRenderer(), plugins=["url"])
     m_tree = markdown(message_text)
     traverse_tree(m_tree, message_urls)
     scraper = Webscraper(urls=set(message_urls))

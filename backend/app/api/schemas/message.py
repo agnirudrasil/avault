@@ -114,7 +114,6 @@ class Embeds(BaseModel):
         for field in fields:
             embed_length += len(field.name)
             embed_length += len(field.value)
-        print(embed_length)
         if embed_length > 6000:
             raise ValueError('Characters in embeds exceed 6000')
         return v

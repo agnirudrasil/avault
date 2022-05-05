@@ -1,6 +1,13 @@
-import { AttachFile, Audiotrack, Download } from "@mui/icons-material";
+import {
+    AttachFile,
+    Audiotrack,
+    Download,
+    KeyboardArrowDown,
+    KeyboardArrowRight,
+} from "@mui/icons-material";
 import {
     CardHeader,
+    Collapse,
     Dialog,
     DialogActions,
     DialogContent,
@@ -20,6 +27,7 @@ import { TextViewer } from "./TextViewer";
 const AttachmentImage: React.FC<{ attachment: any }> = ({ attachment }) => {
     const theme = useTheme();
     const [open, setOpen] = useState(false);
+    const [visible, setVisible] = useState(true);
 
     const { width, height } = calculateAspectRatioFit(
         attachment.width,
@@ -57,22 +65,49 @@ const AttachmentImage: React.FC<{ attachment: any }> = ({ attachment }) => {
                     </Link>
                 </DialogActions>
             </Dialog>
-            <img
-                alt="Message Attachment Large"
-                onClick={() => setOpen(true)}
-                loading="lazy"
-                key={attachment.id}
-                src={attachment.url}
-                style={{
-                    cursor: "pointer",
-                    width,
-                    height,
-                    boxShadow: theme.shadows[3],
-                    backgroundImage: `url(/loading.gif)`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "center",
-                }}
-            />
+            <Stack>
+                <Typography
+                    sx={{ cursor: "pointer", color: "white" }}
+                    component={Link}
+                    underline="hover"
+                    variant="body2"
+                    onClick={() => setVisible(p => !p)}
+                >
+                    <span>{attachment.filename}</span>
+                    <Typography
+                        sx={{
+                            verticalAlign: "middle",
+                            display: "inline-block",
+                        }}
+                        component="span"
+                        variant="body2"
+                    >
+                        {visible ? (
+                            <KeyboardArrowDown fontSize="small" />
+                        ) : (
+                            <KeyboardArrowRight fontSize="small" />
+                        )}
+                    </Typography>
+                </Typography>
+                <Collapse in={visible}>
+                    <img
+                        alt="Message Attachment Large"
+                        onClick={() => setOpen(true)}
+                        loading="lazy"
+                        key={attachment.id}
+                        src={attachment.url}
+                        style={{
+                            cursor: "pointer",
+                            width,
+                            height,
+                            boxShadow: theme.shadows[3],
+                            backgroundImage: `url(/loading.gif)`,
+                            backgroundRepeat: "no-repeat",
+                            backgroundPosition: "center",
+                        }}
+                    />
+                </Collapse>
+            </Stack>
         </>
     );
 };
@@ -153,7 +188,7 @@ export const Attachments: React.FC<{ attachment: any }> = ({ attachment }) => {
     ) : attachment.content_type.startsWith("image") ? (
         <AttachmentImage attachment={attachment} />
     ) : attachment.content_type.startsWith("video") ? (
-        <video src={attachment.url}></video>
+        <video width={500} controls src={attachment.url}></video>
     ) : attachment.content_type.startsWith("audio") ? (
         <AudioFile attachment={attachment} />
     ) : attachment.content_type.startsWith("text") ? (

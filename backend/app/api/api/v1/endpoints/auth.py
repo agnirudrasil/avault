@@ -79,7 +79,6 @@ def refresh_token(response: Response, jid: str = Cookie(None), db: Session = Dep
             jid if jid is not None else "", settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
         token_data = schemas.TokenPayload(**payload)
-        print(token_data)
     except (jwt.JWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

@@ -9,7 +9,7 @@ from starlette import status
 
 from api import models
 from api.api import deps
-from api.core import redis, settings, security
+from api.core import redis, settings, security, permissions
 from api.schemas.oauth2 import OAUTH2_SCOPES, AuthorizeBody, OAuth2TokenBody, OAuth2Params
 
 router = APIRouter()
@@ -26,7 +26,7 @@ async def authorize(
 
     if not application:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
-    if redirect_uri not in application.redirect_uris:
+    if redirect_uri is not None and redirect_uri not in application.redirect_uris:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OAuth2 redirect_uri")
 
     require_code = True
@@ -44,7 +44,6 @@ async def authorize(
                        f"+server+denied+the+request "
         else:
             location = f"{redirect_uri or 'http://localhost:3000/oauth2/error/'}?error=access_denied",
-
     elif require_code:
         if not redirect_uri:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OAuth2 redirect_uri")
@@ -58,23 +57,34 @@ async def authorize(
 
         location = f"{redirect_uri}/?code={code}{'&state=' + state if state is not None else ''}"
     else:
-        location = f"{redirect_uri or 'http://localhost:3000/oauth2/authorized'}",
+        guild_member: models.GuildMembers = db.query(models.GuildMembers).filter_by(user_id=user.id).filter_by(
+            guild_id=body.guild_id).first()
+        if guild_member and \
+                (guild_member.is_owner or
+                 guild_member.permissions &
+                 permissions.Permissions.ADMINISTRATOR == permissions.Permissions.ADMINISTRATOR or
+                 guild_member.permissions &
+                 permissions.Permissions.MANAGE_GUILD == permissions.Permissions.MANAGE_GUILD):
+            await application.add_bot_to_guild(db, guild_member.guild, body.permissions)
+            location = f"{redirect_uri or 'http://localhost:3000/oauth2/authorized'}",
+        else:
+            location = f"{redirect_uri or 'http://localhost:3000/oauth2/error/'}?error=access_denied"
 
     return {"location": location}
 
 
 @router.get("/authorize")
-async def get_authorize(client_id: int, scope: str, redirect_uri: Optional[str] = None,
+async def get_authorize(client_id: int, scope: str, redirect_uri: Optional[str] = Query(None),
                         prompt: Optional[str] = Query(None, regex="none|consent"),
                         user: models.User = Depends(deps.get_current_user),
                         db: Session = Depends(deps.get_db)):
     if user.bot:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User is a bot")
-    
+
     application: models.Application = db.query(models.Application).filter(models.Application.id == client_id).first()
     if application is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Application not found")
-    if redirect_uri not in application.redirect_uris:
+    if redirect_uri is not None and redirect_uri not in application.redirect_uris:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OAuth2 redirect_uri")
 
     scopes = set(scope.split(" "))

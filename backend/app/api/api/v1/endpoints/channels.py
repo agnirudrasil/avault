@@ -217,6 +217,8 @@ async def edit_message(channel_id: int,
 @router.post('/{channel_id}/messages/{message_id}/ack', status_code=204)
 async def message_ack(channel_id: int, message_id: int, current_user: User = Depends(deps.get_current_user),
                       db: Session = Depends(deps.get_db)):
+    if current_user.bot:
+        return
     unread = db.query(models.Unread).filter_by(user_id=current_user.id).filter_by(channel_id=channel_id).first()
     if unread:
         unread.last_message_id = message_id

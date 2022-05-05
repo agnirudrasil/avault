@@ -376,7 +376,7 @@ const OAuth2AuthorizePage: NextPage<Props> = props => {
                                         await mutateAsync({
                                             data: props,
                                             authorized: false,
-                                            guild,
+                                            guild_id: guild,
                                             permissions,
                                         });
                                     }
@@ -400,7 +400,7 @@ const OAuth2AuthorizePage: NextPage<Props> = props => {
                                         await mutateAsync({
                                             data: props,
                                             authorized: true,
-                                            guild,
+                                            guild_id: guild,
                                             permissions,
                                         });
                                     }

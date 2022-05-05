@@ -4,7 +4,7 @@ import { request } from "../../src/request";
 
 interface Data {
     data: any;
-    guild?: string | null;
+    guild_id?: string | null;
     permissions?: string;
     authorized?: boolean;
 }

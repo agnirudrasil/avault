@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy import Column, BigInteger, ForeignKeyConstraint, PrimaryKeyConstraint, Table, ForeignKey, Boolean, \
     String, Integer
 from sqlalchemy.orm import relationship, backref
@@ -55,6 +57,7 @@ class Role(Base):
                  position: int,
                  permissions: int,
                  mentionable: bool,
+                 tag: Optional[int] = None,
                  role_id=None):
         self.id = role_id if role_id is not None else next(snowflake_id)
         self.guild_id = guild_id
@@ -63,3 +66,4 @@ class Role(Base):
         self.position = position
         self.permissions = permissions
         self.mentionable = mentionable
+        self.tag = tag

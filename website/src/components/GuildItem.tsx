@@ -1,12 +1,5 @@
 import { Home } from "@mui/icons-material";
-import {
-    Box,
-    Typography,
-    Link as MuiLink,
-    Badge,
-    styled,
-    BadgeProps,
-} from "@mui/material";
+import { Box, Typography, Link as MuiLink } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
@@ -19,17 +12,11 @@ import { getGuildInitials } from "../get-guild-intials";
 import { hasUnread } from "../has-unread";
 import { GuildItemContextMenu } from "./context-menus";
 import { LightTooltip } from "./LightTooltip";
+import { StyledBadge } from "./StyledBadge";
 
 interface Props {
     guild?: GuildPreview;
 }
-
-const StyledBadge = styled(Badge)<BadgeProps>(({ theme }) => ({
-    "& .MuiBadge-badge": {
-        border: `3px solid ${theme.palette.background.paper}`,
-        padding: "4px",
-    },
-}));
 
 export const GuildItem: React.FC<Props> = ({ guild }) => {
     const router = useRouter();

@@ -218,17 +218,18 @@ async def create_role(guild_id: int,
     *_, member = dependencies
     everyone_role = db.query(Role).filter_by(id=guild_id).first()
     if member.is_owner:
-        position = db.query(func.max(Role.position)).filter_by(guild_id=guild_id).first()[0] + 1
+        position = db.query(func.max(Role.position)).filter_by(
+            guild_id=guild_id).first()[0] + 1
     else:
         position = max(member.roles[0].position - 1, 1) if member.roles else 1
-    print(position)
 
     role = Role(guild_id, data.name, data.color, position,
                 data.permissions or everyone_role.permissions,
                 data.mentionable)
     db.query(Role).filter_by(guild_id=guild_id).filter(
         Role.position >= position).update({Role.position: Role.position + 1})
-    updated_roles = db.query(Role).filter_by(guild_id=guild_id).filter(Role.position >= position + 1).all()
+    updated_roles = db.query(Role).filter_by(
+        guild_id=guild_id).filter(Role.position >= position + 1).all()
     db.add(role)
     db.commit()
     await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_CREATE,
@@ -255,7 +256,8 @@ async def update_role_positions(guild_id: int,
         if not member.is_owner and data.position > member.roles[0].position:
             return Response(status_code=403)
         original_position = role.position
-        max_position = db.query(func.max(Role.position)).filter_by(guild_id=guild_id).first()[0]
+        max_position = db.query(func.max(Role.position)).filter_by(
+            guild_id=guild_id).first()[0]
         if data.position > max_position:
             data.position = max_position
         if role:
@@ -330,7 +332,8 @@ async def delete_role(guild_id: int, role_id: int,
             {Role.position: Role.position - 1})
         await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_DELETE,
                                  {'role': role.serialize(), 'guild_id': str(guild_id)}))
-        update_roles = db.query(Role).filter_by(guild_id=guild_id).filter(Role.position >= position).all()
+        update_roles = db.query(Role).filter_by(
+            guild_id=guild_id).filter(Role.position >= position).all()
         for role in update_roles:
             await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_UPDATE,
                                      {'role': role.serialize(), 'guild_id': str(guild_id)}))
@@ -359,7 +362,8 @@ async def create_channel(guild_id: int,
                       data.topic, data.nsfw,
                       parent_id=data.parent_id)
     if data.privateChannel:
-        overwrite = Overwrite(guild_id, 0, deny=1024 if data.privateChannel else 0, allow=0)
+        overwrite = Overwrite(
+            guild_id, 0, deny=1024 if data.privateChannel else 0, allow=0)
         channel.overwrites.append(overwrite)
     db.add(channel)
     db.commit()
@@ -371,12 +375,15 @@ async def create_channel(guild_id: int,
 
 @router.get('/{guild_id}/members/@me')
 async def get_guild_member(guild_id: int,
-                           user: User = Security(deps.get_oauth2_user, scopes=['guilds.members.read']),
+                           user: User = Security(deps.get_oauth2_user, scopes=[
+                               'guilds.members.read']),
                            db: Session = Depends(deps.get_db)):
     current, scope = user
-    member: GuildMembers = db.query(GuildMembers).filter_by(guild_id=guild_id).filter_by(user_id=current.id).first()
+    member: GuildMembers = db.query(GuildMembers).filter_by(
+        guild_id=guild_id).filter_by(user_id=current.id).first()
     if not member:
-        raise HTTPException(status_code=404, detail='User is not a member of this guild')
+        raise HTTPException(
+            status_code=404, detail='User is not a member of this guild')
     return member.serialize()
 
 
@@ -411,7 +418,8 @@ async def get_guild_members(guild_id: int, response: Response,
             members = db.query(GuildMembers).filter_by(guild_id=guild_id).filter(User.id > after).limit(
                 real_limit).all()
             return {"members": [member.serialize() for member in members[0:limit]], "has_more": len(members) > limit}
-        members = db.query(GuildMembers).filter_by(guild_id=guild_id).limit(real_limit).all()
+        members = db.query(GuildMembers).filter_by(
+            guild_id=guild_id).limit(real_limit).all()
         return {"members": [member.serialize() for member in members[0:limit]], 'has_more': len(members) > limit}
     response.status_code = 404
     return
@@ -420,7 +428,8 @@ async def get_guild_members(guild_id: int, response: Response,
 @router.put('/{guild_id}/members/{user_id}')
 async def add_guild_member(guild_id: int, user_id: int,
                            response: Response,
-                           oauth2_user: tuple[User, str] = Security(deps.get_oauth2_user, scopes=['guilds.join']),
+                           oauth2_user: tuple[User, str] = Security(
+                               deps.get_oauth2_user, scopes=['guilds.join']),
                            db: Session = Depends(deps.get_db)):
     current_user, scope = oauth2_user
     guild = db.query(Guild).filter_by(id=guild_id).first()
@@ -487,18 +496,21 @@ async def delete_guild_member(guild_id: int, user_id: int,
                                   deps.GuildPerms(Permissions.KICK_MEMBERS)),
                               db: Session = Depends(deps.get_db)):
     *_, my_member = dependencies
-    member = db.query(GuildMembers).filter_by(
+    member: GuildMembers = db.query(GuildMembers).filter_by(
         guild_id=guild_id).filter_by(user_id=user_id).first()
     if member:
         if (not member.roles and not member.is_owner) or (
                 not member.is_owner and (
                 my_member.is_owner or my_member.roles[0].position >= member.roles[0].position)):
-            await websocket_emitter(None, guild_id, Events.GUILD_MEMBER_REMOVE, member.serialize())
-            db.delete(member)
-            db.commit()
-            await emitter.in_room(str(user_id)).sockets_leave(str(guild_id))
-            await websocket_emitter(None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
-                                    user_id)
+            if member.member.bot:
+                await member.member.application.remove_bot_from_guild(db, member.guild)
+            else:
+                await websocket_emitter(None, guild_id, Events.GUILD_MEMBER_REMOVE, member.serialize())
+                db.delete(member)
+                db.commit()
+                await emitter.in_room(str(user_id)).sockets_leave(str(guild_id))
+                await websocket_emitter(None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
+                                        user_id)
             return ''
         return Response(status_code=403)
     return Response(status_code=404)
@@ -530,23 +542,33 @@ async def add_guild_ban(guild_id: int, user_id: int, body: CreateGuildBan,
     try:
         ban = GuildBans(body.reason)
         guild.bans.append(ban)
-        member = db.query(GuildMembers).filter_by(
+        member: GuildMembers = db.query(GuildMembers).filter_by(
             guild_id=guild_id).filter_by(user_id=user_id).first()
         if member:
             if (not member.roles and not member.is_owner) or (not member.is_owner and (
                     my_member.is_owner or my_member.roles[0].position >= member.roles[0].position)):
+
                 ban.user = member.member
-                await emitter.in_room(str(member.user_id)).sockets_leave(str(guild_id))
-                await websocket_emitter(None, guild_id, Events.GUILD_MEMBER_REMOVE,
-                                        member.serialize())
-                db.delete(member)
-                await websocket_emitter(None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
-                                        user_id)
-                db.add(ban)
-                db.commit()
-                await websocket_emitter(None, guild_id, Events.GUILD_BAN_ADD, ban.serialize())
-                return ban.serialize()
-            return Response(status_code=403)
+                if member.member.bot:
+                    await member.member.application.remove_bot_from_guild(db, member.guild)
+                else:
+                    await emitter.in_room(str(member.user_id)).sockets_leave(str(guild_id))
+                    await websocket_emitter(None, guild_id, Events.GUILD_MEMBER_REMOVE,
+                                            member.serialize())
+                    db.delete(member)
+                    await websocket_emitter(None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
+                                            user_id)
+            else:
+                return Response(status_code=403)
+        else:
+            user = db.query(User).filter_by(id=user_id).first()
+            ban.user = user
+
+        db.add(ban)
+        db.commit()
+        await websocket_emitter(None, guild_id, Events.GUILD_BAN_ADD, ban.serialize())
+        return ban.serialize()
+
     except IntegrityError:
         return
 

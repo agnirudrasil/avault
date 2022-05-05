@@ -7,7 +7,8 @@ from celery import Celery
 from api.core import settings
 from api.core.events import get_recipients, Events
 
-app = Celery('tasks', broker=f'pyamqp://guest:guest@{settings.RABBITMQ_HOST}:5672//')
+app = Celery(
+    'tasks', broker=f'pyamqp://guest:guest@{settings.RABBITMQ_HOST}:5672//')
 
 
 @app.task
@@ -45,7 +46,5 @@ def sync_emit(my_redis, rooms, except_rooms, ev: str, *args):
 
     msg = msgpack.packb([UID, packet, opts])
     channel = 'socket.io' + '#' + "/" + "#"
-    print(channel)
 
     my_redis.publish(channel, msg)
-    print("Emitting")

@@ -35,6 +35,7 @@ import { usePermssions } from "../../../../hooks/usePermissions";
 import { checkPermissions } from "../../../compute-permissions";
 import { Permissions } from "../../../permissions";
 import { SxProps } from "@mui/system";
+import { BotIndication } from "../../BotIndication";
 
 export const Message: React.FC<{
     message: Messages;
@@ -239,6 +240,7 @@ export const Message: React.FC<{
                     !disableHeader && (
                         <Typography variant="subtitle1">
                             {message.author.username}{" "}
+                            {message.author.bot && <BotIndication />}{" "}
                             <Typography
                                 component="span"
                                 variant="caption"
@@ -250,7 +252,7 @@ export const Message: React.FC<{
                                     : isYesterday(date)
                                     ? `Yesterday at ${format(date, "p")}`
                                     : format(date, "p")}
-                            </Typography>
+                            </Typography>{" "}
                         </Typography>
                     )
                 }

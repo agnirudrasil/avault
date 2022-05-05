@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 from api.api import deps
 from api.core import emitter
 from api.core.events import Events, websocket_emitter
-from api.crud import user
 from api.models.channels import Channel, ChannelType
 from api.models.guilds import GuildMembers
 from api.models.user import User
@@ -91,10 +90,6 @@ def get_dm_channels(db: Session = Depends(deps.get_db),
 
 @router.get('/{user_id}', dependencies=[Depends(deps.get_current_user)])
 def get_user(user_id: int, response: Response, db: Session = Depends(deps.get_db)):
-    my_user = user.get(db, user_id)
-    if my_user:
-        return my_user.serialize()
-    response.status_code = 404
     return {"message": "User not found"}
 
 
@@ -115,13 +110,16 @@ async def leave_guild(guild_id: int, response: Response, background_task: Backgr
         if guild_member.is_owner:
             response.status_code = 403
             return {"message": "Cannot leave guild, you are the owner"}
-        db.delete(guild_member)
-        db.commit()
-        await emitter.in_room(str(current_user.id)).sockets_leave(str(guild_id))
-        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_MEMBER_REMOVE,
-                                 guild_member.serialize())
-        background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
-                                 current_user.id)
+        if current_user.bot:
+            await current_user.application.remove_bot_from_guild(db, guild_member.guild)
+        else:
+            db.delete(guild_member)
+            db.commit()
+            await emitter.in_room(str(current_user.id)).sockets_leave(str(guild_id))
+            background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_MEMBER_REMOVE,
+                                     guild_member.serialize())
+            background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
+                                     current_user.id)
         return
     response.status_code = 404
     return {'success': False}

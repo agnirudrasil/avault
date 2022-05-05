@@ -175,7 +175,6 @@ class BroadcastOperator:
 
         msg = msgpack.packb([UID, packet, opts])
         channel = self.broadcast_options['broadcast_channel']
-        print(channel)
 
         await self.redis_client.publish(channel, msg)
 

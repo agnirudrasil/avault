@@ -4,7 +4,6 @@ from typing import Optional, Union
 from sqlalchemy import func, or_, and_
 
 from api import models
-from api.api.deps import get_db
 from api.core import emitter
 
 
@@ -66,6 +65,7 @@ SPECIAL_EVENTS = {
 def get_recipients(event: Events, guild_id: Optional[int] = None, channel_id: Optional[int] = None,
                    user_id: Optional[int] = None, db=None) -> list[str]:
     if db is None:
+        from api.api.deps import get_db
         db = next(get_db())
     if event == Events.MESSAGE_ACK:
         return [str(user_id)]

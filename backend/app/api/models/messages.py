@@ -66,7 +66,8 @@ class Message(Base):
     replies_to = Column(BigInteger, ForeignKey(
         'messages.id', ondelete="SET NULL"))
     edited_timestamp = Column(DateTime)
-    message_type = Column("type", Integer, nullable=False, default=MessageTypes.DEFAULT)
+    message_type = Column("type", Integer, nullable=False,
+                          default=MessageTypes.DEFAULT)
     tts = Column(Boolean, nullable=False, default=False)
     webhook_author = Column(JSONB)
     embeds = Column(JSONB)
@@ -127,13 +128,13 @@ class Message(Base):
         return re.findall(r'<#(\d+)>', self.content)
 
     def process_mentions(self, guild_id, db: Session):
-        print(self.mentions_everyone())
         db.query(func.process_mention(
             self.author_id,
             self.channel_id,
             guild_id,
             cast(array([int(u) for u in self.mention()]), ARRAY(BigInteger)),
-            cast(array([int(r) for r in self.mentions_roles()]), ARRAY(BigInteger)),
+            cast(array([int(r) for r in self.mentions_roles()]),
+                 ARRAY(BigInteger)),
             self.mentions_everyone(),
         )).all()
 

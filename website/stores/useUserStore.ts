@@ -7,6 +7,7 @@ export interface User {
     tag: string;
     email: string;
     id: string;
+    bot?: boolean;
 }
 
 export interface GuildMembers {

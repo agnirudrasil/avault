@@ -8,7 +8,7 @@ export const UnreadBadge: React.FC<{ unread: Unread }> = memo(({ unread }) => {
         <Box
             sx={{
                 position: "absolute",
-                width: "4px",
+                width: "8px",
                 height:
                     hasUnread(unread?.lastRead, unread?.lastMessageId) ||
                     unread?.mentionCount
@@ -16,9 +16,10 @@ export const UnreadBadge: React.FC<{ unread: Unread }> = memo(({ unread }) => {
                         : "0px",
                 bgcolor: "common.white",
                 top: "50%",
-                left: "-5.5px",
+                left: "-1rem",
                 transform: "translateY(-50%)",
-                borderRadius: "0 10px 10px 0",
+                borderRadius: "10px",
+                zIndex: 100000,
                 transition: "height 300ms ease",
             }}
         />
