@@ -73,8 +73,8 @@ class Message(Base):
     embeds = Column(JSONB)
     attachments = Column(JSONB)
     pinned = Column(Boolean, nullable=False, default=False)
-    reactions = relationship('Reactions', back_populates='message')
     channel: Channel = relationship('Channel', foreign_keys=channel_id)
+    reactions = relationship('Reactions', back_populates='message')
     author = relationship('User')
     reply = relationship('Message', remote_side=[id])
 
@@ -84,8 +84,7 @@ class Message(Base):
             author = self.webhook_author
         else:
             author = self.author.serialize()
-        reactions_count = db.query(Reactions.reaction, func.count(Reactions.id),
-                                   func.bool_or(Reactions.user_id == current_user)).filter_by(
+        reactions_count = db.query(func.bool_or(Reactions.user_id == current_user)).filter_by(
             message_id=self.id).group_by(Reactions.reaction).all()
 
         serialized = {
@@ -113,6 +112,7 @@ class Message(Base):
 
         if nonce:
             serialized['nonce'] = nonce
+
         return serialized
 
     def mentions_everyone(self):

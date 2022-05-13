@@ -3,7 +3,7 @@ import {
     Mic,
     HeadsetOff,
     Headphones,
-    Logout,
+    Settings,
 } from "@mui/icons-material";
 import {
     ListItem,
@@ -14,6 +14,7 @@ import {
     ToggleButton,
 } from "@mui/material";
 import { useState } from "react";
+import { useRoutesStore } from "../../../stores/useRoutesStore";
 import { useUserStore } from "../../../stores/useUserStore";
 import { copyToClipboard } from "../../copy";
 import { DefaultProfilePic } from "../DefaultProfilePic";
@@ -23,6 +24,7 @@ import { StyledToggleButtonGroup } from "../StyledToggleButtonGroup";
 export const ChannelBottom = () => {
     const [alignment, setAlignment] = useState(() => ["mic", "deafen"]);
     const user = useUserStore(state => state.user);
+    const setRoute = useRoutesStore(state => state.setRoute);
 
     const handleAlignment = (
         _: React.MouseEvent<HTMLElement>,
@@ -43,9 +45,21 @@ export const ChannelBottom = () => {
             }}
         >
             <ListItemAvatar sx={{ minWidth: 40 }}>
-                <Avatar sx={{ width: 32, height: 32 }}>
-                    <DefaultProfilePic tag={user.tag} />
-                </Avatar>
+                {user.avatar ? (
+                    <Avatar
+                        src={
+                            user.avatar
+                                ? `${process.env.NEXT_PUBLIC_CDN_URL}avatars/${user.id}/${user.avatar}`
+                                : undefined
+                        }
+                        alt={user.username + "'s Avatar"}
+                        sx={{ width: 32, height: 32 }}
+                    />
+                ) : (
+                    <Avatar sx={{ width: 32, height: 32 }}>
+                        <DefaultProfilePic tag={user.tag} />
+                    </Avatar>
+                )}
             </ListItemAvatar>
             <LightTooltip title="Click to copy username">
                 <ListItemText
@@ -100,9 +114,12 @@ export const ChannelBottom = () => {
                         )}
                     </LightTooltip>
                 </ToggleButton>
-                <ToggleButton color="error" value="logout">
-                    <LightTooltip title="Logout">
-                        <Logout />
+                <ToggleButton
+                    onClick={() => setRoute("/user-settings")}
+                    value="settings"
+                >
+                    <LightTooltip title="Settings">
+                        <Settings />
                     </LightTooltip>
                 </ToggleButton>
             </StyledToggleButtonGroup>

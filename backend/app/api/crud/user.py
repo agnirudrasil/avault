@@ -1,5 +1,6 @@
 from typing import Any, Dict, Optional, Union
 
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from api.core.security import get_password_hash, verify_password
@@ -64,14 +65,15 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             update_data["hashed_password"] = hashed_password
         return super().update(db, db_obj=db_obj, obj_in=update_data)
 
-    def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
+    def authenticate(self, db: Session, *, email: str, password: str, code: Optional[str]) -> Optional[User]:
         my_user = self.get_by_email(db, email=email)
         if not my_user:
-            return None
+            raise HTTPException(status_code=400, detail="Invalid email or password")
         if my_user.bot:
-            return None
+            raise HTTPException(status_code=403, detail="Bots are not allowed")
         if not verify_password(password, my_user.password):
-            return None
+            raise HTTPException(status_code=400, detail="Invalid email or password")
+
         return my_user
 
 

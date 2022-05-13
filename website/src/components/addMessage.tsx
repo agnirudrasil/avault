@@ -1,27 +1,23 @@
 import produce from "immer";
 import { InfiniteData, QueryClient } from "react-query";
 import { Messages } from "../../stores/useMessagesStore";
+import { chunk, uniqWith } from "lodash";
 
-export const addMessage = (
-    queryClient: QueryClient,
-    data: Messages,
-    purge = false
-) => {
+export const addMessage = (queryClient: QueryClient, data: Messages) => {
     queryClient.setQueryData<InfiniteData<Messages[]>>(
         ["messages", data.channel_id],
         produce(draft => {
             if (draft) {
-                const index = draft.pages[0].findIndex(m => m.id === data.id);
-                if (index >= 0) {
-                    draft.pages[0][index] = data;
-                } else {
-                    draft.pages[0] = [data, ...draft.pages[0].slice(0, 49)];
-                }
-                if (purge) {
-                    draft.pages[0] = draft.pages[0].filter(
-                        message => message.id
-                    );
-                }
+                if ((data as any).confirmed) console.log(data.author);
+                const messages = draft.pages.flat();
+                draft.pages = chunk(
+                    uniqWith([data, ...messages], (x, y) => {
+                        return x.nonce && y.nonce
+                            ? x.nonce === y.nonce
+                            : x.id === y.id;
+                    }),
+                    50
+                );
             }
         })
     );

@@ -24,6 +24,12 @@ async def handle_message(message):
             socket_id = msgobj["id"]
             db: Session = next(get_db())
             user: User = db.query(models.User).filter_by(id=data.sub).first()
+            if user.last_login is None:
+                await emitter.to(msgobj["id"]).disconnect_sockets(True)
+                return
+            if user.mfa_enabled != data.mfa:
+                await emitter.to(msgobj["id"]).disconnect_sockets(True)
+                return
             if user.last_login >= datetime.fromtimestamp(data.iat):
                 await emitter.to(msgobj["id"]).disconnect_sockets(True)
                 return
@@ -32,7 +38,8 @@ async def handle_message(message):
                 guilds = user.guilds
                 guild_data = []
                 merged_members = []
-                unread: models.Unread = db.query(models.Unread).filter_by(user_id=user.id).all()
+                unread: models.Unread = db.query(
+                    models.Unread).filter_by(user_id=user.id).all()
                 unread_dict = {}
                 for unread in unread:
                     unread_dict[str(unread.channel_id)] = {"last_read": str(unread.last_message_id),

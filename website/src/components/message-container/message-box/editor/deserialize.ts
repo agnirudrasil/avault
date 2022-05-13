@@ -1,57 +1,32 @@
-import {
-    deserializeSyntaxTree,
-    extraSpaces,
-} from "../../../markdown/parsers/parseMessageContent";
 import { jsx } from "slate-hyperscript";
-import { SingleASTNode } from "simple-markdown";
 
-const buildText = (token: SingleASTNode): string => {
-    if (typeof token === "string") {
-        return token;
-    } else if (
-        token?.type === "text" ||
-        token?.type === "url" ||
-        token?.type === "inlineCode"
-    ) {
-        return token.content;
-    } else if (token?.type === "emoji" || token?.type === "mention") {
-        return "";
-    } else {
-        //@ts-ignore
-        return `${extraSpaces[token?.type]?.syntaxBefore || ""}${token?.content
-            //@ts-ignore
-            ?.map(t => buildText(t))
-            //@ts-ignore
-            .join("")}${extraSpaces[token?.type]?.syntaxAfter || ""}`;
-    }
+const TAGS: Record<string, Function> = {
+    emoji: (token: any) => ({ ...token }),
+    emote: (token: any) => ({ ...token }),
+    blockQuote: () => ({
+        type: "blockquote",
+    }),
+    mention: (token: any) => ({ type: "mention", character: token.content }),
 };
 
-export const deserialize = (text: string) => {
-    const tokens = deserializeSyntaxTree(text);
+export const deserialize = (token: any): any => {
+    if (token.type === "text") {
+        return jsx("text", {}, token.content);
+    }
 
-    const children = [];
+    let newToken = token;
+    if (token.type === "blockQuote") {
+        newToken = token.content;
+    }
 
-    for (const token of tokens) {
-        if (token.type === "blockQuote") {
-            children.push(
-                jsx("element", {}, [
-                    {
-                        type: "bulleted-list",
-                        children: [
-                            {
-                                type: "list-item",
-                                children: [{ text: "Hello World" }],
-                            },
-                        ],
-                    },
-                ])
-            );
-        } else if (token.type === "mention") {
-        } else if (token.type === "emoji") {
-        } else if (token.type === "text") {
-        } else {
-            children.push(jsx("text", {}, buildText(token)));
-        }
+    let children: any[] = Array.from(newToken).map(deserialize).flat();
+
+    if (children.length === 0) {
+        children = [{ text: "" }];
+    }
+
+    if (TAGS[token.type]) {
+        return jsx("element", TAGS[token.type](token), children);
     }
 
     return children;

@@ -133,7 +133,13 @@ export const ApplicationsIndexPage: React.FC = () => {
                                 setAnchorEl(e.currentTarget);
                             }}
                         >
-                            <Avatar>
+                            <Avatar
+                                src={
+                                    data?.avatar
+                                        ? `${process.env.NEXT_PUBLIC_CDN_URL}avatars/${data.id}/${data.avatar}`
+                                        : undefined
+                                }
+                            >
                                 <DefaultProfilePic tag={data?.tag || ""} />
                             </Avatar>
                         </IconButton>
@@ -210,24 +216,26 @@ export const ApplicationsIndexPage: React.FC = () => {
                                         },
                                     }}
                                 >
-                                    <Box
+                                    <Avatar
+                                        src={
+                                            app.icon
+                                                ? `${process.env.NEXT_PUBLIC_CDN_URL}app-icons/${app.id}/${app.icon}`
+                                                : undefined
+                                        }
                                         sx={{
                                             width: "130px",
                                             height: "130px",
                                             bgcolor: "background.paper",
                                             borderRadius: 1,
-                                            display: "grid",
-                                            placeItems: "center",
                                             mb: 1,
+                                            color: "white",
                                         }}
                                     >
-                                        <Typography variant="h4">
-                                            {app.name
-                                                .split(" ")
-                                                .map(s => s[0].toUpperCase())
-                                                .join("")}
-                                        </Typography>
-                                    </Box>
+                                        {app.name
+                                            .split(" ")
+                                            .map(s => s[0].toUpperCase())
+                                            .join("")}
+                                    </Avatar>
                                     <Typography
                                         sx={{
                                             maxWidth: "100%",

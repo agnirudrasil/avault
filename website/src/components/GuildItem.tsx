@@ -1,5 +1,5 @@
 import { Home } from "@mui/icons-material";
-import { Box, Typography, Link as MuiLink } from "@mui/material";
+import { Box, Typography, Link as MuiLink, Avatar } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
@@ -59,13 +59,19 @@ export const GuildItem: React.FC<Props> = ({ guild }) => {
                             horizontal: "right",
                         }}
                     >
-                        <Box
+                        <Avatar
+                            src={
+                                guild?.icon
+                                    ? `${process.env.NEXT_PUBLIC_CDN_URL}icons/${guild.id}/${guild.icon}`
+                                    : undefined
+                            }
                             sx={{
                                 bgcolor:
                                     router.query.guild === guild?.id
                                         ? "primary.dark"
                                         : "grey.900",
                                 // m: 1,
+                                color: "white",
                                 borderRadius:
                                     router.query.guild === guild?.id ? 3 : 10,
                                 cursor: "pointer",
@@ -126,7 +132,7 @@ export const GuildItem: React.FC<Props> = ({ guild }) => {
                                     <Home />
                                 )}
                             </div>
-                        </Box>
+                        </Avatar>
                     </StyledBadge>
                 </Box>
             </MuiLink>

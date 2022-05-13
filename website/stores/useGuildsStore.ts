@@ -12,12 +12,14 @@ export interface Guild {
     name: string;
     roles: Roles[];
     channels: Channel[];
+    icon?: string;
     members: { [id: string]: GuildMembers };
 }
 
 export interface GuildPreview {
     name: string;
     id: string;
+    icon?: string;
 }
 
 export const useGuildsStore = create(
@@ -40,6 +42,7 @@ export const useGuildsStore = create(
                             state.guildPreview[guild.id] = {
                                 name: guild.name,
                                 id: guild.id,
+                                icon: guild.icon,
                             };
                         }
                     })
@@ -51,6 +54,7 @@ export const useGuildsStore = create(
                         draft.guildPreview[guild.id] = {
                             name: guild.name,
                             id: guild.id,
+                            icon: guild.icon,
                         };
                     })
                 );

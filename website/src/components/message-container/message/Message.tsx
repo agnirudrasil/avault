@@ -7,6 +7,7 @@ import {
     Stack,
     useTheme,
     Theme,
+    Popper,
 } from "@mui/material";
 import { format, isToday, isYesterday } from "date-fns";
 import { memo, useMemo } from "react";
@@ -36,14 +37,27 @@ import { checkPermissions } from "../../../compute-permissions";
 import { Permissions } from "../../../permissions";
 import { SxProps } from "@mui/system";
 import { BotIndication } from "../../BotIndication";
+import {
+    bindHover,
+    bindPopper,
+    usePopupState,
+} from "material-ui-popup-state/hooks";
+import { MessageToolbar } from "./Toolbar";
+import { useDeleteMessage } from "../../../../hooks/requests/useMessageDelete";
 
 export const Message: React.FC<{
     message: Messages;
     guild: string;
     disableHeader: boolean;
     newMessage: boolean;
-}> = memo(({ message, guild, newMessage, disableHeader }) => {
+    confirmed: boolean;
+}> = memo(({ message, guild, newMessage, disableHeader, confirmed }) => {
     const theme = useTheme();
+    const popupState = usePopupState({
+        variant: "popper",
+        popupId: `message-${message.id}`,
+    });
+    const { mutateAsync: deleteMessage } = useDeleteMessage(message.channel_id);
     const member: GuildMembers | undefined = useGuildsStore(
         state => state.guilds[guild]?.members[getUser()]
     );
@@ -151,7 +165,8 @@ export const Message: React.FC<{
             },
             {
                 label: "Delete Message",
-                action: handleClose => {
+                action: async handleClose => {
+                    await deleteMessage({ messageId: message.id });
                     handleClose();
                 },
                 visible:
@@ -205,74 +220,92 @@ export const Message: React.FC<{
     }
 
     return (
-        <ListItemButton
-            onContextMenu={handleContextMenu}
-            disableRipple
-            selected={isMention}
-            sx={style}
-            id={message.id}
-            key={message.id}
-        >
-            <ContextMenu {...props} menuObject={menuObject} />
-            <ListItemAvatar
-                className="message-avatar"
-                sx={{
-                    alignSelf: "flex-start",
-                    mt: disableHeader ? 0.3 : 1,
-                    visibility: disableHeader ? "hidden" : "visible",
-                }}
+        <div>
+            <Popper placement="top-end" {...bindPopper(popupState)}>
+                <MessageToolbar message={message} />
+            </Popper>
+            <ListItemButton
+                onContextMenu={handleContextMenu}
+                disableRipple
+                selected={isMention}
+                sx={style}
+                key={message.id}
+                {...bindHover(popupState)}
             >
-                {disableHeader ? (
-                    <Typography color="graytext" variant="caption">
-                        {format(date, "p")}
-                    </Typography>
-                ) : (
-                    <Avatar>
-                        <DefaultProfilePic tag={message.author.tag} />
-                    </Avatar>
-                )}
-            </ListItemAvatar>
-            <ListItemText
-                sx={{
-                    m: 0.5,
-                }}
-                primary={
-                    !disableHeader && (
-                        <Typography variant="subtitle1">
-                            {message.author.username}{" "}
-                            {message.author.bot && <BotIndication />}{" "}
+                <ContextMenu {...props} menuObject={menuObject} />
+                <ListItemAvatar
+                    className="message-avatar"
+                    sx={{
+                        alignSelf: "flex-start",
+                        mt: disableHeader ? 0.3 : 1,
+                        visibility: disableHeader ? "hidden" : "visible",
+                    }}
+                >
+                    {disableHeader ? (
+                        <Typography color="graytext" variant="caption">
+                            {format(date, "p")}
+                        </Typography>
+                    ) : (
+                        <Avatar
+                            sx={{ width: 40, height: 40 }}
+                            src={
+                                message.author.avatar
+                                    ? `${process.env.NEXT_PUBLIC_CDN_URL}avatars/${message.author.id}/${message.author.avatar}`
+                                    : undefined
+                            }
+                        >
+                            <DefaultProfilePic tag={message.author.tag} />
+                        </Avatar>
+                    )}
+                </ListItemAvatar>
+                <ListItemText
+                    sx={{
+                        m: 0.5,
+                    }}
+                    primary={
+                        !disableHeader && (
+                            <Typography variant="subtitle1">
+                                {message.author.username}{" "}
+                                {message.author.bot && <BotIndication />}{" "}
+                                <Typography
+                                    component="span"
+                                    variant="caption"
+                                    color="GrayText"
+                                    sx={{ fontWeight: "normal" }}
+                                >
+                                    {isToday(date)
+                                        ? `Today at ${format(date, "p")}`
+                                        : isYesterday(date)
+                                        ? `Yesterday at ${format(date, "p")}`
+                                        : format(date, "p")}
+                                </Typography>{" "}
+                            </Typography>
+                        )
+                    }
+                    secondary={
+                        <Stack>
                             <Typography
-                                component="span"
-                                variant="caption"
-                                color="GrayText"
-                                sx={{ fontWeight: "normal" }}
+                                sx={{
+                                    p: 0,
+                                    color: confirmed ? "GrayText" : undefined,
+                                }}
+                                variant="body1"
                             >
-                                {isToday(date)
-                                    ? `Today at ${format(date, "p")}`
-                                    : isYesterday(date)
-                                    ? `Yesterday at ${format(date, "p")}`
-                                    : format(date, "p")}
-                            </Typography>{" "}
-                        </Typography>
-                    )
-                }
-                secondary={
-                    <Stack>
-                        <Typography sx={{ p: 0 }} variant="body1">
-                            <Markdown content={message.content} />
-                        </Typography>
-                        <Stack spacing={1}>
-                            {message.attachments &&
-                                message.attachments.map(attachment => (
-                                    <Attachments
-                                        key={attachment.id}
-                                        attachment={attachment}
-                                    />
-                                ))}
+                                <Markdown content={message.content} />
+                            </Typography>
+                            <Stack spacing={1}>
+                                {message.attachments &&
+                                    message.attachments.map(attachment => (
+                                        <Attachments
+                                            key={attachment.id}
+                                            attachment={attachment}
+                                        />
+                                    ))}
+                            </Stack>
                         </Stack>
-                    </Stack>
-                }
-            />
-        </ListItemButton>
+                    }
+                />
+            </ListItemButton>
+        </div>
     );
 });

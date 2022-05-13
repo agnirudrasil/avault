@@ -11,13 +11,15 @@ import { Messages, useMessagesStore } from "../stores/useMessagesStore";
 import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/router";
 import { getUser, setUserId } from "../src/user-cache";
-import { useQueryClient } from "react-query";
+import { InfiniteData, useQueryClient } from "react-query";
 import { addMessage } from "../src/components/addMessage";
 import {
     checkPermissions,
     computeBasePermissions,
 } from "../src/compute-permissions";
 import { Permissions } from "../src/permissions";
+import produce from "immer";
+import { chunk } from "lodash";
 
 export const WebsocketContext = createContext<{ socket: Socket | null }>({
     socket: null as any,
@@ -60,7 +62,6 @@ export const WebsocketProvider: React.FC = ({ children }) => {
     const {
         updateMessage,
         deleteBulkMessages,
-        deleteMessage,
         messageReactionAdd,
         messageReactionRemove,
         messageReactionRemoveAll,
@@ -69,7 +70,6 @@ export const WebsocketProvider: React.FC = ({ children }) => {
         state => ({
             addMessage: state.addMessage,
             updateMessage: state.updateMessage,
-            deleteMessage: state.deleteMessage,
             deleteBulkMessages: state.deleteBulkMessages,
             messageReactionRemoveAll: state.messageReactionRemoveAll,
             messageReactionRemove: state.messageReactionRemove,
@@ -208,6 +208,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 removeMember(data);
             });
             socket.on("MESSAGE_CREATE", (data: Messages) => {
+                console.log(data.nonce);
                 addMessage(queryClient, data);
                 updateLastMessage(data.channel_id, {
                     lastMessageId: data.id,
@@ -246,7 +247,18 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 updateMessage(data);
             });
             socket.on("MESSAGE_DELETE", data => {
-                deleteMessage(data.channel_id, data.id);
+                queryClient.setQueryData<InfiniteData<Messages[]>>(
+                    ["messages", data.channel_id],
+                    produce(draft => {
+                        if (draft) {
+                            const messages = draft.pages.flat();
+                            draft.pages = chunk(
+                                messages.filter(m => m.id !== data.id),
+                                50
+                            );
+                        }
+                    })
+                );
             });
             socket.on("MESSAGE_DELETE_BULK", data => {
                 deleteBulkMessages(data);

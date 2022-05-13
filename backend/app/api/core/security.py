@@ -2,6 +2,7 @@ import secrets
 from datetime import datetime, timedelta
 from typing import Any, Union, Optional, Literal
 
+import pyotp
 from fastapi import Response
 from jose import jwt
 from passlib.context import CryptContext
@@ -16,9 +17,23 @@ pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 ALGORITHM = "HS256"
 
 
+def verify_otp(code: str, mfa) -> bool:
+    if len(code) == 6:
+        totp = pyotp.TOTP(mfa.secret)
+        if not totp.verify(code):
+            return False
+    else:
+        hotp = pyotp.HOTP(mfa.backup_secret, 8)
+        if not hotp.verify(code, mfa.backup_count):
+            return False
+        mfa.backup_count += 1
+    return True
+
+
 def create_access_token(
         db: Session,
-        subject: Union[str, Any], expires_delta: Optional[Union[timedelta, Literal["na"]]] = None, iat: datetime = None
+        subject: Union[str, Any], expires_delta: Optional[Union[timedelta, Literal["na"]]] = None, iat: datetime = None,
+        mfa_enabled: bool = False
 ) -> str:
     if expires_delta == "na":
         expire = None
@@ -29,7 +44,7 @@ def create_access_token(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
 
-    to_encode = {"sub": str(subject), "iat": iat}
+    to_encode = {"sub": str(subject), "iat": iat, "mfa": mfa_enabled}
     if expire is not None:
         to_encode["exp"] = expire
     encoded_jwt = jwt.encode(
@@ -46,9 +61,10 @@ def create_refresh_token(
         response: Response,
         subject: Union[str, Any],
         expires_delta: timedelta = None,
-        iat: datetime = None
+        iat: datetime = None,
+        mfa_enabled: bool = False
 ) -> str:
-    encoded_jwt = create_access_token(db, subject, expires_delta, iat)
+    encoded_jwt = create_access_token(db, subject, expires_delta, iat, mfa_enabled)
     response.set_cookie(
         key='jid', value=encoded_jwt,
         max_age=settings.REFRESH_TOKEN_EXPIRE_MINUTES * 60,

@@ -48,7 +48,8 @@ def get_oauth2_user(security_scopes: SecurityScopes, db: Session = Depends(get_d
         user = get_current_user(db, token)
         return user, "all"
     except HTTPException:
-        token: models.Token = db.query(models.Token).filter_by(access_token=token).first()
+        token: models.Token = db.query(
+            models.Token).filter_by(access_token=token).first()
         if token and not token.is_expired():
             for scope in security_scopes.scopes:
                 if scope not in token.scope.split(" "):
@@ -79,6 +80,18 @@ def get_current_user(
 
     user = crud.user.get(db, id=token_data.sub)
 
+    if not user.last_login:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Token has expired",
+        )
+
+    if user.mfa_enabled != token_data.mfa:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Token has expired",
+        )
+
     if user.last_login >= datetime.fromtimestamp(token_data.iat):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -86,7 +99,8 @@ def get_current_user(
         )
 
     if not user:
-        raise HTTPException(status_code=403, detail="Could not validate credentials")
+        raise HTTPException(
+            status_code=403, detail="Could not validate credentials")
 
     return user
 
@@ -128,7 +142,8 @@ class ChannelPerms:
             current_user: models.User = Depends(get_current_user),
             db: Session = Depends(get_db),
     ) -> tuple[models.Channel, models.User]:
-        channel: models.Channel = db.query(models.Channel).filter_by(id=channel_id).first()
+        channel: models.Channel = db.query(
+            models.Channel).filter_by(id=channel_id).first()
         if not channel:
             raise HTTPException(status_code=404, detail="Channel Not Found")
         if not await self.is_valid(channel, current_user, db):
@@ -147,7 +162,8 @@ class InvitePerms:
             db: Session = Depends(get_db),
     ) -> models.Invite:
         code = request.path_params["code"]
-        invite: models.Invite = db.query(models.Invite).filter_by(id=code).first()
+        invite: models.Invite = db.query(
+            models.Invite).filter_by(id=code).first()
         if not invite:
             raise HTTPException(status_code=404, detail="Invite not found")
         channels = invite.channel
@@ -176,7 +192,8 @@ class GuildPerms:
             current_user: models.User = Depends(get_current_user),
             db: Session = Depends(get_db),
     ) -> tuple[models.Guild, models.User, models.GuildMembers]:
-        guild: models.Guild = db.query(models.Guild).filter_by(id=guild_id).first()
+        guild: models.Guild = db.query(
+            models.Guild).filter_by(id=guild_id).first()
         if not guild:
             raise HTTPException(status_code=404, detail="Guild not found")
 

@@ -129,6 +129,7 @@ class MessageCreate(BaseModel):
     content: Optional[str] = ""
     tts: bool = False
     embeds: Optional[list[Embeds]] = []
+    nonce: Optional[str] = None
     message_reference: Optional[int] = None
     attachments: Optional[list[Attachments]] = []
 

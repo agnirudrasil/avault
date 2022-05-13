@@ -40,6 +40,7 @@ Werkzeug = "^2.1.1"
 Pillow = "^9.1.0"
 limits = "^2.6.1"
 coredis = "^3.4.6"
+pyotp = "^2.6.0"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.770"

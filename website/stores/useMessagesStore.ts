@@ -1,19 +1,12 @@
 import produce from "immer";
 import create from "zustand";
 import { combine } from "zustand/middleware";
-import { useUserStore } from "./useUserStore";
+import { User, useUserStore } from "./useUserStore";
 
 export interface Reactions {
     emoji: string;
     count: number;
     me: boolean;
-}
-
-export interface Author {
-    id: string;
-    tag: string;
-    username: string;
-    bot?: boolean;
 }
 
 export interface Messages {
@@ -33,9 +26,10 @@ export interface Messages {
     embeds?: any[];
     attachments?: any[];
     reactions: Reactions[];
-    author: Author;
+    author: User;
     reply?: Messages;
     pinned: boolean;
+    nonce?: string;
 }
 
 export const useMessagesStore = create(

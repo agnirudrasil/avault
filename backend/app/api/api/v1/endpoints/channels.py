@@ -115,7 +115,9 @@ async def create_message(channel_id: int,
             my_attachments.append({**attachments[attachment.id], "description": attachment.description})
     else:
         my_attachments = attachments
-    message = Message(body.content.strip() if body else "", channel_id, current_user.id,
+    message = Message(content=body.content.strip() if body else "",
+                      channel_id=channel_id,
+                      author_id=current_user.id,
                       embeds=body.embeds if body else None,
                       replies_to=body.message_reference if body else None,
                       message_type=MessageTypes.REPLY if body and body.message_reference else MessageTypes.DEFAULT,
@@ -125,9 +127,11 @@ async def create_message(channel_id: int,
     db.commit()
     if not message.embeds and await embed_checker.is_valid(channel, current_user, db):
         embed_message.delay(message.content, message.id, channel.guild_id, current_user.id)
+    print(body.nonce)
     await websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_CREATE,
-                            message.serialize(current_user.id, db))
-    return message.serialize(current_user.id, db)
+                            message.serialize(current_user=current_user.id, db=db, nonce=body.nonce))
+
+    return message.serialize(current_user.id, db, nonce=body.nonce)
 
 
 @router.get('/{channel_id}/messages/{message_id}',

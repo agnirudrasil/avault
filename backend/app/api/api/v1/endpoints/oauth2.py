@@ -124,8 +124,30 @@ async def get_authorize(client_id: int, scope: str, redirect_uri: Optional[str] 
     return response
 
 
+@router.delete("/tokens/{application_id}", status_code=204)
+async def delete_token(application_id: int, user: models.User = Depends(deps.get_current_user),
+                       db: Session = Depends(deps.get_db)):
+    if user.bot:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User is a bot")
+
+    token: models.Token = db.query(models.Token).filter_by(user_id=user.id).filter_by(
+        application_id=application_id).first()
+    if token is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Token not found")
+
+    db.delete(token)
+    db.commit()
+    return
+
+
+@router.get("/tokens")
+async def get_tokens(user: models.User = Depends(deps.get_current_user), db: Session = Depends(deps.get_db)):
+    tokens = db.query(models.Token).filter_by(user_id=user.id).all()
+    return [token.user_serialize() for token in tokens]
+
+
 @router.post("/token", dependencies=[Depends(deps.ensure_header)])
-async def token(body: OAuth2TokenBody = Depends(), db: Session = Depends(deps.get_db)):
+async def create_token(body: OAuth2TokenBody = Depends(), db: Session = Depends(deps.get_db)):
     match body.grant_type:
         case "authorization_code":
             if not body.code:

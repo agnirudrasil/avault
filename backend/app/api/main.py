@@ -37,9 +37,13 @@ if settings.BACKEND_CORS_ORIGINS:
 
 @app.exception_handler(StarletteHTTPException)
 def handle(_, exc):
-    return JSONResponse(status_code=exc.status_code,
-                        content=exc.detail if isinstance(exc.detail, dict) else {'detail': exc.detail},
-                        headers=exc.headers)
+    response = JSONResponse(status_code=exc.status_code,
+                            content=exc.detail if isinstance(exc.detail, dict) else {'detail': exc.detail}
+                            )
+    if hasattr(exc, 'headers') and exc.headers:
+        response.headers.update(exc.headers)
+
+    return response
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

@@ -1,7 +1,7 @@
 # from datetime import datetime, timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, File, Form, Response, UploadFile, Security, HTTPException
+from fastapi import APIRouter, Depends, Response, Security, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import asc, desc, func
 from sqlalchemy.exc import IntegrityError
@@ -11,11 +11,14 @@ from api.api import deps
 from api.core import emitter
 from api.core.events import Events, websocket_emitter
 from api.core.permissions import Permissions
+from api.models import Emoji
 from api.models.channels import Channel, ChannelType, Overwrite
 from api.models.guilds import Guild, GuildBans, GuildMembers
 from api.models.roles import Role
 from api.models.user import User
 from api.schemas.channel import ChannelValidate
+from api.utils.validate_avatar import validate_avatar
+from api.utils.validate_emoji import validate_emoji
 
 router = APIRouter()
 
@@ -50,19 +53,26 @@ class RolePositionUpdate(BaseModel):
 
 class GuildEdit(BaseModel):
     name: str
+    icon: Optional[str] = None
+
+
+class GuildCreate(BaseModel):
+    name: str
+    icon: Optional[str] = None
 
 
 @router.post('/')
 async def create_guild(
-        name: str = Form(..., min_length=5, max_length=80),
-        icon: Optional[UploadFile] = File(None),
+        body: GuildCreate,
         current_user: User = Depends(deps.get_current_user),
         db: Session = Depends(deps.get_db)):
-    guild = Guild(name, current_user.id)
-    if icon:
-        pass
+    guild = Guild(body.name, current_user.id)
+    if body.icon:
+        icon_hash = await validate_avatar(guild.id, body.icon, "icons")
+        guild.icon = icon_hash
     guild_member = GuildMembers(is_owner=True)
-    role = Role(guild.id, '@everyone', 0, 0, 1071698660929, True, guild.id)
+    role = Role(role_id=guild.id, name='@everyone', color=0, position=0, permissions=1071698660929, mentionable=True,
+                guild_id=guild.id)
     category = Channel(ChannelType.guild_category,
                        guild.id, 'TEXT CHANNELS')
     general = Channel(ChannelType.guild_text,
@@ -107,6 +117,12 @@ async def edit_guild(body: GuildEdit,
                          deps.GuildPerms(Permissions.MANAGE_GUILD))):
     guild, user, member = dependencies
     guild.name = body.name
+    body_dict = body.dict(exclude_unset=True)
+    if 'icon' in body_dict:
+        icon_hash = None
+        if body_dict['icon']:
+            icon_hash = await validate_avatar(guild.id, body.icon, "icons")
+        guild.icon = icon_hash
     db.commit()
     await (websocket_emitter(None, guild.id, Events.GUILD_UPDATE, guild.serialize()))
     return guild.serialize()
@@ -591,3 +607,96 @@ async def get_guild_webhooks(
         dependencies: tuple[Guild, User, GuildMembers] = Depends(deps.GuildPerms(Permissions.MANAGE_WEBHOOKS))):
     guild, *_ = dependencies
     return [webhook.serialize() for webhook in guild.webhooks]
+
+
+@router.get("/{guild_id}/emojis")
+async def get_guild_emojis(guild_id: int, db: Session = Depends(deps.get_db),
+                           current_user: User = Depends(deps.get_current_user)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild and guild.is_member(db, current_user.id):
+        emojis = db.query(Emoji).filter_by(guild_id=guild_id).all()
+        return [emoji.serialize() for emoji in emojis]
+    return Response(status_code=404)
+
+
+@router.get("/{guild_id}/emojis/{emoji_id}")
+async def get_guild_emojis(guild_id: int, emoji_id: int, db: Session = Depends(deps.get_db),
+                           current_user: User = Depends(deps.get_current_user)):
+    guild = db.query(Guild).filter_by(id=guild_id).first()
+    if guild and guild.is_member(db, current_user.id):
+        emoji = db.query(Emoji).filter_by(id=emoji_id).filter_by(guild_id=guild_id).first()
+        if emoji:
+            return emoji.serialize()
+    return Response(status_code=404)
+
+
+class EditEmoji(BaseModel):
+    name: Optional[str] = None
+    roles: Optional[list[int]] = None
+
+
+class CreateEmoji(BaseModel):
+    name: str
+    image: str
+    roles: list[int]
+
+
+@router.post("/{guild_id}/emojis")
+async def create_guild_emoji(guild_id: int,
+                             body: CreateEmoji,
+                             db: Session = Depends(deps.get_db),
+                             dependencies: tuple[Guild, User, GuildMembers] = Depends(
+                                 deps.GuildPerms(Permissions.MANAGE_EMOJIS_AND_STICKERS))):
+    guild, user, _ = dependencies
+
+    emoji = Emoji(name=body.name, guild_id=guild_id, user_id=user.id, roles=body.roles, animated=False)
+    roles = list(filter(lambda r: r != str(guild_id), body.roles))
+    roles = db.query(Role).filter(Role.id.in_(roles)).all()
+    emoji.roles = list(map(lambda r: r.id, roles))
+    animated = await validate_emoji(emoji.id, body.image)
+    emoji.animated = animated
+    db.add(emoji)
+    db.commit()
+
+    return emoji.serialize()
+
+
+@router.patch("/{guild_id}/emojis/{emoji_id}")
+async def create_guild_emoji(guild_id: int,
+                             emoji_id: int,
+                             body: EditEmoji,
+                             db: Session = Depends(deps.get_db),
+                             dependencies: tuple[Guild, User, GuildMembers] = Depends(
+                                 deps.GuildPerms(Permissions.MANAGE_EMOJIS_AND_STICKERS))):
+    guild, user, _ = dependencies
+    emoji = db.query(Emoji).filter_by(id=emoji_id).filter_by(guild_id=guild_id).first()
+    if not emoji:
+        return Response(status_code=404)
+
+    if body.name is not None:
+        emoji.name = body.name
+    if body.roles is not None:
+        roles = list(filter(lambda r: r != str(guild_id), body.roles))
+        roles = db.query(Role).filter(Role.id.in_(roles)).all()
+        emoji.roles = list(map(lambda r: r.id, roles))
+
+    db.commit()
+
+    return emoji.serialize()
+
+
+@router.delete("/{guild_id}/emojis/{emoji_id}")
+async def delete_guild_emoji(guild_id: int,
+                             emoji_id: int,
+                             db: Session = Depends(deps.get_db),
+                             dependencies: tuple[Guild, User, GuildMembers] = Depends(
+                                 deps.GuildPerms(Permissions.MANAGE_EMOJIS_AND_STICKERS))):
+    guild, user, _ = dependencies
+    emoji = db.query(Emoji).filter_by(id=emoji_id).filter_by(guild_id=guild_id).first()
+    if not emoji:
+        return Response(status_code=404)
+    
+    db.delete(emoji)
+    db.commit()
+
+    return Response(status_code=204)

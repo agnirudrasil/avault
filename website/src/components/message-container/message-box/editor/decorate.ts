@@ -21,7 +21,7 @@ export const decorate: (node: NodeEntry<Node>) => BaseRange[] = ([
         } else if (token.type === "text") {
             return token.content.length;
         } else {
-            return token.content.reduce(
+            return token.content?.reduce(
                 (l: any, t: any) => l + getLength(t),
                 0
             );

@@ -120,8 +120,15 @@ const AST_PARSERS = {
 };
 
 export const deserializeSyntaxTree = createASTParser({
-    ...AST_PARSERS,
+    customEmoji,
+    emoji,
+    emote,
+    lineBreak,
+    mention,
+    newline,
     blockQuote,
+    paragraph,
+    text,
 });
 
 export const syntaxTree = createASTParser(AST_PARSERS);

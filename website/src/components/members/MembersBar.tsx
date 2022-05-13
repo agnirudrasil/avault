@@ -17,6 +17,7 @@ export const MembarsBar: React.FC = () => {
     const members = useGuildsStore(
         state => state.guilds[router.query.guild as string]?.members
     );
+
     return (
         <List dense sx={{ minWidth: "240px", bgcolor: "grey.900", p: 1 }}>
             {Object.keys(members ?? {}).map(user_id => {
@@ -35,7 +36,13 @@ export const MembarsBar: React.FC = () => {
                                     horizontal: "right",
                                 }}
                             >
-                                <Avatar>
+                                <Avatar
+                                    src={
+                                        member.user.avatar
+                                            ? `${process.env.NEXT_PUBLIC_CDN_URL}avatars/${member.user.id}/${member.user.avatar}`
+                                            : undefined
+                                    }
+                                >
                                     <DefaultProfilePic tag={member.user.tag} />
                                 </Avatar>
                             </StyledBadge>

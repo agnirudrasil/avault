@@ -92,7 +92,7 @@ const MyMenu: React.FC<{
                 checkPermissions(permissions, Permissions.MANAGE_ROLES)) && (
                 <MyMenuItems
                     onClick={() => {
-                        routeSetter(`/settings`);
+                        routeSetter(`/guild-settings`);
                     }}
                     lable="Server Settings"
                 >

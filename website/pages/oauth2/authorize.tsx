@@ -108,6 +108,11 @@ const OAuth2AuthorizePage: NextPage<Props> = props => {
                                     sx={{ mb: 2 }}
                                 >
                                     <Avatar
+                                        src={
+                                            data.application.icon
+                                                ? `${process.env.NEXT_PUBLIC_CDN_URL}app-icons/${data.application.id}/${data.application.icon}`
+                                                : undefined
+                                        }
                                         sx={{ width: "64px", height: "64px" }}
                                     >
                                         {data.application.name
@@ -120,6 +125,11 @@ const OAuth2AuthorizePage: NextPage<Props> = props => {
                                         color="disabled"
                                     />
                                     <Avatar
+                                        src={
+                                            data.user.avatar
+                                                ? `${process.env.NEXT_PUBLIC_CDN_URL}avatars/${data.user.id}/${data.user.avatar}`
+                                                : undefined
+                                        }
                                         sx={{ width: "64px", height: "64px" }}
                                     >
                                         <DefaultProfilePic

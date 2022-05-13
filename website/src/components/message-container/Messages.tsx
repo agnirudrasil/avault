@@ -66,7 +66,8 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
                         </Box>
                         {messageGroups.reverse().map((message, i, array) => (
                             <Message
-                                key={message.id}
+                                confirmed={(message as any).confirmed}
+                                key={message.nonce || message.id}
                                 disableHeader={
                                     i !== 0 &&
                                     array[i - 1]?.author.id ===

@@ -45,7 +45,7 @@ import { ImagePreview } from "../ImagePreview";
 import { decorate as decorateFn } from "./decorate";
 import { Element } from "./Element";
 import { Leaf } from "./Leaf";
-import { withShortcuts } from "./plugins/withShortcuts";
+import { withBlockquote } from "./plugins/withShortcuts";
 import {
     getBlock,
     insertMention,
@@ -62,6 +62,7 @@ import { useRouter } from "next/router";
 import { useChannelsStore } from "../../../../../stores/useChannelsStore";
 import { withEmoji } from "./plugins/withEmoji";
 import { Roles, useRolesStore } from "../../../../../stores/useRolesStore";
+import { nanoid } from "nanoid";
 
 export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
     const router = useRouter();
@@ -71,11 +72,8 @@ export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
     const fileRef = useRef<HTMLInputElement | null>(null);
 
     const [value, setValue] = useState<Descendant[]>([
-        {
-            type: "paragraph",
-            children: [{ text: "" }],
-        },
-    ] as any);
+        { children: [{ text: "" }] },
+    ]);
 
     const [target, setTarget] = useState<Range | null>();
     const [index, setIndex] = useState(0);
@@ -114,7 +112,7 @@ export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
 
     if (!editorRef.current) {
         editorRef.current = withEmoji(handleFileUpload)(
-            withMentions(withShortcuts(withHistory(withReact(createEditor()))))
+            withMentions(withBlockquote(withHistory(withReact(createEditor()))))
         );
     }
 
@@ -161,6 +159,7 @@ export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
             if (!isValid) return;
             mutate({
                 content,
+                nonce: nanoid(12),
                 channelId: channel.id,
                 attachments: files.map(({ file, description, filename }) => ({
                     file,

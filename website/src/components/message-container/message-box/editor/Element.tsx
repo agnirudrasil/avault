@@ -3,8 +3,6 @@ import { Typography, useTheme } from "@mui/material";
 export const Element = ({ attributes, children, element }: any) => {
     const theme = useTheme();
     switch ((element as any).type) {
-        case "bulleted-list":
-            return <blockquote {...attributes}>{children}</blockquote>;
         case "emoji":
             return (
                 <span contentEditable={false} {...attributes}>
@@ -45,7 +43,16 @@ export const Element = ({ attributes, children, element }: any) => {
                     {children}
                 </span>
             );
-        case "list-item":
+        case "blockquote":
+            return (
+                <Typography
+                    sx={{ borderLeft: "4px solid #ccc" }}
+                    component="blockquote"
+                    {...attributes}
+                >
+                    {children}
+                </Typography>
+            );
         default:
             return (
                 <Typography component="p" {...attributes}>

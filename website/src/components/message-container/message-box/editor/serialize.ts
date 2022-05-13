@@ -21,28 +21,23 @@ export const serialize = (node: any[]) => {
                     )
                     .join("");
             } else {
-                return n.children
-                    ?.map(
-                        (n: any) =>
-                            `> ${n.children
-                                .map((n: any) =>
-                                    n.type === "emoji"
-                                        ? n.emoji + n.children[0].text
-                                        : n.type === "mention"
-                                        ? n.character.type === "user"
-                                            ? `<@${n.character.id}>`
-                                            : n.character.type === "channel"
-                                            ? `<#${n.character.id}>`
-                                            : n.character.type === "role"
-                                            ? `<@&${n.character.id}>`
-                                            : n.character.type === "everyone"
-                                            ? `@everyone`
-                                            : n.children[0].text
-                                        : Node.string(n)
-                                )
-                                .join("")}\n`
+                return `> ${n.children
+                    ?.map((n: any) =>
+                        n.type === "emoji"
+                            ? n.emoji + n.children[0].text
+                            : n.type === "mention"
+                            ? n.character.type === "user"
+                                ? `<@${n.character.id}>`
+                                : n.character.type === "channel"
+                                ? `<#${n.character.id}>`
+                                : n.character.type === "role"
+                                ? `<@&${n.character.id}>`
+                                : n.character.type === "everyone"
+                                ? `@everyone`
+                                : n.children[0].text
+                            : Node.string(n)
                     )
-                    .join("");
+                    .join("")}`;
             }
         })
         .join("\n");

@@ -17,6 +17,13 @@ class Token(Base):
     expires_in = Column(Integer, nullable=False)
     scope = Column(Text, nullable=False)
     user = relationship('User')
+    application = relationship('Application')
+
+    def user_serialize(self) -> dict:
+        return {
+            "application": self.application.serialize(),
+            "scopes": self.scope.split(' '),
+        }
 
     def is_scope_same(self, scope: str) -> bool:
         return set(scope.split(' ')) == set(self.scope.split(' '))

@@ -26,6 +26,7 @@ const MyComponent: React.FC<MyAppProps & { overwrites: string[] }> = props => {
     return overwrites.includes(router.asPath) ||
         router.asPath.startsWith("/invite") ||
         router.asPath.startsWith("/login") ||
+        router.asPath.startsWith("/oauth2") ||
         router.asPath.startsWith("/developers") ||
         router.asPath.startsWith("/register") ? (
         <Component {...pageProps} />

@@ -16,12 +16,14 @@ interface MessageCreate {
     content?: string;
     attachments?: Attachments[];
     channelId: string;
+    nonce: string;
 }
 
 export const createMessage = async ({
     channelId,
     content,
     attachments,
+    nonce,
 }: MessageCreate) => {
     let postData: FormData | string | null = null;
 
@@ -34,15 +36,16 @@ export const createMessage = async ({
                 attachment.filename
             );
         });
+        const json_content: any = { nonce };
         if (content) {
-            const blob = new Blob([JSON.stringify({ content })], {
-                type: "application/json",
-            });
-
-            postData?.append("payload_json", blob);
+            json_content.content = content;
         }
+        const blob = new Blob([JSON.stringify(json_content)], {
+            type: "application/json",
+        });
+        postData?.append("payload_json", blob);
     } else {
-        postData = JSON.stringify({ content });
+        postData = JSON.stringify({ content, nonce });
     }
 
     const data = await request(
@@ -59,18 +62,15 @@ export const createMessage = async ({
 
 export const useMessageCreate = (channelId: string, user: any) => {
     const queryClient = useQueryClient();
-    return useMutation((args: MessageCreate) => createMessage(args), {
+    return useMutation((args: MessageCreate) => createMessage({ ...args }), {
         onMutate: args => {
             addMessage(queryClient, {
                 ...args,
                 channel_id: channelId,
                 confirmed: true,
                 author: user,
-                timestamp: Date.now(),
+                timestamp: new Date(),
             } as any);
-        },
-        onSuccess: data => {
-            addMessage(queryClient, data, true);
         },
     });
 };

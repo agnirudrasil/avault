@@ -15,6 +15,7 @@ interface Props {
     open: boolean;
     onClose: () => void;
 }
+
 export const CreateApplicationDialog: React.FC<Props> = ({ open, onClose }) => {
     const [value, setValue] = useState("");
     const { mutateAsync, isLoading } = useCreateApplication();

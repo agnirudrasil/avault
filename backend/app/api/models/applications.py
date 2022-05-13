@@ -13,6 +13,7 @@ from ..core import emitter
 class Application(Base):
     __tablename__ = 'applications'
     id = Column(BigInteger, primary_key=True)
+    icon = Column(Text)
     name = Column(Text, nullable=False)
     description = Column(Text, nullable=False, default="")
     redirect_uris: list[str] = Column(ARRAY(Text), nullable=False, default=[])
@@ -84,6 +85,7 @@ class Application(Base):
     def serialize(self):
         return {
             "id": str(self.id),
+            "icon": self.icon,
             "name": self.name,
             "description": self.description,
             "bot": self.bot.serialize() if self.bot else None,
@@ -91,10 +93,11 @@ class Application(Base):
             "redirect_uris": self.redirect_uris
         }
 
-    def __init__(self, name, owner_id, secret, description="", bot_id=None):
+    def __init__(self, name, owner_id, secret, description="", bot_id=None, icon=None):
         self.id = next(snowflake_id)
         self.name = name
         self.secret = secret
         self.description = description
         self.owner_id = owner_id
         self.bot_id = bot_id
+        self.icon = icon

@@ -9,6 +9,7 @@ export interface Application {
     bot: User;
     owner: User;
     redirect_uris: string[];
+    icon?: string;
 }
 
 export const getApplications = async () => {

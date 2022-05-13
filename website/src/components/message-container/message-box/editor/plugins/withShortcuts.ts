@@ -1,60 +1,33 @@
-import {
-    Editor,
-    Element as SlateElement,
-    Point,
-    Range,
-    Transforms,
-} from "slate";
+import { Editor, Element, Point, Range, Transforms, Text } from "slate";
+import { isBlockActive } from "../utils";
 
-const SHORTCUTS = {
-    ">": "list-item",
-};
+export const withBlockquote = (editor: Editor) => {
+    const { normalizeNode, deleteBackward } = editor;
 
-export const withShortcuts = (editor: Editor) => {
-    const { deleteBackward, insertText } = editor;
-
-    editor.insertText = text => {
-        const { selection } = editor;
-
-        if (text === " " && selection && Range.isCollapsed(selection)) {
-            const { anchor } = selection;
-            const block = Editor.above(editor, {
-                match: n => Editor.isBlock(editor, n),
-            });
-            const path = block ? block[1] : [];
-            const start = Editor.start(editor, path);
-            const range = { anchor, focus: start };
-            const beforeText = Editor.string(editor, range);
-            const type = SHORTCUTS[beforeText as keyof typeof SHORTCUTS];
-
-            if (type) {
-                Transforms.select(editor, range);
-                Transforms.delete(editor);
-                const newProperties: Partial<SlateElement> = {
-                    type,
-                } as any;
-                Transforms.setNodes<SlateElement>(editor, newProperties, {
-                    match: n => Editor.isBlock(editor, n),
+    editor.normalizeNode = nodeEntry => {
+        const [node, path] = nodeEntry;
+        if (Text.isText(node)) {
+            if (
+                node.text.startsWith("> ") &&
+                !isBlockActive(editor, "blockquote") &&
+                !isBlockActive(editor, "codeline")
+            ) {
+                Transforms.setNodes(
+                    editor,
+                    { type: "blockquote" },
+                    { match: n => Editor.isBlock(editor, n) }
+                );
+                Transforms.insertText(editor, "", {
+                    at: {
+                        anchor: { path, offset: 0 },
+                        focus: { path, offset: 2 },
+                    },
                 });
-
-                if (type === "list-item") {
-                    const list = {
-                        type: "bulleted-list",
-                        children: [],
-                    };
-                    Transforms.wrapNodes(editor, list, {
-                        match: n =>
-                            !Editor.isEditor(n) &&
-                            SlateElement.isElement(n) &&
-                            (n as any).type === "list-item",
-                    });
-                }
-
                 return;
             }
         }
 
-        insertText(text);
+        normalizeNode(nodeEntry);
     };
 
     editor.deleteBackward = (...args) => {
@@ -71,24 +44,15 @@ export const withShortcuts = (editor: Editor) => {
 
                 if (
                     !Editor.isEditor(block) &&
-                    SlateElement.isElement(block) &&
-                    (block as any).type !== "paragraph" &&
+                    Element.isElement(block) &&
+                    block.type !== "codeline" &&
+                    block.type !== "paragraph" &&
                     Point.equals(selection.anchor, start)
                 ) {
-                    const newProperties: Partial<SlateElement> = {
+                    const newProperties: Partial<Element> = {
                         type: "paragraph",
-                    } as any;
+                    };
                     Transforms.setNodes(editor, newProperties);
-
-                    if ((block as any).type === "list-item") {
-                        Transforms.unwrapNodes(editor, {
-                            match: n =>
-                                !Editor.isEditor(n) &&
-                                SlateElement.isElement(n) &&
-                                (n as any).type === "bulleted-list",
-                            split: true,
-                        });
-                    }
 
                     return;
                 }

@@ -154,7 +154,13 @@ export const ApplicationLayout: React.FC<{ id: string }> = ({
                                 setAnchorEl(e.currentTarget);
                             }}
                         >
-                            <Avatar>
+                            <Avatar
+                                src={
+                                    data?.avatar
+                                        ? `${process.env.NEXT_PUBLIC_CDN_URL}avatars/${data.id}/${data.avatar}`
+                                        : undefined
+                                }
+                            >
                                 <DefaultProfilePic tag={data?.tag || ""} />
                             </Avatar>
                         </IconButton>

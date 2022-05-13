@@ -8,6 +8,12 @@ export interface User {
     email: string;
     id: string;
     bot?: boolean;
+    avatar?: string;
+    accent_color?: number;
+    banner?: string;
+    bio?: string;
+    mfa_enabled?: boolean;
+    banner_color?: string;
 }
 
 export interface GuildMembers {
@@ -33,6 +39,13 @@ export const useUserStore = create(
             unread: {} as Record<string, Unread>,
         },
         (set, get) => ({
+            updateUser: (user: User) => {
+                set(state =>
+                    produce(state, draft => {
+                        draft.user = user;
+                    })
+                );
+            },
             setUser: (
                 user: User,
                 guildMembers: GuildMembers[],
