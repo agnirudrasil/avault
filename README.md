@@ -80,13 +80,14 @@ An instant messaging website with messaging and administration features.
 - Unread notifications and @user mentions.
 - 2-Factor Authentication.
 - User profile customization.
+- Friends
 
 
 <!-- ROADMAP -->
 ## Roadmap
 
 - [ ] Voice and video calling.
-- [ ] User Friends and DM channels.
+- [x] User Friends and DM channels.
 - [ ] Channel Threads.
 - [x] User settings and customization.
 - [x] 2-Factor Authentication.

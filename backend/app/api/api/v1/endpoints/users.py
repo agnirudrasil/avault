@@ -2,6 +2,7 @@ from datetime import timedelta, datetime
 from typing import List, Optional
 
 import pyotp
+import sqlalchemy.exc
 from fastapi import APIRouter, Depends, Response, BackgroundTasks, Security, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -9,6 +10,7 @@ from sqlalchemy.orm import Session
 from api.api import deps
 from api.core import emitter, security, settings
 from api.core.events import Events, websocket_emitter
+from api.models import Relationship
 from api.models.channels import Channel, ChannelType
 from api.models.guilds import GuildMembers
 from api.models.user import User, MFA
@@ -239,3 +241,100 @@ async def enable_totp(body: EnableTOTP, response: Response, db: Session = Depend
                                                        expires_delta=refresh_token_expires,
                                                        mfa_enabled=current_user.mfa_enabled),
     }
+
+
+@router.get("/@me/relationships")
+async def get_relationships(db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
+    relationships: list[Relationship] = db.query(Relationship).filter(
+        (Relationship.addressee_id == current_user.id) | (Relationship.requester_id == current_user.id)).all()
+
+    return [relationship.serialize(current_user.id) for relationship in relationships]
+
+
+class RelationshipCreate(BaseModel):
+    username: str
+    tag: str
+
+
+@router.post("/@me/relationships", status_code=204)
+async def create_relationship(
+        body: RelationshipCreate,
+        db: Session = Depends(deps.get_db),
+        current_user: User = Depends(deps.get_current_user),
+):
+    if current_user.bot:
+        raise HTTPException(status_code=403, detail="Bots cannot create relationships")
+
+    user: User = db.query(User).filter_by(username=body.username).filter_by(tag=body.tag).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user.bot:
+        raise HTTPException(status_code=403, detail="Bots cannot create relationships")
+
+    if user.id == current_user.id:
+        raise HTTPException(status_code=400, detail="You cannot create a relationship with yourself")
+
+    existing_relationship: Relationship = db.query(Relationship).filter_by(
+        addressee_id=current_user.id).filter_by(requester_id=user.id).first()
+
+    if existing_relationship:
+        raise HTTPException(status_code=400, detail="You already have a relationship with this user")
+
+    try:
+        relationship = Relationship(requester_id=current_user.id, addressee_id=user.id)
+
+        db.add(relationship)
+        db.commit()
+    except sqlalchemy.exc.IntegrityError:
+        raise HTTPException(status_code=400, detail="You already have a relationship with this user")
+
+    return
+
+
+@router.put("/@me/relationships/{relationship_id}", status_code=204)
+async def accept_relationship(
+        relationship_id: int,
+        db: Session = Depends(deps.get_db),
+        current_user: User = Depends(deps.get_current_user),
+):
+    print(current_user.id)
+    relationship: Relationship = db.query(Relationship).filter_by(addressee_id=current_user.id).filter_by(
+        requester_id=relationship_id).first()
+
+    if not relationship:
+        raise HTTPException(status_code=404, detail="Relationship not found")
+
+    if relationship.addressee_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You do not have permission to update this relationship")
+
+    if relationship.type != 0:
+        raise HTTPException(status_code=400, detail="Relationship already accepted")
+
+    relationship.type = 1
+    db.commit()
+
+    return
+
+
+@router.delete("/@me/relationships/{relationship_id}", status_code=204)
+async def delete_relationship(
+        relationship_id: int,
+        db: Session = Depends(deps.get_db),
+        current_user: User = Depends(deps.get_current_user),
+):
+    relationship: Relationship = db.query(Relationship).filter(
+        (Relationship.addressee_id == relationship_id & Relationship.requester_id == current_user.id) | (
+                Relationship.requester_id == relationship_id & Relationship.addressee_id == current_user.id)). \
+        first()
+
+    if not relationship:
+        raise HTTPException(status_code=404, detail="Relationship not found")
+
+    if relationship.addressee_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You do not have permission to delete this relationship")
+
+    db.delete(relationship)
+    db.commit()
+
+    return

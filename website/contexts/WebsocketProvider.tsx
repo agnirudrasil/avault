@@ -20,6 +20,7 @@ import {
 import { Permissions } from "../src/permissions";
 import produce from "immer";
 import { chunk } from "lodash";
+import { useFriendsStore } from "../stores/useFriendsStore";
 
 export const WebsocketContext = createContext<{ socket: Socket | null }>({
     socket: null as any,
@@ -105,6 +106,8 @@ export const WebsocketProvider: React.FC = ({ children }) => {
             shallow
         );
 
+    const setFriends = useFriendsStore(state => state.setState);
+
     useEffect(() => {
         const socket = io(process.env.NEXT_PUBLIC_GATEWAY_URL || "", {
             transports: ["websocket"],
@@ -156,6 +159,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                     privateChannels: data.private_channels,
                 });
 
+                setFriends(data.users);
                 setUserId(data.user.id);
                 setUser(data.user, data.merged_members, unread);
                 setRoles(guildsRoles);

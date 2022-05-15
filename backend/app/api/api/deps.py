@@ -80,6 +80,12 @@ def get_current_user(
 
     user = crud.user.get(db, id=token_data.sub)
 
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Could not validate credentials",
+        )
+
     if not user.last_login:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
