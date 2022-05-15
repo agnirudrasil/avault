@@ -37,6 +37,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
         updateGuilds,
         updateMember,
         addMember,
+        updateEmojis,
         removeMember,
     } = useGuildsStore(
         state => ({
@@ -47,6 +48,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
             updateMember: state.updateMember,
             addMember: state.addMember,
             removeMember: state.removeMember,
+            updateEmojis: state.updateEmojis,
         }),
         shallow
     );
@@ -206,6 +208,15 @@ export const WebsocketProvider: React.FC = ({ children }) => {
             });
             socket.on("GUILD_MEMBER_REMOVE", data => {
                 removeMember(data);
+            });
+            socket.on("GUILD_BAN_ADD", data => {
+                queryClient.invalidateQueries(["guild-bans", data.guild_id]);
+            });
+            socket.on("GUILD_BAN_REMOVE", data => {
+                queryClient.invalidateQueries(["guild-bans", data.guild_id]);
+            });
+            socket.on("GUILD_EMOJIS_UPDATE", (data: any) => {
+                updateEmojis(data.guild_id, data.emojis);
             });
             socket.on("MESSAGE_CREATE", (data: Messages) => {
                 console.log(data.nonce);

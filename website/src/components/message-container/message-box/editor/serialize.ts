@@ -2,7 +2,7 @@ import { Node } from "slate";
 export const serialize = (node: any[]) => {
     return node
         .map(n => {
-            if (n.type === "paragraph") {
+            if (n.type !== "blockquote") {
                 return n.children
                     .map((n: any) =>
                         n.type === "emoji"

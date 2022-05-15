@@ -50,8 +50,9 @@ export const Message: React.FC<{
     guild: string;
     disableHeader: boolean;
     newMessage: boolean;
+    error: boolean;
     confirmed: boolean;
-}> = memo(({ message, guild, newMessage, disableHeader, confirmed }) => {
+}> = memo(({ message, guild, newMessage, disableHeader, confirmed, error }) => {
     const theme = useTheme();
     const popupState = usePopupState({
         variant: "popper",
@@ -222,7 +223,11 @@ export const Message: React.FC<{
     return (
         <div>
             <Popper placement="top-end" {...bindPopper(popupState)}>
-                <MessageToolbar message={message} />
+                <MessageToolbar
+                    error={error}
+                    handleContextMenu={handleContextMenu}
+                    message={message}
+                />
             </Popper>
             <ListItemButton
                 onContextMenu={handleContextMenu}
@@ -287,7 +292,11 @@ export const Message: React.FC<{
                             <Typography
                                 sx={{
                                     p: 0,
-                                    color: confirmed ? "GrayText" : undefined,
+                                    color: error
+                                        ? "error.dark"
+                                        : confirmed
+                                        ? "GrayText"
+                                        : undefined,
                                 }}
                                 variant="body1"
                             >

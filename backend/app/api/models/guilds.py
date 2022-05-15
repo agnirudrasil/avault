@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Text, String, ForeignKey, UniqueConstraint, BigInteger, Boolean
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, backref
 from sqlalchemy.orm import relationship
 
 from api.core.security import snowflake_id
@@ -39,7 +39,9 @@ class Guild(Base):
     owner_id = Column(BigInteger, ForeignKey("users.id"))
     owner = relationship("User", backref="owner")
     channels = relationship("Channel", backref="guild", order_by="asc(Channel.position)")
-    roles = relationship("Role", back_populates="guild", order_by="Role.position, Role.id.desc()")
+    roles = relationship("Role", back_populates="guild", order_by="Role.position, Role.id.desc()",
+                         cascade="all, delete-orphan")
+    emojis = relationship("Emoji", backref=backref("guild", cascade="save-update, merge, all, delete"))
 
     def is_owner(self, user):
         return user == self.owner_id
@@ -73,6 +75,7 @@ class Guild(Base):
             "members": [member.serialize() for member in self.members],
             "channels": [channel.serialize() for channel in self.channels],
             'roles': [role.serialize() for role in self.roles],
+            "emojis": [emoji.serialize() for emoji in self.emojis],
         }
 
     def __init__(self, name, owner_id, icon=None):
@@ -99,8 +102,8 @@ class GuildMembers(Base):
     is_owner = Column(Boolean, nullable=False, default=False)
     nickname = Column(String(80), nullable=True)
     permissions = Column(BigInteger, nullable=False, default=0)
-    member = relationship("User", backref="guilds")
-    guild: Guild = relationship("Guild", backref="members")
+    member = relationship("User", backref=backref("guilds", cascade="save-update,merge,delete"))
+    guild: Guild = relationship("Guild", backref=backref("members", cascade="save-update,merge,delete"))
 
     def serialize(self):
         return {

@@ -57,6 +57,8 @@ class Message(Base):
     id = Column(BigInteger, primary_key=True)
     channel_id = Column(BigInteger, ForeignKey(
         'channels.id', ondelete='CASCADE'), nullable=False)
+    guild_id = Column(BigInteger, ForeignKey(
+        'guilds.id', ondelete='CASCADE'), nullable=True)
     author_id = Column(BigInteger, ForeignKey(
         'users.id', ondelete="SET NULL"))
     webhook_id = Column(BigInteger)
@@ -86,7 +88,6 @@ class Message(Base):
             author = self.author.serialize()
         reactions_count = db.query(func.bool_or(Reactions.user_id == current_user)).filter_by(
             message_id=self.id).group_by(Reactions.reaction).all()
-
         serialized = {
             'id': str(self.id),
             'channel_id': str(self.channel_id) if self.channel_id else None,
@@ -107,7 +108,7 @@ class Message(Base):
             'mention_everyone': self.mentions_everyone(),
             'mention_roles': self.mentions_roles(),
             'mention_channels': self.mentions_channels(),
-            'reply': self.reply.serialize(current_user, db) if self.reply else None
+            'reply': self.reply.serialize(current_user, db) if self.reply else None,
         }
 
         if nonce:
@@ -148,7 +149,8 @@ class Message(Base):
                  replies_to=None,
                  attachments=None,
                  webhook_id=None,
-                 webhook_author=None):
+                 webhook_author=None,
+                 guild_id: int = None):
         self.id = next(snowflake_id)
         self.content = content
         self.channel_id = channel_id
@@ -163,3 +165,4 @@ class Message(Base):
         self.attachments = attachments
         self.webhook_author = webhook_author
         self.webhook_id = webhook_id
+        self.guild_id = guild_id

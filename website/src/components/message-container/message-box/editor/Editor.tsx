@@ -54,7 +54,6 @@ import {
     toggleBlock,
 } from "./utils";
 import { StyledToggleButtonGroup } from "../../../StyledToggleButtonGroup";
-import { Picker } from "emoji-mart";
 import { GifPicker } from "../../../GifPicker/GifPicker";
 import { withMentions } from "./plugins/withMentions";
 import { useGuildsStore } from "../../../../../stores/useGuildsStore";
@@ -63,6 +62,7 @@ import { useChannelsStore } from "../../../../../stores/useChannelsStore";
 import { withEmoji } from "./plugins/withEmoji";
 import { Roles, useRolesStore } from "../../../../../stores/useRolesStore";
 import { nanoid } from "nanoid";
+import { EmojiPicker } from "../../../EmojiPicker";
 
 export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
     const router = useRouter();
@@ -609,7 +609,7 @@ export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
                 anchorEl={pickerRef.current}
                 open={picker === "emoji"}
             >
-                <Picker
+                <EmojiPicker
                     set="twitter"
                     theme="dark"
                     onSelect={emoji => {

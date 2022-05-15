@@ -10,9 +10,9 @@ class Emoji(Base):
     id = Column(BigInteger, primary_key=True)
     name = Column(Text, nullable=False)
     roles = Column(ARRAY(BigInteger), nullable=False)
-    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"), nullable=False)
+    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     animated = Column(Boolean, nullable=False)
-    guild_id = Column(BigInteger, ForeignKey("guilds.id", ondelete="CASCADE"), nullable=False)
+    guild_id = Column(BigInteger, ForeignKey("guilds.id", ondelete="CASCADE"))
     user = relationship("User")
 
     def serialize(self):

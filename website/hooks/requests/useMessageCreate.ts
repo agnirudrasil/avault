@@ -57,12 +57,25 @@ export const createMessage = async ({
         }
     );
 
+    if (!data.ok) {
+        throw new Error(data.statusText);
+    }
+
     return data.json() as Promise<Messages>;
 };
 
 export const useMessageCreate = (channelId: string, user: any) => {
     const queryClient = useQueryClient();
     return useMutation((args: MessageCreate) => createMessage({ ...args }), {
+        onError: (_, args) => {
+            addMessage(queryClient, {
+                ...args,
+                channel_id: channelId,
+                error: true,
+                author: user,
+                timestamp: new Date(),
+            } as any);
+        },
         onMutate: args => {
             addMessage(queryClient, {
                 ...args,

@@ -1,15 +1,12 @@
-import base64
 import io
-from typing import List
 
-import boto3
 import requests
-from fastapi import APIRouter, Depends, Response, Request, Body, File, UploadFile, HTTPException
+from fastapi import APIRouter, Depends, Response, HTTPException
 from sqlalchemy.orm import Session
 from starlette.responses import StreamingResponse
 
 from api.api import deps
-from api.api.v1.endpoints import auth, channels, gifs, users, guilds, invites, default, oauth2, webhooks, applications
+from api.api.v1.endpoints import auth, channels, gifs, users, guilds, invites, oauth2, webhooks, applications
 from api.core import emitter
 from api.core.events import Events, websocket_emitter
 from api.models.guilds import Guild, GuildMembers, GuildBans
@@ -75,7 +72,6 @@ async def join_guild(code: str,
     return ""
 
 
-api_router.include_router(default.router, tags=["default"])
 api_router.include_router(auth.router, prefix='/auth', tags=["login"])
 api_router.include_router(gifs.router, prefix='/gifs', tags=["gifs"])
 api_router.include_router(

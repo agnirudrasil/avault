@@ -79,6 +79,7 @@ async def create_message(channel_id: int,
                          content_length: int = Header(..., lt=1024 * 1024 * 10),
                          dependency: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES)),
                          db: Session = Depends(deps.get_db)) -> Any:
+    return Response(status_code=status.HTTP_501_NOT_IMPLEMENTED)
     embed_checker = deps.ChannelPerms(Permissions.EMBED_LINKS)
     attachments = []
     body = None
@@ -121,7 +122,8 @@ async def create_message(channel_id: int,
                       embeds=body.embeds if body else None,
                       replies_to=body.message_reference if body else None,
                       message_type=MessageTypes.REPLY if body and body.message_reference else MessageTypes.DEFAULT,
-                      attachments=my_attachments)
+                      attachments=my_attachments,
+                      guild_id=channel.guild_id)
     message.process_mentions(channel.guild_id, db)
     db.add(message)
     db.commit()
@@ -467,8 +469,8 @@ async def create_invite(channel_id: int,
             filter_by(max_age=data.max_age).first()
         if invite:
             return {**invite.serialize()}
-    invite = Invite(channel_id, current_user.id,
-                    data.max_age, data.max_uses, db)
+    invite = Invite(channel_id=channel_id, user_id=current_user.id,
+                    max_age=data.max_age, max_uses=data.max_uses, db=db, guild_id=channel.guild_id)
     db.add(invite)
     db.commit()
     await websocket_emitter(channel_id, channel.guild_id, Events.INVITE_CREATE, invite.serialize())
@@ -540,7 +542,7 @@ async def typing(channel_id: int,
         'channel_id': str(channel_id),
         'guild_id': str(channel.guild_id),
         'user_id': str(user.id),
-        'timestamp': str(datetime.now()),
+        'timestamp': datetime.utcnow().isoformat(),
     })
     return
 
@@ -570,7 +572,8 @@ async def pin_message(channel_id: int, message_id: int,
             pinned_message = PinnedMessages()
             pinned_message.message = message
             channel.pinned_messages.append(pinned_message)
-            new_message = Message("", channel_id, user.id, message_type=MessageTypes.CHANNEL_PINNED_MESSAGE)
+            new_message = Message(content="", channel_id=channel_id, author_id=user.id,
+                                  message_type=MessageTypes.CHANNEL_PINNED_MESSAGE, guild_id=channel.guild_id)
             db.add(new_message)
             db.commit()
             await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_PINS_UPDATE, {

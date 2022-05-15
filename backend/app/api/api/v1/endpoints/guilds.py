@@ -1,4 +1,5 @@
 # from datetime import datetime, timedelta
+import re
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Response, Security, HTTPException
@@ -6,6 +7,7 @@ from pydantic import BaseModel
 from sqlalchemy import asc, desc, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from werkzeug.utils import secure_filename
 
 from api.api import deps
 from api.core import emitter
@@ -135,9 +137,9 @@ async def delete_guild(guild_id: int,
                        user: User = Depends(deps.get_current_user)):
     guild: Guild = db.query(Guild).filter_by(id=guild_id).first()
     if guild and guild.is_owner(user.id):
+        await (websocket_emitter(None, guild_id, Events.GUILD_DELETE, guild.serialize()))
         db.delete(guild)
         db.commit()
-        await (websocket_emitter(None, guild_id, Events.GUILD_DELETE, guild.serialize()))
         return
     response.status_code = 404
     return {"error": "Guild not found"}
@@ -595,9 +597,9 @@ async def delete_guild_ban(guild_id: int, user_id: int,
     guild_ban = db.query(GuildBans).filter_by(
         guild_id=guild_id).filter_by(user_id=user_id).first()
     if guild_ban:
+        await websocket_emitter(None, guild_id, Events.GUILD_BAN_REMOVE, guild_ban.serialize())
         db.delete(guild_ban)
         db.commit()
-        await websocket_emitter(None, guild_id, Events.GUILD_BAN_REMOVE, guild_ban.serialize())
         return Response(status_code=204)
     return Response(status_code=404)
 
@@ -638,7 +640,7 @@ class EditEmoji(BaseModel):
 class CreateEmoji(BaseModel):
     name: str
     image: str
-    roles: list[int]
+    roles: Optional[list[int]] = []
 
 
 @router.post("/{guild_id}/emojis")
@@ -648,8 +650,8 @@ async def create_guild_emoji(guild_id: int,
                              dependencies: tuple[Guild, User, GuildMembers] = Depends(
                                  deps.GuildPerms(Permissions.MANAGE_EMOJIS_AND_STICKERS))):
     guild, user, _ = dependencies
-
-    emoji = Emoji(name=body.name, guild_id=guild_id, user_id=user.id, roles=body.roles, animated=False)
+    emoji = Emoji(name=re.sub('\W', '', body.name), guild_id=guild_id, user_id=user.id, roles=body.roles,
+                  animated=False)
     roles = list(filter(lambda r: r != str(guild_id), body.roles))
     roles = db.query(Role).filter(Role.id.in_(roles)).all()
     emoji.roles = list(map(lambda r: r.id, roles))
@@ -658,11 +660,16 @@ async def create_guild_emoji(guild_id: int,
     db.add(emoji)
     db.commit()
 
+    emojis = db.query(Emoji).filter_by(guild_id=guild_id).all()
+
+    await websocket_emitter(None, guild_id, Events.GUILD_EMOJIS_UPDATE,
+                            {"emojis": [emoji.serialize() for emoji in emojis], "guild_id": str(guild_id)}, None)
+
     return emoji.serialize()
 
 
 @router.patch("/{guild_id}/emojis/{emoji_id}")
-async def create_guild_emoji(guild_id: int,
+async def update_guild_emoji(guild_id: int,
                              emoji_id: int,
                              body: EditEmoji,
                              db: Session = Depends(deps.get_db),
@@ -673,14 +680,19 @@ async def create_guild_emoji(guild_id: int,
     if not emoji:
         return Response(status_code=404)
 
-    if body.name is not None:
-        emoji.name = body.name
+    if body.name:
+        emoji.name = secure_filename(body.name)
     if body.roles is not None:
         roles = list(filter(lambda r: r != str(guild_id), body.roles))
         roles = db.query(Role).filter(Role.id.in_(roles)).all()
         emoji.roles = list(map(lambda r: r.id, roles))
 
     db.commit()
+
+    emojis = db.query(Emoji).filter_by(guild_id=guild_id).all()
+
+    await websocket_emitter(None, guild_id, Events.GUILD_EMOJIS_UPDATE,
+                            {"emojis": [emoji.serialize() for emoji in emojis], "guild_id": str(guild_id)}, None)
 
     return emoji.serialize()
 
@@ -695,8 +707,13 @@ async def delete_guild_emoji(guild_id: int,
     emoji = db.query(Emoji).filter_by(id=emoji_id).filter_by(guild_id=guild_id).first()
     if not emoji:
         return Response(status_code=404)
-    
+
     db.delete(emoji)
     db.commit()
+
+    emojis = db.query(Emoji).filter_by(guild_id=guild_id).all()
+
+    await websocket_emitter(None, guild_id, Events.GUILD_EMOJIS_UPDATE,
+                            {"emojis": [emoji.serialize() for emoji in emojis], "guild_id": str(guild_id)}, None)
 
     return Response(status_code=204)

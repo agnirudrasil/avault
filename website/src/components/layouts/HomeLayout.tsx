@@ -6,6 +6,9 @@ import { useRoutesStore } from "../../../stores/useRoutesStore";
 import { ChannelBar } from "../channels";
 import { MembarsBar } from "../members";
 import { MessageContainer } from "../message-container";
+import { GuildSettings } from "../routes/guild-settings";
+import { GuildSettingsBans } from "../routes/guild-settings/bans";
+import { GuildSettingsEmoji } from "../routes/guild-settings/emoji";
 import { UserSettingsIndex } from "../routes/user-settings";
 import { UserSettingsAuthorizedApps } from "../routes/user-settings/AuthorizedApp";
 import { UserSettingsProfile } from "../routes/user-settings/Profile";
@@ -21,6 +24,12 @@ export const HomeLayout: React.FC = () => {
             return <UserSettingsProfile />;
         case "/user-settings/authorized-apps":
             return <UserSettingsAuthorizedApps />;
+        case "/guild-settings":
+            return <GuildSettings />;
+        case "/guild-settings/emoji":
+            return <GuildSettingsEmoji />;
+        case "/guild-settings/bans":
+            return <GuildSettingsBans />;
         case "/":
         default:
             return (

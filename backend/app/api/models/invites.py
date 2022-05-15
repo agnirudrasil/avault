@@ -3,7 +3,7 @@ from random import randint
 
 from sqlalchemy import Column, String, BigInteger, ForeignKey, Integer, DateTime
 from sqlalchemy import func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Session
 
 from api.db.base_class import Base
 from api.models.channels import Channel
@@ -15,6 +15,7 @@ class Invite(Base):
     id = Column(String(21), primary_key=True)
     channel_id = Column(BigInteger, ForeignKey(
         'channels.id', ondelete="CASCADE"), nullable=False)
+    guild_id = Column(BigInteger, ForeignKey("guilds.id", ondelete="CASCADE"), nullable=True)
     user_id = Column(BigInteger, ForeignKey(
         'users.id', ondelete="SET NULL"), nullable=False)
     created_at = Column(DateTime, nullable=False, default=func.now())
@@ -45,10 +46,11 @@ class Invite(Base):
             return self.gen_id(db)
         return invite_id
 
-    def __init__(self, channel_id, user_id, max_age, max_uses, db):
+    def __init__(self, channel_id, user_id, max_age, max_uses, db: Session, guild_id=None):
         self.id = self.gen_id(db)
         self.channel_id = channel_id
         self.user_id = user_id
         self.max_age = max_age or 86400
         self.max_uses = max_uses or 0
         self.created_at = datetime.datetime.now()
+        self.guild_id = guild_id

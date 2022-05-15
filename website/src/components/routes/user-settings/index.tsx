@@ -26,7 +26,7 @@ export const UserSettingsIndex = () => {
 
     return (
         <UserSettings>
-            <Stack sx={{ width: "100%", height: "max-content" }} spacing={3}>
+            <Stack sx={{ width: "600px", height: "max-content" }} spacing={3}>
                 <Typography variant="h5" fontWeight="bold">
                     My Account
                 </Typography>
@@ -35,8 +35,12 @@ export const UserSettingsIndex = () => {
                         sx={{
                             bgcolor: user.banner_color ?? "primary.dark",
                             width: "100%",
-                            height: "100px",
+                            height: user.banner ? "240px" : "100px",
                             borderRadius: "10px 10px 0 0",
+                            backgroundSize: "cover",
+                            backgroundImage: user.banner
+                                ? `url(${process.env.NEXT_PUBLIC_CDN_URL}banners/${user.id}/${user.banner})`
+                                : undefined,
                         }}
                     />
                     <Box

@@ -16,7 +16,7 @@ const BlockQuoteContent = styled.blockquote`
     max-width: 90%;
     padding: 0 8px 0 12px;
     margin: 0;
-
+    color: inherit;
     text-indent: 0;
 `;
 

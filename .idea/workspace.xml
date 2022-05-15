@@ -5,74 +5,68 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/0d15c65332c3_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/1483bf14e366_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/1dbf1d6f2ff5_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/1fee32cbdab2_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/29a3d6b8dd4a_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/4290e3aaa29b_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/93ef61092766_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/d4b43aa56561_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/e6a4acc36286_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/api/models/emoji.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/api/utils/validate_avatar.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/api/utils/validate_emoji.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/25bfe45f6c17_.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/api/tests/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/app/api/tests/test_users.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0/storage_v2/_src_/database/avault.ccYyrA/schema/public.abK9xQ.zip" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/deps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/deps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/applications.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/applications.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/auth.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/avault.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/0d15c65332c3_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/1483bf14e366_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/1dbf1d6f2ff5_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/1fee32cbdab2_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/29a3d6b8dd4a_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/317ddf3a53c7_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/4290e3aaa29b_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/64c98f6435a0_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/93ef61092766_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/a56c98323426_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/b4d5cc2b538e_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/b7bd3f9264de_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/d44a89544edc_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/d4b43aa56561_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/e39a29767b9d_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/alembic/versions/e6a4acc36286_.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/default.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/oauth2.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/oauth2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/security.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/security.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/crud/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/crud/user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/webhooks.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/webhooks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/applications.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/applications.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/emoji.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/emoji.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/guilds.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/guilds.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/invites.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/invites.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/models/messages.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/messages.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/oauth2.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/oauth2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/schemas/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/schemas/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/schemas/message.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/schemas/message.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/schemas/token.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/schemas/token.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/schemas/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/schemas/user.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/poetry.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/pyproject.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useGetApplications.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useGetApplications.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useGuildCreate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useGuildCreate.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useLogin.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useLogin.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useLogout.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useLogout.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useDeleteBan.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useDeleteBan.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useEditGuild.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useEditGuild.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/hooks/requests/useMessageCreate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useMessageCreate.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/website/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/_app.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/_app.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/developers/applications/[id]/bot.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/developers/applications/[id]/bot.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/developers/applications/[id]/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/developers/applications/[id]/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/developers/applications/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/developers/applications/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/login.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/login.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/oauth2/authorize.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/oauth2/authorize.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/test.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/test.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/GuildItem.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/GuildItem.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/LightTooltip.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/LightTooltip.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/addMessage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/addMessage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/channels/ChannelBottom.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/channels/ChannelBottom.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/dialogs/CreateApplication.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/dialogs/CreateApplication.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/dialogs/CreateServerDialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/dialogs/CreateServerDialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/layouts/ApplicationLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/layouts/ApplicationLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/context-menus/GuildItemContextMenu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/context-menus/GuildItemContextMenu.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/layouts/HomeLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/layouts/HomeLayout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/members/MembersBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/members/MembersBar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/emoji/getCustomEmojiUrl.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/emoji/getCustomEmojiUrl.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/customEmoji.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/emoji.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/emoji.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/styles/BlockQuote.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/styles/BlockQuote.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/styles/Emoji.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/message-container/Messages.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/Messages.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/TextViewer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/TextViewer.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/message-container/message-box/editor/Editor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/message-box/editor/Editor.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/message-box/editor/serialize.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/message-box/editor/serialize.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/src/components/message-container/message/Message.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/message/Message.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/message/Toolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/message/Toolbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/routes/user-settings/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/routes/user-settings/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/website/stores/useGuildsStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useGuildsStore.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/stores/useMessagesStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useMessagesStore.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/stores/useUserStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/stores/useUserStore.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/website/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -250,14 +244,31 @@
       <option name="launchJavascriptDebuger" value="false" />
       <method v="2" />
     </configuration>
+    <configuration name="Python tests for api.tests.test_users.test_get_me" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="avault" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/backend/app/api/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;api.tests.test_users.test_get_me&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="FastAPI.Backend" />
       <item itemvalue="Python.celery" />
       <item itemvalue="Python.snowflake" />
       <item itemvalue="Python.test" />
+      <item itemvalue="Python tests.Python tests for api.tests.test_users.test_get_me" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python tests.Python tests for api.tests.test_users.test_get_me" />
         <item itemvalue="Python.snowflake" />
         <item itemvalue="Python.test" />
       </list>
@@ -418,7 +429,12 @@
       <workItem from="1652290959815" duration="3662000" />
       <workItem from="1652339005274" duration="3119000" />
       <workItem from="1652370856743" duration="2325000" />
-      <workItem from="1652447569518" duration="2920000" />
+      <workItem from="1652447569518" duration="7781000" />
+      <workItem from="1652500848282" duration="6615000" />
+      <workItem from="1652544269478" duration="1856000" />
+      <workItem from="1652584156026" duration="5384000" />
+      <workItem from="1652597564786" duration="3448000" />
+      <workItem from="1652620729762" duration="651000" />
     </task>
     <servers />
   </component>
@@ -449,7 +465,8 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/avault$test.coverage" NAME="test Coverage Results" MODIFIED="1651387292791" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app/api" />
     <SUITE FILE_PATH="coverage/avault$snowflake.coverage" NAME="snowflake Coverage Results" MODIFIED="1651388679575" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app/api/utils" />
-    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1652454356658" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1652598409582" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
     <SUITE FILE_PATH="coverage/avault$celery.coverage" NAME="celery Coverage Results" MODIFIED="1651378190558" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+    <SUITE FILE_PATH="coverage/avault$.coverage" NAME=" Coverage Results" MODIFIED="1652587113888" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app/api/tests" />
   </component>
 </project>

@@ -45,14 +45,18 @@ export const emoji: MarkdownRule = {
             type: "emoji",
         };
     },
-    react: (node, _, state) => (
-        <Emoji
-            key={state.key}
-            src={node.src}
-            alt={node.emoji}
-            title={node.name}
-            draggable={false}
-            big={false}
-        />
-    ),
+    react: (node, _, state) => {
+        console.log(node);
+        return (
+            <Emoji
+                key={state.key}
+                src={node.src}
+                alt={node.emoji}
+                title={node.name}
+                draggable={false}
+                big={false}
+                custom={node.src.startsWith(process.env.NEXT_PUBLIC_CDN_URL)}
+            />
+        );
+    },
 };

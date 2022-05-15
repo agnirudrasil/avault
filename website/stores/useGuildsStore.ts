@@ -4,8 +4,15 @@ import { combine } from "zustand/middleware";
 import { Channel } from "../types/channels";
 import { useChannelsStore } from "./useChannelsStore";
 import { Roles, useRolesStore } from "./useRolesStore";
-import { GuildMembers } from "./useUserStore";
+import { GuildMembers, User } from "./useUserStore";
 
+export interface Emoji {
+    id: string;
+    name: string;
+    roles: string[];
+    animated: boolean;
+    user: User;
+}
 export interface Guild {
     id: string;
     owner_id: string;
@@ -13,6 +20,7 @@ export interface Guild {
     roles: Roles[];
     channels: Channel[];
     icon?: string;
+    emojis: Emoji[];
     members: { [id: string]: GuildMembers };
 }
 
@@ -56,6 +64,13 @@ export const useGuildsStore = create(
                             id: guild.id,
                             icon: guild.icon,
                         };
+                    })
+                );
+            },
+            updateEmojis: (guildId: string, emojis: Emoji[]) => {
+                set(
+                    produce(draft => {
+                        draft.guilds[guildId].emojis = emojis;
                     })
                 );
             },
@@ -115,14 +130,18 @@ export const useGuildsStore = create(
                 );
             },
             removeGuild: (guildId: string) =>
-                set(state => {
-                    const deleteGuild = useChannelsStore.getState().deleteGuild;
-                    const deleteRoles = useRolesStore.getState().deleteGuild;
-                    deleteGuild(guildId);
-                    deleteRoles(guildId);
-                    delete state.guilds[guildId];
-                    return state;
-                }),
+                set(state =>
+                    produce(state, draft => {
+                        const deleteGuild =
+                            useChannelsStore.getState().deleteGuild;
+                        const deleteRoles =
+                            useRolesStore.getState().deleteGuild;
+                        deleteGuild(guildId);
+                        deleteRoles(guildId);
+                        delete draft.guilds[guildId];
+                        return draft;
+                    })
+                ),
         })
     )
 );

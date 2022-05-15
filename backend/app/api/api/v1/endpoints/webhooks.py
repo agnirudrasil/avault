@@ -1,5 +1,9 @@
 import secrets
-from typing import Any, Optional
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Response
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from api import models
 from api.api import deps
@@ -7,10 +11,6 @@ from api.core.events import websocket_emitter, Events
 from api.core.permissions import Permissions
 from api.models import Message
 from api.models.webhooks import Webhook
-from pydantic import BaseModel
-from sqlalchemy.orm import Session
-from fastapi import APIRouter, Depends, Response
-
 from api.schemas.message import MessageCreate
 
 router = APIRouter()
@@ -129,7 +129,8 @@ async def execute_webhook(webhook_id: int, token: str, body: MessageCreate, resp
         token_correct = secrets.compare_digest(webhook.token, token)
         if token_correct:
             message = Message(content=body.content.strip(), channel_id=webhook.channel_id, embeds=body.embeds,
-                              webhook_id=webhook.id, webhook_author=webhook.get_author(), author_id=None)
+                              webhook_id=webhook.id, webhook_author=webhook.get_author(), author_id=None,
+                              guild_id=webhook.guild_id)
             db.add(message)
             db.commit()
             await websocket_emitter(webhook.channel_id, webhook.guild_id, Events.MESSAGE_CREATE,

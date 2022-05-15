@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation } from "react-query";
 import { request } from "../../src/request";
 
 export const deleteBan = async ({
@@ -15,14 +15,9 @@ export const deleteBan = async ({
             credentials: "include",
         }
     );
-    return res.json();
+    return res.text();
 };
 
 export const useDeleteBan = () => {
-    const queryClient = useQueryClient();
-    return useMutation(deleteBan, {
-        onSuccess: (_, { guildId }) => {
-            queryClient.invalidateQueries(["guild-bans", guildId]);
-        },
-    });
+    return useMutation(deleteBan);
 };

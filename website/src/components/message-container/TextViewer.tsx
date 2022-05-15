@@ -19,9 +19,10 @@ export const TextViewer: React.FC<{
     const [expanded, setExpanded] = useState(false);
     useEffect(() => {
         fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/proxy?path=${encodeURIComponent(
-                url.replace("https", "http")
-            )}`,
+            // `${process.env.NEXT_PUBLIC_API_URL}/proxy?path=${encodeURIComponent(
+            //     url.replace("https", "http")
+            // )}`,
+            url,
             {
                 credentials: "include",
             }

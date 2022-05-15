@@ -76,8 +76,10 @@ An instant messaging website with messaging and administration features.
 - Permissions management through Roles and Channel specific overwrites
 - OAuth2 and Bots.
 - Message Embeds.
-- File Uploads, Emojis and GIFs.
-- Unread notifications and @user mentions
+- File Uploads, Custom Emojis and GIFs.
+- Unread notifications and @user mentions.
+- 2-Factor Authentication.
+- User profile customization.
 
 
 <!-- ROADMAP -->
@@ -86,8 +88,8 @@ An instant messaging website with messaging and administration features.
 - [ ] Voice and video calling.
 - [ ] User Friends and DM channels.
 - [ ] Channel Threads.
-- [ ] User settings and customization.
-- [ ] 2-Factor Authentication.
+- [x] User settings and customization.
+- [x] 2-Factor Authentication.
 - [ ] Electron Desktop App.
 - [ ] Mobile App.
 

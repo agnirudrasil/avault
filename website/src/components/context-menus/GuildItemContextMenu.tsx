@@ -13,6 +13,7 @@ import { useCreateChannel } from "../../../hooks/useCreateChannel";
 import { copyToClipboard } from "../../copy";
 import { useLeaveServer } from "../../../hooks/requests/useLeaveServer";
 import { useRouter } from "next/router";
+import { useRoutesStore } from "../../../stores/useRoutesStore";
 
 type Props = ContextMenuBaseProps & {
     guild: string;
@@ -25,6 +26,7 @@ export const GuildItemContextMenu: React.FC<Props> = ({
     guild,
     isUnread,
 }) => {
+    const setRoute = useRoutesStore(state => state.setRoute);
     const router = useRouter();
     const [open, setOpen] = useState<boolean>(false);
     const firstChannel = useChannelsStore(state => state.getFirstGuildChannel)(
@@ -82,7 +84,9 @@ export const GuildItemContextMenu: React.FC<Props> = ({
                                 permissions,
                                 Permissions.MANAGE_GUILD
                             ),
-                            action: () => {},
+                            action: () => {
+                                setRoute(`/guild-settings`);
+                            },
                         },
                     ],
                 },

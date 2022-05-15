@@ -2,6 +2,7 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/sql/permissions.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/sql/position.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/sql/process-mentions.sql" dialect="PostgreSQL" />
   </component>
 </project>
