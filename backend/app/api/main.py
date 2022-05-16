@@ -11,7 +11,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
 
 from api.api.v1.api import api_router
-from api.core import http_session, create_session
+from api.core import http_session
 from api.core import redis
 from api.core.config import settings
 from api.core.emitter import Emitter
@@ -88,7 +88,6 @@ class RateLimit:
 
 @app.on_event('startup')
 async def pubsub():
-    await create_session()
     loop = asyncio.get_event_loop()
     asyncio.ensure_future(consume(loop))
 

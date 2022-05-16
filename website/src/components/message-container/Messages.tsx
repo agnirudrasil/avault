@@ -66,6 +66,7 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
                         </Box>
                         {messageGroups.reverse().map((message, i, array) => (
                             <Message
+                                args={(message as any).args}
                                 error={(message as any).error}
                                 confirmed={(message as any).confirmed}
                                 key={message.nonce || message.id}

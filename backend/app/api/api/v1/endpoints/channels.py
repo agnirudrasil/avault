@@ -72,14 +72,14 @@ def get_messages(channel_id: int,
     return [message.serialize(user.id, db) for message in messages]
 
 
-@router.post('/{channel_id}/messages')
+@router.post('/{channel_id}/messages', dependencies=[])
 async def create_message(channel_id: int,
                          request: Request,
                          content_type: str = Header(...),
                          content_length: int = Header(..., lt=1024 * 1024 * 10),
                          dependency: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES)),
                          db: Session = Depends(deps.get_db)) -> Any:
-    return Response(status_code=status.HTTP_501_NOT_IMPLEMENTED)
+    # return Response(status_code=status.HTTP_501_NOT_IMPLEMENTED)
     embed_checker = deps.ChannelPerms(Permissions.EMBED_LINKS)
     attachments = []
     body = None

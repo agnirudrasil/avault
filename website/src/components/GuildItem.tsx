@@ -1,5 +1,5 @@
 import { Home } from "@mui/icons-material";
-import { Box, Typography, Link as MuiLink, Avatar } from "@mui/material";
+import { Box, Typography, Avatar } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useMemo } from "react";
@@ -63,73 +63,73 @@ export const GuildItem: React.FC<Props> = ({ guild }) => {
                         horizontal: "right",
                     }}
                 >
-                    <Avatar
-                        src={
-                            guild?.icon
-                                ? `${process.env.NEXT_PUBLIC_CDN_URL}icons/${guild.id}/${guild.icon}`
-                                : undefined
-                        }
-                        sx={{
-                            bgcolor:
-                                router.query.guild === guild?.id
-                                    ? "primary.dark"
-                                    : "grey.900",
-                            // m: 1,
-                            color: "white",
-                            borderRadius:
-                                router.query.guild === guild?.id ? 3 : 10,
-                            cursor: "pointer",
-                            display: "grid",
-                            placeItems: "center",
-                            width: 48,
-                            height: 48,
-                            transition: "all 300ms ease",
-                            "&:hover": {
-                                borderRadius: 3,
-                                bgcolor: "primary.dark",
-                            },
-                            position: "relative",
-                            ":before": {
-                                content: "''",
-                                position: "absolute",
-                                width: "5px",
-                                height:
-                                    router.query.guild === guild?.id
-                                        ? "70%"
-                                        : isGuildUnread || mentionCount
-                                        ? "20%"
-                                        : 0,
-                                top: "50%",
-                                left: "-8px",
-                                bgcolor: "common.white",
-                                borderRadius: "0 20px 20px 0",
-                                transform: "translateY(-50%)",
-                                transition: "height 300ms",
-                            },
-                            ":hover::before": {
-                                height:
-                                    router.query.guild === guild?.id
-                                        ? "70%"
-                                        : "50%",
-                            },
-                        }}
+                    <LightTooltip
+                        placement="right"
+                        title={guild?.name || "Home"}
+                        disableInteractive
                     >
-                        <div>
-                            {guild ? (
-                                <LightTooltip
-                                    placement="right"
-                                    title={guild?.name || "Home"}
-                                    disableInteractive
-                                >
+                        <Avatar
+                            src={
+                                guild?.icon
+                                    ? `${process.env.NEXT_PUBLIC_CDN_URL}icons/${guild.id}/${guild.icon}`
+                                    : undefined
+                            }
+                            sx={{
+                                bgcolor:
+                                    router.query.guild === guild?.id
+                                        ? "primary.dark"
+                                        : "grey.900",
+                                // m: 1,
+                                color: "white",
+                                borderRadius:
+                                    router.query.guild === guild?.id ? 3 : 10,
+                                cursor: "pointer",
+                                display: "grid",
+                                placeItems: "center",
+                                width: 48,
+                                height: 48,
+                                transition: "all 300ms ease",
+                                "&:hover": {
+                                    borderRadius: 3,
+                                    bgcolor: "primary.dark",
+                                },
+                                position: "relative",
+                                ":before": {
+                                    content: "''",
+                                    position: "absolute",
+                                    width: "5px",
+                                    height:
+                                        router.query.guild === guild?.id
+                                            ? "70%"
+                                            : isGuildUnread || mentionCount
+                                            ? "20%"
+                                            : 0,
+                                    top: "50%",
+                                    left: "-8px",
+                                    bgcolor: "common.white",
+                                    borderRadius: "0 20px 20px 0",
+                                    transform: "translateY(-50%)",
+                                    transition: "height 300ms",
+                                },
+                                ":hover::before": {
+                                    height:
+                                        router.query.guild === guild?.id
+                                            ? "70%"
+                                            : "50%",
+                                },
+                            }}
+                        >
+                            <div>
+                                {guild ? (
                                     <Typography fontWeight="bold">
                                         {getGuildInitials(guild?.name)}
                                     </Typography>
-                                </LightTooltip>
-                            ) : (
-                                <Home />
-                            )}
-                        </div>
-                    </Avatar>
+                                ) : (
+                                    <Home />
+                                )}
+                            </div>
+                        </Avatar>
+                    </LightTooltip>
                 </StyledBadge>
             </Box>
         </Link>

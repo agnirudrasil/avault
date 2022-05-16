@@ -220,6 +220,7 @@ async def enable_totp(body: EnableTOTP, response: Response, db: Session = Depend
 
     backup_codes = []
     hotp = pyotp.HOTP(backup_secret, digits=8)
+    
     for i in range(10):
         backup_codes.append({
             "code": hotp.at(i),
@@ -246,7 +247,8 @@ async def enable_totp(body: EnableTOTP, response: Response, db: Session = Depend
 @router.get("/@me/relationships")
 async def get_relationships(db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
     relationships: list[Relationship] = db.query(Relationship).filter(
-        (Relationship.addressee_id == current_user.id) | (Relationship.requester_id == current_user.id)).all()
+        (Relationship.addressee_id == current_user.id & Relationship.type != 2) | (
+                Relationship.requester_id == current_user.id)).all()
 
     return [relationship.serialize(current_user.id) for relationship in relationships]
 
@@ -298,7 +300,6 @@ async def accept_relationship(
         db: Session = Depends(deps.get_db),
         current_user: User = Depends(deps.get_current_user),
 ):
-    print(current_user.id)
     relationship: Relationship = db.query(Relationship).filter_by(addressee_id=current_user.id).filter_by(
         requester_id=relationship_id).first()
 
@@ -324,15 +325,11 @@ async def delete_relationship(
         current_user: User = Depends(deps.get_current_user),
 ):
     relationship: Relationship = db.query(Relationship).filter(
-        (Relationship.addressee_id == relationship_id & Relationship.requester_id == current_user.id) | (
-                Relationship.requester_id == relationship_id & Relationship.addressee_id == current_user.id)). \
-        first()
+        ((Relationship.addressee_id == relationship_id) & (Relationship.requester_id == current_user.id)) |
+        ((Relationship.requester_id == relationship_id) & (Relationship.addressee_id == current_user.id))).first()
 
     if not relationship:
         raise HTTPException(status_code=404, detail="Relationship not found")
-
-    if relationship.addressee_id != current_user.id:
-        raise HTTPException(status_code=403, detail="You do not have permission to delete this relationship")
 
     db.delete(relationship)
     db.commit()

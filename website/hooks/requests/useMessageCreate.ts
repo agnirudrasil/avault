@@ -66,13 +66,14 @@ export const createMessage = async ({
 
 export const useMessageCreate = (channelId: string, user: any) => {
     const queryClient = useQueryClient();
-    return useMutation((args: MessageCreate) => createMessage({ ...args }), {
+    return useMutation(createMessage, {
         onError: (_, args) => {
             addMessage(queryClient, {
                 ...args,
                 channel_id: channelId,
                 error: true,
                 author: user,
+                args,
                 timestamp: new Date(),
             } as any);
         },

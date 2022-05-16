@@ -14,9 +14,10 @@ class Relationship(Base):
 
     def serialize(self, context: int):
         assert context == self.addressee_id or context == self.requester_id
+
         return {
             "id": str(self.addressee_id) if context == self.requester_id else str(self.requester_id),
-            "type": self.type,
+            "type": self.type if self.type > 0 else 3 if context == self.addressee_id else 4,
             "user": self.addressee.serialize() if context == self.requester_id else self.requester.serialize()
         }
 

@@ -5,17 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/1ef8e409536c_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/880dfd235937_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/89e67d377443_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/aec0adeba58d_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/edd72e29be00_.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/app/api/models/relationship.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/cb8f5213-727b-475f-b0c2-acb2bec5c4d0.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/deps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/deps.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/relationship.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/relationship.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/channels/@me/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/channels/@me/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -179,7 +176,7 @@
       <method v="2" />
     </configuration>
     <configuration name="Backend" type="Python.FastAPI">
-      <option name="additionalOptions" value="--reload --reload-dir $PROJECT_DIR$/backend/app" />
+      <option name="additionalOptions" value="--lifespan on --reload --reload-dir $PROJECT_DIR$/backend/app" />
       <option name="file" value="$PROJECT_DIR$/backend/app/api/main.py" />
       <module name="avault" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -385,6 +382,9 @@
       <workItem from="1652597564786" duration="3448000" />
       <workItem from="1652620729762" duration="651000" />
       <workItem from="1652625870090" duration="6003000" />
+      <workItem from="1652686110766" duration="1059000" />
+      <workItem from="1652698475636" duration="264000" />
+      <workItem from="1652719154857" duration="4148000" />
     </task>
     <servers />
   </component>
@@ -415,7 +415,7 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/avault$test.coverage" NAME="test Coverage Results" MODIFIED="1651387292791" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app/api" />
     <SUITE FILE_PATH="coverage/avault$snowflake.coverage" NAME="snowflake Coverage Results" MODIFIED="1651388679575" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app/api/utils" />
-    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1652631871537" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1652722231615" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
     <SUITE FILE_PATH="coverage/avault$celery.coverage" NAME="celery Coverage Results" MODIFIED="1651378190558" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
     <SUITE FILE_PATH="coverage/avault$.coverage" NAME=" Coverage Results" MODIFIED="1652587113888" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app/api/tests" />
   </component>
