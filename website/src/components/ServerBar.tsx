@@ -104,10 +104,12 @@ export const PrivateChannels: React.FC = () => {
         shallow
     );
 
+    console.log(unread);
+
     return (
         <TransitionGroup>
             {Object.keys(channels)
-                .filter(k => Boolean(unread[k].mentionCount))
+                .filter(k => Boolean(unread[k]?.mentionCount))
                 .map(k => {
                     const channel = channels[k];
                     const u = unread[k];

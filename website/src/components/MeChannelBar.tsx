@@ -50,23 +50,43 @@ export const MeChannelBar = () => {
                     </ListItemButton>
                 </Link>
             </ListItem>
-            <List dense sx={{ height: "100%" }}>
-                <ListSubheader
-                    sx={{
-                        bgcolor: "transparent",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                    }}
-                >
-                    DIRECT MESSAGES{" "}
-                    <LightTooltip title="Create DM" placement="top">
-                        <IconButton size="small">
-                            <Add />
-                        </IconButton>
-                    </LightTooltip>
-                </ListSubheader>
-
+            <List
+                subheader={
+                    <ListSubheader
+                        sx={{
+                            bgcolor: "transparent",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                        }}
+                    >
+                        DIRECT MESSAGES{" "}
+                        <LightTooltip title="Create DM" placement="top">
+                            <IconButton size="small">
+                                <Add />
+                            </IconButton>
+                        </LightTooltip>
+                    </ListSubheader>
+                }
+                dense
+                sx={{
+                    height: "100%",
+                    maxHeight: "100%",
+                    overflowY: "hidden",
+                    mr: "10px",
+                    "&::-webkit-scrollbar": {
+                        width: "10px",
+                    },
+                    "&::-webkit-scrollbar-track": {
+                        bgcolor: "grey.900",
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                        border: "3px solid transparent",
+                        bgcolor: "background.paper",
+                    },
+                    "&:hover": { overflowY: "scroll", mr: 0 },
+                }}
+            >
                 {Object.keys(channels).map(key => {
                     const channel = channels[key];
                     return (

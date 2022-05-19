@@ -43,8 +43,8 @@ export const URLGeneratorPage: NextPage<{ id: string }> = ({ id }) => {
               new URLSearchParams(
                   omitBy(
                       {
-                          scope: scopes.join(" "),
                           client_id: id,
+                          scope: scopes.join(" "),
                           response_type: requireCode ? "code" : undefined,
                           redirect_uri: redirect || undefined,
                           permissions: perms?.toString() || undefined,
@@ -76,8 +76,7 @@ export const URLGeneratorPage: NextPage<{ id: string }> = ({ id }) => {
                 sx={{
                     width: "100%",
                     height: "100%",
-                    maxHeight: "100%",
-                    overflowY: "auto",
+                    position: "relative",
                 }}
             >
                 <Box sx={{ width: "100%" }}>
@@ -184,7 +183,16 @@ export const URLGeneratorPage: NextPage<{ id: string }> = ({ id }) => {
                         ))}
                     </List>
                 )}
-                <FormControl>
+                <FormControl
+                    sx={{
+                        position: "sticky",
+                        left: 0,
+                        bottom: 0,
+                        bgcolor: "background.paper",
+                        p: 1,
+                        boxShadow: "shadows.4",
+                    }}
+                >
                     <FormLabel>GENERATED URL</FormLabel>
                     <TextField
                         value={

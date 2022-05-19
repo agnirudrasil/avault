@@ -1,4 +1,5 @@
 import produce from "immer";
+import { isNil } from "lodash";
 import create from "zustand";
 import { combine } from "zustand/middleware";
 
@@ -85,11 +86,17 @@ export const useUserStore = create(
             incrementMentions: (channelId: string) => {
                 set(state =>
                     produce(state, draft => {
-                        if (
-                            draft.unread[channelId].mentionCount !== null &&
-                            draft.unread[channelId].mentionCount !== undefined
-                        ) {
-                            draft.unread[channelId]!.mentionCount!++;
+                        console.log(state.unread[channelId]);
+                        if (draft.unread[channelId]) {
+                            if (!isNil(draft.unread[channelId].mentionCount)) {
+                                draft.unread[channelId]!.mentionCount!++;
+                            } else {
+                                draft.unread[channelId]!.mentionCount = 1;
+                            }
+                        } else {
+                            draft.unread[channelId] = {
+                                mentionCount: 1,
+                            };
                         }
                     })
                 );

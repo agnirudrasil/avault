@@ -141,6 +141,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 }
             });
             socket.once("READY", (data: any) => {
+                console.log(data);
                 const guildChannels: Record<
                     string,
                     Record<string, Channel>
@@ -205,13 +206,17 @@ export const WebsocketProvider: React.FC = ({ children }) => {
             });
             socket.on("CHANNEL_CREATE", data => {
                 addChannel(data);
-                queryClient.invalidateQueries(["messages", data.id]);
+                updateLastMessage(data.id, {
+                    lastMessageId: null,
+                    lastMessageTimestamp: null,
+                } as any);
             });
             socket.on("CHANNEL_UPDATE", data => {
                 updateChannel(data);
             });
             socket.on("CHANNEL_DELETE", data => {
                 deleteChannel(data.id, data.guild_id);
+                queryClient.invalidateQueries(["messages", data.id]);
             });
             socket.on("GUILD_UPDATE", data => {
                 updateGuilds(data);
