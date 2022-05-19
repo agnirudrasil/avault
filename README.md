@@ -88,7 +88,7 @@ An instant messaging website with messaging and administration features.
 ## Roadmap
 
 - [ ] Voice and video calling.
-- [x] Friends 
+- [x] Friends.
 - [x] DM channels.
 - [ ] Channel Threads.
 - [x] User settings and customization.
