@@ -1,4 +1,10 @@
-import { ArrowBack, Build, Extension, Home } from "@mui/icons-material";
+import {
+    ArrowBack,
+    Build,
+    Extension,
+    Home,
+    Link as LinkIcon,
+} from "@mui/icons-material";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
     Toolbar,
@@ -99,6 +105,19 @@ export const ApplicationLayout: React.FC<{ id: string }> = ({
                                 <Build />
                             </ListItemIcon>
                             <ListItemText primary="OAuth2" />
+                        </ListItemButton>
+                    </Link>
+                </ListItem>
+                <ListItem disablePadding>
+                    <Link href={`/developers/applications/${id}/url-generator`}>
+                        <ListItemButton
+                            selected={router.asPath.endsWith("url-generator")}
+                            color="primary"
+                        >
+                            <ListItemIcon>
+                                <LinkIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="URL Genrator" />
                         </ListItemButton>
                     </Link>
                 </ListItem>
@@ -208,6 +227,7 @@ export const ApplicationLayout: React.FC<{ id: string }> = ({
             <Box
                 component="main"
                 sx={{
+                    height: "100%",
                     flexGrow: 1,
                     p: 3,
                     width: { sm: `calc(100% - ${drawerWidth}px)` },

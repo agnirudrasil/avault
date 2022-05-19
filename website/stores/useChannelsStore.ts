@@ -5,7 +5,7 @@ import { ChannelStore, Channel, ChannelTypes } from "../types/channels";
 
 export const useChannelsStore = create(
     combine(
-        { ...({ privateChannels: [], channels: {} } as ChannelStore) },
+        { ...({ privateChannels: {}, channels: {} } as ChannelStore) },
         (set, get) => ({
             deleteGuild: (guildId: string) => {
                 set(state =>
@@ -39,10 +39,7 @@ export const useChannelsStore = create(
                         if (guildId) {
                             draft.channels[guildId][channelId] = channel;
                         } else {
-                            const index = draft.privateChannels.findIndex(
-                                channel => channel.id === channelId
-                            );
-                            draft.privateChannels[index] = channel;
+                            draft.privateChannels[channel.id] = channel;
                         }
                     });
                 }),
@@ -89,10 +86,7 @@ export const useChannelsStore = create(
                         if (guildId) {
                             delete draft.channels[guildId][channel_id];
                         } else {
-                            draft.privateChannels =
-                                draft.privateChannels.filter(
-                                    c => c.id !== channel_id
-                                );
+                            delete draft.privateChannels[channel_id];
                         }
                     })
                 );
@@ -104,7 +98,7 @@ export const useChannelsStore = create(
                         if (guildId) {
                             draft.channels[guildId][channel.id] = channel;
                         } else {
-                            draft.privateChannels.push(channel);
+                            draft.privateChannels[channel.id] = channel;
                         }
                     })
                 );

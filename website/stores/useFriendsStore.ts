@@ -11,6 +11,24 @@ export interface Friend {
 
 export const useFriendsStore = create(
     combine({ friends: {} as Record<string, Friend> }, set => ({
+        updateFriend: (friend: Friend) =>
+            set(state =>
+                produce(state, draft => {
+                    draft.friends[friend.id] = friend;
+                })
+            ),
+        addFriend: (friend: Friend) =>
+            set(state =>
+                produce(state, draft => {
+                    draft.friends[friend.id] = friend;
+                })
+            ),
+        removeFriend: (id: string) =>
+            set(state =>
+                produce(state, draft => {
+                    delete draft.friends[id];
+                })
+            ),
         setState: (friends: Friend[]) =>
             set(
                 produce(draft => {

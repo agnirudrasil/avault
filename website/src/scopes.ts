@@ -7,4 +7,5 @@ export const SCOPES: Record<string, string> = {
     "guild.join": "Join servers for you",
     "guilds.members.read":
         "Read your member info (nickname, avatar, etc.) for the servers you're in",
+    bot: "",
 };

@@ -1,12 +1,16 @@
+import asyncio
 import functools
+import json
 import operator
 from datetime import datetime
-from typing import Generator, List, Union
+from json import JSONDecodeError
+from typing import Generator, List, Union, TypeVar, Type
 
-from fastapi import Depends, HTTPException, status, Request, Header
+from fastapi import Depends, HTTPException, status, Request, Header, UploadFile, Path
+from fastapi.exceptions import RequestValidationError
 from fastapi.security import OAuth2AuthorizationCodeBearer, SecurityScopes
 from jose import jwt
-from pydantic import ValidationError
+from pydantic import ValidationError, BaseModel
 from sqlalchemy.orm import Session
 
 from api import models, schemas, crud
@@ -16,6 +20,7 @@ from api.core.config import settings
 from api.core.permissions import Permissions
 from api.db.session import SessionLocal
 from api.schemas.oauth2 import OAUTH2_SCOPES
+from api.utils.attachment import file_to_attachment
 
 reusable_oauth2 = OAuth2AuthorizationCodeBearer(
     tokenUrl=f"{settings.API_V1_STR}/oauth2/token",
@@ -121,26 +126,34 @@ class ChannelPerms:
     async def is_valid(self, channel: models.Channel, current_user: models.User, db: Session) -> bool:
         if not channel:
             return False
-        if channel.guild_id:
-            guild_member: models.GuildMembers = db.query(models.GuildMembers).filter_by(
-                guild_id=channel.guild_id).filter_by(
-                user_id=current_user.id).first()
 
-            if not guild_member:
-                return False
-
-            if guild_member.is_owner:
+        if not channel.guild_id:
+            channel = db.query(models.Channel).join(models.channels.ChannelMembers).filter(
+                models.channels.ChannelMembers.user_id == current_user.id,
+                models.Channel.id == channel.id).first()
+            if channel:
                 return True
+            return False
 
-            if guild_member.permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR:
-                return True
+        guild_member: models.GuildMembers = db.query(models.GuildMembers).filter_by(
+            guild_id=channel.guild_id).filter_by(
+            user_id=current_user.id).first()
 
-            permissions = await compute_overwrites(guild_member.permissions, channel, guild_member, db)
+        if not guild_member:
+            return False
 
-            if not permissions & self.permission == self.permission:
-                return False
-
+        if guild_member.is_owner:
             return True
+
+        if guild_member.permissions & Permissions.ADMINISTRATOR == Permissions.ADMINISTRATOR:
+            return True
+
+        permissions = await compute_overwrites(guild_member.permissions, channel, guild_member, db)
+
+        if not permissions & self.permission == self.permission:
+            return False
+
+        return True
 
     async def __call__(
             self,
@@ -219,3 +232,46 @@ class GuildPerms:
             raise HTTPException(status_code=403, detail="Not Authorized")
 
         return guild, current_user, member
+
+
+BodyType = TypeVar("BodyType", bound=BaseModel)
+
+
+class ExtractBody:
+    def __init__(self, body_type: Type[BodyType]) -> None:
+        self.body_type = body_type
+
+    async def __call__(self, request: Request, channel_id: int = Path(...), content_type: str = Header(...)) -> \
+            tuple[BodyType, list]:
+        attachments = []
+        body = self.body_type()
+        if content_type.startswith('multipart/form-data'):
+            form_body = await request.form()
+            files: list[UploadFile] = form_body.getlist("files")
+            if files:
+                tasks = []
+                for file in files:
+                    tasks.append(file_to_attachment(file, channel_id))
+                attachments = await asyncio.gather(*tasks)
+
+            payload_json: UploadFile = form_body.get('payload_json')
+            if payload_json and payload_json.content_type == "application/json":
+                try:
+                    payload = await payload_json.read(1024 * 1024 * 1)
+                    body = self.body_type(**json.loads(payload))
+                except JSONDecodeError:
+                    raise HTTPException(status_code=400, detail='Invalid JSON')
+                except ValidationError as e:
+                    raise HTTPException(status_code=400, detail=e.json())
+        elif content_type.startswith('application/json'):
+            try:
+                json_body = await request.json()
+                body = self.body_type(**json_body)
+
+            except ValidationError as e:
+                raise RequestValidationError(errors=e.raw_errors)
+
+        else:
+            raise HTTPException(detail="Invalid content type", status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+        return body, attachments

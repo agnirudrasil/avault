@@ -41,7 +41,7 @@ export const CategoryChannel: React.FC<Props> = ({
 
     const { createChannel } = useCreateChannel();
 
-    const { mutate } = useDeleteChannel(channel.id);
+    const { mutate } = useDeleteChannel();
 
     const { handleContextMenu, ...props } = useContextMenu();
     const menuObject: ContextMenuShape[][] = [
@@ -103,7 +103,7 @@ export const CategoryChannel: React.FC<Props> = ({
                     Permissions.MANAGE_CHANNELS
                 ),
                 action: handleClose => {
-                    mutate();
+                    mutate(channel.id);
                     handleClose();
                 },
                 color: theme.palette.error.dark,

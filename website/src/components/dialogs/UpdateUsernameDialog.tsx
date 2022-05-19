@@ -56,7 +56,6 @@ export const UpdateUsernameDialog: React.FC<{ user: User }> = ({ user }) => {
                                         password.
                                     </DialogContentText>
                                     <TextField
-                                        type="password"
                                         InputLabelProps={{
                                             shrink: true,
                                         }}
@@ -89,6 +88,7 @@ export const UpdateUsernameDialog: React.FC<{ user: User }> = ({ user }) => {
                                         label="USERNAME"
                                     />
                                     <TextField
+                                        type="password"
                                         InputLabelProps={{
                                             shrink: true,
                                         }}

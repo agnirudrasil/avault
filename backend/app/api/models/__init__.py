@@ -1,5 +1,5 @@
 from .applications import Application
-from .channels import Channel
+from .channels import Channel, ChannelMembers, ChannelType
 from .emoji import Emoji
 from .guilds import Guild, GuildMembers
 from .invites import Invite

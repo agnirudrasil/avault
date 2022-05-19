@@ -658,6 +658,7 @@ async def create_guild_emoji(guild_id: int,
     animated = await validate_emoji(emoji.id, body.image)
     emoji.animated = animated
     db.add(emoji)
+    
     db.commit()
 
     emojis = db.query(Emoji).filter_by(guild_id=guild_id).all()

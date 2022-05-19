@@ -100,7 +100,7 @@ export const UserSettingsIndex = () => {
                                     setRoute("/user-settings/profile");
                                 }}
                             >
-                                Edit Uer Profile
+                                Edit User Profile
                             </Button>
                         </Stack>
                     </Box>

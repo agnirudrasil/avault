@@ -1,3 +1,4 @@
+import sqlalchemy.exc
 from sqlalchemy import Column, BigInteger, Text, ForeignKey, ARRAY
 from sqlalchemy.orm import relationship, Session, backref
 
@@ -25,7 +26,7 @@ class Application(Base):
 
     async def create_bot_role(self, db: Session, guild: Guild, permissions: int):
         role = Role(guild.id, self.bot.username, 0, 1,
-                    permissions,
+                    permissions if permissions is not None else 0,
                     True, tag=self.bot.id)
         db.add(role)
         db.query(Role).filter_by(guild_id=guild.id).filter(
@@ -66,21 +67,24 @@ class Application(Base):
         await self.delete_bot_role(db, guild)
 
     async def add_bot_to_guild(self, db: Session, guild: Guild, permissions: int):
-        role = await self.create_bot_role(db, guild, permissions)
-        guild_member = GuildMembers()
-        guild_member.member = self.bot
-        guild_member.guild = guild
-        guild.members.append(guild_member)
-        guild_member.roles.append(role)
-        db.commit()
+        try:
+            role = await self.create_bot_role(db, guild, permissions)
+            guild_member = GuildMembers()
+            guild_member.member = self.bot
+            guild_member.guild = guild
+            guild.members.append(guild_member)
+            guild_member.roles.append(role)
+            db.commit()
 
-        await emitter.in_room(str(self.bot.id)).sockets_join(str(guild.id))
-        await websocket_emitter(None, guild.id, Events.GUILD_CREATE,
-                                {"guild": guild.serialize(
-                                ), "member": guild_member.serialize()},
-                                self.bot.id)
-        await websocket_emitter(None, guild.id, Events.GUILD_MEMBER_ADD,
-                                guild_member.serialize())
+            await emitter.in_room(str(self.bot.id)).sockets_join(str(guild.id))
+            await websocket_emitter(None, guild.id, Events.GUILD_CREATE,
+                                    {"guild": guild.serialize(
+                                    ), "member": guild_member.serialize()},
+                                    self.bot.id)
+            await websocket_emitter(None, guild.id, Events.GUILD_MEMBER_ADD,
+                                    guild_member.serialize())
+        except sqlalchemy.exc.IntegrityError:
+            pass
 
     def serialize(self):
         return {

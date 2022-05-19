@@ -1,12 +1,7 @@
 import { Stack } from "@mui/material";
 import { useRouter } from "next/router";
-import { CreateChannelDialogProvider } from "../../../contexts/CreateChannelContext";
-import { CreateInviteDialogProvider } from "../../../contexts/CreateInviteContext";
 import { useRoutesStore } from "../../../stores/useRoutesStore";
-import { ChannelBar } from "../channels";
 import { MeChannelBar } from "../MeChannelBar";
-import { MembarsBar } from "../members";
-import { MessageContainer } from "../message-container";
 import { UserSettingsIndex } from "../routes/user-settings";
 import { UserSettingsAuthorizedApps } from "../routes/user-settings/AuthorizedApp";
 import { UserSettingsProfile } from "../routes/user-settings/Profile";

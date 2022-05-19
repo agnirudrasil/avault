@@ -1,10 +1,18 @@
 import { useMutation } from "react-query";
 import { request } from "../../src/request";
 
-export const acceptFriend = async (id: string) => {
+interface Data {
+    id: string;
+    type?: number;
+}
+
+export const acceptFriend = async ({ id, type }: Data) => {
     const response = await request(
         `${process.env.NEXT_PUBLIC_API_URL}/users/@me/relationships/${id}`,
         {
+            body: JSON.stringify({
+                type,
+            }),
             method: "PUT",
             credentials: "include",
         }

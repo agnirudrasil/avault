@@ -80,7 +80,8 @@ An instant messaging website with messaging and administration features.
 - Unread notifications and @user mentions.
 - 2-Factor Authentication.
 - User profile customization.
-- Friends
+- Add users as friends, or block them.
+- Direct Messages.
 
 
 <!-- ROADMAP -->
@@ -88,7 +89,7 @@ An instant messaging website with messaging and administration features.
 
 - [ ] Voice and video calling.
 - [x] Friends 
-- [ ] DM channels.
+- [x] DM channels.
 - [ ] Channel Threads.
 - [x] User settings and customization.
 - [x] 2-Factor Authentication.

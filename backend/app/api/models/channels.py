@@ -1,6 +1,7 @@
 import enum
+from typing import Optional
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Boolean, DateTime, Table, BigInteger, \
+from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Boolean, DateTime, BigInteger, \
     PrimaryKeyConstraint
 from sqlalchemy import func
 from sqlalchemy.orm import relationship
@@ -20,12 +21,17 @@ class ChannelType(str, enum.Enum):
     guild_voice = 'GUILD_VOICE'
 
 
-channel_members = Table('channel_members',
-                        Base.metadata,
-                        Column('channel_id', BigInteger, ForeignKey(
-                            'channels.id', ondelete="CASCADE"), primary_key=True),
-                        Column('user_id', BigInteger, ForeignKey(
-                            'users.id', ondelete="CASCADE"), primary_key=True))
+class ChannelMembers(Base):
+    __tablename__ = 'channel_members'
+    channel_id = Column(BigInteger, ForeignKey('channels.id', ondelete="CASCADE"), nullable=False, primary_key=True)
+    user_id = Column(BigInteger, ForeignKey('users.id', ondelete="CASCADE"), nullable=False, primary_key=True)
+    closed = Column(Boolean, nullable=False, default=False)
+    user = relationship('User', backref='channels')
+    channel = relationship('Channel', backref='members')
+
+    def __init__(self, closed: bool = True):
+        self.closed = closed
+
 
 valid_channel_types = ['guild_text',
                        'guild_public_thread',
@@ -109,10 +115,10 @@ class Channel(Base):
     type = Column(Enum(ChannelType), nullable=False)
     guild_id = Column(BigInteger, ForeignKey(
         'guilds.id', ondelete="CASCADE"), nullable=True)
-    position = Column(Integer, nullable=False)
+    position = Column(Integer, nullable=True)
     name = Column(String(100), nullable=False)
     topic = Column(String(1024), nullable=True)
-    nsfw = Column(Boolean, nullable=False)
+    nsfw = Column(Boolean, nullable=True)
     last_message_timestamp = Column(DateTime, nullable=True)
     last_message_id = Column(BigInteger, ForeignKey(
         'messages.id', ondelete="SET NULL", use_alter=True), nullable=True)
@@ -120,42 +126,12 @@ class Channel(Base):
         'users.id', ondelete="SET NULL"), nullable=True)
     parent_id = Column(BigInteger, ForeignKey(
         'channels.id', ondelete="SET NULL"), nullable=True)
-    members = relationship(
-        'User', secondary=channel_members, backref='channel_members')
     overwrites = relationship('Overwrite', back_populates='channel', cascade='all, delete-orphan')
     pinned_messages = relationship('PinnedMessages', back_populates='channel')
     thread_metadata = relationship('ThreadMetadata', back_populates='channel')
 
-    def serialize(self):
-        data = {
-            'id': str(self.id),
-            'type': self.type.value,
-            'position': self.position,
-            'name': self.name,
-            'topic': self.topic,
-            'nsfw': self.nsfw,
-            'guild_id': str(self.guild_id),
-            'last_message_timestamp': self.last_message_timestamp.isoformat() if self.last_message_timestamp else None,
-            'last_message_id': str(self.last_message_id) if self.last_message_id else None,
-            'owner_id': str(self.owner_id) if self.owner_id else None,
-            'parent_id': str(self.parent_id) if self.parent_id else None,
-        }
-        if self.type not in [ChannelType.dm,
-                             ChannelType.group_dm,
-                             ChannelType.guild_public_thread,
-                             ChannelType.guild_private_thread]:
-            data['overwrites'] = [overwrite.serialize()
-                                  for overwrite in self.overwrites]
-        if self.members:
-            data['recipients'] = [m.serialize() for m in self.members]
-        if self.thread_metadata:
-            data['thread_metadata'] = self.thread_metadata.serialize()
-        return data
-
-    def is_member(self, user):
-        return user in self.members
-
-    def __init__(self, channel_type: ChannelType,
+    def __init__(self,
+                 channel_type: ChannelType,
                  guild_id: str,
                  name: str, topic="",
                  nsfw=False,
@@ -177,3 +153,51 @@ class Channel(Base):
                 self.parent_id = parent_id
             else:
                 self.parent_id = None
+
+    def __repr__(self):
+        return f'<Channel: {self.id}>'
+
+    def serialize(self, context: Optional[int] = None):
+        match self.type:
+            case ChannelType.dm:
+                assert context is not None
+                return {
+                    "id": str(self.id),
+                    "last_message_id": self.last_message_id,
+                    "last_message_timestamp": self.last_message_timestamp.isoformat() if self.last_message_timestamp else None,
+                    "type": self.type,
+                    "recipients": [{
+                        "username": user.user.username,
+                        "tag": user.user.tag,
+                        "id": str(user.user.id),
+                        "avatar": user.user.avatar,
+                    } for user in filter(lambda u: u.user.id != context, self.members)]
+                }
+            case _:
+                data = {
+                    'id': str(self.id),
+                    'type': self.type,
+                    'position': self.position,
+                    'name': self.name,
+                    'topic': self.topic,
+                    'nsfw': self.nsfw,
+                    'guild_id': str(self.guild_id),
+                    'last_message_timestamp': self.last_message_timestamp.isoformat() if self.last_message_timestamp else None,
+                    'last_message_id': str(self.last_message_id) if self.last_message_id else None,
+                    'owner_id': str(self.owner_id) if self.owner_id else None,
+                    'parent_id': str(self.parent_id) if self.parent_id else None,
+                }
+                if self.type not in [ChannelType.dm,
+                                     ChannelType.group_dm,
+                                     ChannelType.guild_public_thread,
+                                     ChannelType.guild_private_thread]:
+                    data['overwrites'] = [overwrite.serialize()
+                                          for overwrite in self.overwrites]
+                if self.members:
+                    data['recipients'] = [m.serialize() for m in self.members]
+                if self.thread_metadata:
+                    data['thread_metadata'] = self.thread_metadata.serialize()
+                return data
+
+    def is_member(self, user):
+        return user in self.members

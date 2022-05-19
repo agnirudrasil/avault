@@ -106,7 +106,15 @@ export const WebsocketProvider: React.FC = ({ children }) => {
             shallow
         );
 
-    const setFriends = useFriendsStore(state => state.setState);
+    const { setState, addFriend, removeFriend, updateFriend } = useFriendsStore(
+        state => ({
+            setState: state.setState,
+            addFriend: state.addFriend,
+            removeFriend: state.removeFriend,
+            updateFriend: state.updateFriend,
+        }),
+        shallow
+    );
 
     useEffect(() => {
         const socket = io(process.env.NEXT_PUBLIC_GATEWAY_URL || "", {
@@ -156,10 +164,23 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 }
                 setChannels({
                     channels: guildChannels,
-                    privateChannels: data.private_channels,
+                    privateChannels: data.private_channels.reduce(
+                        (acc: any, curr: any) => {
+                            unread[curr.id] = {
+                                lastMessageId: curr.last_message_id,
+                                lastMessageTimestamp:
+                                    curr.last_message_timestamp,
+                                lastRead: data.unread[curr.id]?.last_read,
+                                mentionCount:
+                                    data.unread[curr.id]?.mentions_count,
+                            };
+                            acc[curr.id] = curr;
+                            return acc;
+                        },
+                        {}
+                    ),
                 });
-
-                setFriends(data.users);
+                setState(data.users);
                 setUserId(data.user.id);
                 setUser(data.user, data.merged_members, unread);
                 setRoles(guildsRoles);
@@ -173,8 +194,18 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                     data.mentions_count
                 );
             });
+            socket.on("RELATIONSHIP_ADD", data => {
+                addFriend(data);
+            });
+            socket.on("RELATIONSHIP_REMOVE", data => {
+                removeFriend(data.id);
+            });
+            socket.on("RELATIONSHIP_UPDATE", data => {
+                updateFriend(data);
+            });
             socket.on("CHANNEL_CREATE", data => {
                 addChannel(data);
+                queryClient.invalidateQueries(["messages", data.id]);
             });
             socket.on("CHANNEL_UPDATE", data => {
                 updateChannel(data);
@@ -223,12 +254,19 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 updateEmojis(data.guild_id, data.emojis);
             });
             socket.on("MESSAGE_CREATE", (data: Messages) => {
-                console.log(data.nonce);
                 addMessage(queryClient, data);
                 updateLastMessage(data.channel_id, {
                     lastMessageId: data.id,
                     lastMessageTimestamp: data.timestamp,
                 });
+                const channel =
+                    useChannelsStore.getState().privateChannels[
+                        data.channel_id
+                    ];
+                if (channel) {
+                    incrementMentions(data.channel_id);
+                    return;
+                }
                 const guild =
                     useGuildsStore.getState().guilds[data.guild_id || ""];
                 if (

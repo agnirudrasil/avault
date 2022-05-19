@@ -21,6 +21,7 @@ class Relationship(Base):
             "user": self.addressee.serialize() if context == self.requester_id else self.requester.serialize()
         }
 
-    def __init__(self, requester_id, addressee_id):
+    def __init__(self, requester_id, addressee_id, relationship_type: int = None):
         self.requester_id = requester_id
         self.addressee_id = addressee_id
+        self.type = relationship_type if relationship_type is not None else 0

@@ -1,4 +1,4 @@
-import { Box, List, Typography } from "@mui/material";
+import { Avatar, Box, List, Typography } from "@mui/material";
 import { differenceInSeconds, format, isToday, isYesterday } from "date-fns";
 import { useRouter } from "next/router";
 import { memo, useMemo } from "react";
@@ -8,6 +8,7 @@ import { useUserStore } from "../../../stores/useUserStore";
 import type { Channel } from "../../../types/channels";
 import { groupBy } from "../../group-by";
 import { ChannelIcon } from "../ChannelIcon";
+import { DefaultProfilePic } from "../DefaultProfilePic";
 import { SkeletonLoader } from "../SkeletonLoader";
 import { Message } from "./message";
 
@@ -16,6 +17,8 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
     const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
         useMessages(router.query.channel as string);
     const lastRead = useUserStore(state => state.unread[channel.id]?.lastRead);
+
+    console.log(data?.pages.flat());
 
     const group = useMemo(() => {
         if (data) {
@@ -105,24 +108,46 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
                         sx={{
                             width: 64,
                             height: 64,
-                            p: 1,
+                            p: channel.type === "DM" ? 0 : 1,
                             borderRadius: "70px",
                             bgcolor: "grey.800",
                         }}
                     >
-                        <ChannelIcon
-                            sx={{
-                                width: "100%",
-                                height: "100%",
-                                stroke: "white",
-                            }}
-                        />
+                        {channel.type === "DM" ? (
+                            <Avatar
+                                src={
+                                    channel.recipients[0].avatar
+                                        ? `${process.env.NEXT_PUBLIC_CDN_URL}avatars/${channel.recipients[0].id}/${channel.recipients[0].avatar}`
+                                        : undefined
+                                }
+                                sx={{ width: "64px", height: "64px" }}
+                            >
+                                <DefaultProfilePic
+                                    width={64}
+                                    height={64}
+                                    tag={channel.recipients[0].tag}
+                                />
+                            </Avatar>
+                        ) : (
+                            <ChannelIcon
+                                sx={{
+                                    width: "100%",
+                                    height: "100%",
+                                    stroke: "white",
+                                }}
+                            />
+                        )}
                     </Box>
                     <Typography fontWeight="bold" variant="h3">
-                        Welcome to #{channel.name}!
+                        {channel.type === "DM"
+                            ? channel.recipients[0].username
+                            : `Welcome to #${channel.name}!`}
                     </Typography>
                     <Typography variant="subtitle1" color="GrayText">
-                        This is the start of #{channel.name}.
+                        {channel.type === "DM"
+                            ? "This is the beginning of your direct message history with @" +
+                              channel.recipients[0].username
+                            : `This is the start of #${channel.name}.`}
                     </Typography>
                 </Box>
             )}

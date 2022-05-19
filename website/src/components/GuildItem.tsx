@@ -69,17 +69,17 @@ export const GuildItem: React.FC<Props> = ({ guild }) => {
                         disableInteractive
                     >
                         <Avatar
-                            src={
-                                guild?.icon
-                                    ? `${process.env.NEXT_PUBLIC_CDN_URL}icons/${guild.id}/${guild.icon}`
-                                    : undefined
-                            }
                             sx={{
-                                bgcolor:
-                                    router.query.guild === guild?.id
-                                        ? "primary.dark"
-                                        : "grey.900",
+                                bgcolor: guild?.icon
+                                    ? "transparent"
+                                    : router.query.guild === guild?.id
+                                    ? "primary.dark"
+                                    : "grey.900",
                                 // m: 1,
+                                backgroundImage: guild?.icon
+                                    ? `url(${process.env.NEXT_PUBLIC_CDN_URL}icons/${guild.id}/${guild.icon})`
+                                    : undefined,
+                                backgroundSize: "cover",
                                 color: "white",
                                 borderRadius:
                                     router.query.guild === guild?.id ? 3 : 10,
@@ -91,7 +91,9 @@ export const GuildItem: React.FC<Props> = ({ guild }) => {
                                 transition: "all 300ms ease",
                                 "&:hover": {
                                     borderRadius: 3,
-                                    bgcolor: "primary.dark",
+                                    bgcolor: guild?.icon
+                                        ? "transparent"
+                                        : "primary.dark",
                                 },
                                 position: "relative",
                                 ":before": {
@@ -119,15 +121,17 @@ export const GuildItem: React.FC<Props> = ({ guild }) => {
                                 },
                             }}
                         >
-                            <div>
-                                {guild ? (
-                                    <Typography fontWeight="bold">
-                                        {getGuildInitials(guild?.name)}
-                                    </Typography>
-                                ) : (
-                                    <Home />
-                                )}
-                            </div>
+                            {!guild?.icon && (
+                                <div>
+                                    {guild ? (
+                                        <Typography fontWeight="bold">
+                                            {getGuildInitials(guild?.name)}
+                                        </Typography>
+                                    ) : (
+                                        <Home />
+                                    )}
+                                </div>
+                            )}
                         </Avatar>
                     </LightTooltip>
                 </StyledBadge>

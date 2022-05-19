@@ -8,7 +8,10 @@ import {
     TextField,
     InputAdornment,
     IconButton,
+    Button,
+    Snackbar,
 } from "@mui/material";
+import { isEqual } from "lodash";
 import { FieldArray, Form, Formik } from "formik";
 import { NextPage } from "next";
 import { useGetApplication } from "../../../../hooks/requests/useGetApplication";
@@ -20,8 +23,7 @@ import { ApplicationLayout } from "../../../../src/components/layouts/Applicatio
 export const ApplicationOAuth2Page: NextPage<{ id: string }> = ({ id }) => {
     const { data, isFetching } = useGetApplication(id);
     const { data: token, mutateAsync, isLoading } = useResetToken();
-    const { mutateAsync: patchApplication, isLoading: isPatching } =
-        usePatchApplication();
+    const { mutateAsync: patchApplication } = usePatchApplication();
     return (
         <ApplicationLayout id={id}>
             <Typography variant="h5">OAuth2</Typography>
@@ -102,8 +104,41 @@ export const ApplicationOAuth2Page: NextPage<{ id: string }> = ({ id }) => {
                                 setSubmitting(false);
                             }}
                         >
-                            {({ values, setFieldValue }) => (
+                            {({
+                                values,
+                                setFieldValue,
+                                initialValues,
+                                resetForm,
+                                isSubmitting,
+                            }) => (
                                 <Form>
+                                    <Snackbar
+                                        anchorOrigin={{
+                                            vertical: "bottom",
+                                            horizontal: "center",
+                                        }}
+                                        open={!isEqual(values, initialValues)}
+                                        message="Careful - you have unsaved changes!"
+                                        action={
+                                            <Stack direction="row" spacing={1}>
+                                                <Button
+                                                    color="inherit"
+                                                    onClick={() => resetForm()}
+                                                >
+                                                    Reset
+                                                </Button>
+                                                <LoadingButton
+                                                    loading={isSubmitting}
+                                                    type="submit"
+                                                    color="success"
+                                                    variant="contained"
+                                                    disableElevation
+                                                >
+                                                    Save Changes
+                                                </LoadingButton>
+                                            </Stack>
+                                        }
+                                    />
                                     <FieldArray name="redirect_uris">
                                         {({ remove, push }) => (
                                             <Stack spacing={1}>
@@ -152,15 +187,6 @@ export const ApplicationOAuth2Page: NextPage<{ id: string }> = ({ id }) => {
                                                         disableElevation
                                                     >
                                                         Add another
-                                                    </LoadingButton>
-                                                    <LoadingButton
-                                                        sx={{ ml: 1 }}
-                                                        loading={isPatching}
-                                                        type="submit"
-                                                        variant="contained"
-                                                        disableElevation
-                                                    >
-                                                        SAVE
                                                     </LoadingButton>
                                                 </span>
                                             </Stack>

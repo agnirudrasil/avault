@@ -68,7 +68,7 @@ const ImageEditor: React.FC<{
                         if (editorRef && editorRef.current) {
                             onChange(
                                 (editorRef.current as AvatarEditor)
-                                    .getImage()
+                                    .getImageScaledToCanvas()
                                     .toDataURL(image.type, 0.5)
                             );
                         }

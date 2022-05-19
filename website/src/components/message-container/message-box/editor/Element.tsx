@@ -43,6 +43,12 @@ export const Element = ({ attributes, children, element }: any) => {
                     {children}
                 </span>
             );
+        case "codeline":
+            return (
+                <Typography component="pre" {...attributes}>
+                    {children}
+                </Typography>
+            );
         case "blockquote":
             return (
                 <Typography

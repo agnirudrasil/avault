@@ -1,8 +1,15 @@
-import { AccessibilityNew, Check, Clear, Message } from "@mui/icons-material";
+import {
+    AccessibilityNew,
+    Check,
+    Clear,
+    Message,
+    PersonRemove,
+} from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import {
     AppBar,
     Avatar,
+    Box,
     Divider,
     IconButton,
     InputAdornment,
@@ -31,8 +38,9 @@ import { RemoveFriendConfirmation } from "../../../src/components/dialogs/Remove
 import { useCreateFriend } from "../../../hooks/requests/useCreateFriend";
 import { useAcceptFriend } from "../../../hooks/requests/useAcceptFriend";
 import { useRemoveFriend } from "../../../hooks/requests/useRemoveFriend";
+import { LightTooltip } from "../../../src/components/LightTooltip";
 
-const FriendsInput = () => {
+const FriendsInput: React.FC = () => {
     const { mutateAsync, isSuccess, isError, isLoading } = useCreateFriend();
     const [value, setValue] = useState("");
 
@@ -135,12 +143,18 @@ const FriendsView = () => {
     const { mutateAsync: accept, isLoading: isAccepting } = useAcceptFriend();
     const { mutateAsync, isLoading } = useRemoveFriend();
 
+    const pending = Object.keys(friends).filter(k => friends[k].type === 3);
+
     const keys =
         selected === 1
             ? Object.keys(friends).filter(k => friends[k].type === 1)
-            : Object.keys(friends).filter(
+            : selected === 2
+            ? Object.keys(friends).filter(
                   k => friends[k].type === 3 || friends[k].type === 4
-              );
+              )
+            : Object.keys(friends).filter(k => friends[k].type === 2);
+
+    console.log(friends);
 
     return (
         <Stack sx={{ width: "100%" }}>
@@ -185,8 +199,27 @@ const FriendsView = () => {
                         onChange={(_, v) => v && setSelected(v as number)}
                     >
                         <ToggleButton value={1}>All</ToggleButton>
-                        <ToggleButton value={2}>Pending</ToggleButton>
-                        <ToggleButton value={4}>Blocked</ToggleButton>
+                        <ToggleButton value={2}>
+                            <span>Pending</span>{" "}
+                            {pending.length > 0 && (
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        width: "20px",
+                                        height: "20px",
+                                        bgcolor: "error.dark",
+                                        borderRadius: "500px",
+                                        ml: 1,
+                                    }}
+                                >
+                                    {pending.length}
+                                </Box>
+                            )}
+                        </ToggleButton>
+                        <ToggleButton value={4}>Blocked </ToggleButton>
                         <ToggleButton value={3} color="success">
                             Add Friend
                         </ToggleButton>
@@ -234,40 +267,58 @@ const FriendsView = () => {
                                     <ListItemSecondaryAction>
                                         {friend.type === 1 ? (
                                             <>
-                                                <IconButton>
-                                                    <Message />
-                                                </IconButton>
-                                                <RemoveFriendConfirmation
-                                                    friend={friend}
-                                                />
+                                                <LightTooltip title="Message">
+                                                    <IconButton>
+                                                        <Message />
+                                                    </IconButton>
+                                                </LightTooltip>
+                                                <LightTooltip title="Remove Friend">
+                                                    <RemoveFriendConfirmation
+                                                        friend={friend}
+                                                    />
+                                                </LightTooltip>
                                             </>
                                         ) : friend.type === 3 ? (
                                             <>
-                                                <IconButton
-                                                    disabled={
-                                                        isAccepting || isLoading
-                                                    }
-                                                    onClick={async () =>
-                                                        await accept(friend.id)
-                                                    }
-                                                >
-                                                    <Check color="success" />
-                                                </IconButton>
-                                                <IconButton
-                                                    onClick={async () =>
-                                                        await mutateAsync(
-                                                            friend.id
-                                                        )
-                                                    }
-                                                    disabled={
-                                                        isAccepting || isLoading
-                                                    }
-                                                >
-                                                    <Clear color="error" />
-                                                </IconButton>
+                                                <LightTooltip title="Accept Friend">
+                                                    <IconButton
+                                                        disabled={
+                                                            isAccepting ||
+                                                            isLoading
+                                                        }
+                                                        onClick={async () =>
+                                                            await accept({
+                                                                id: friend.id,
+                                                            })
+                                                        }
+                                                    >
+                                                        <Check color="success" />
+                                                    </IconButton>
+                                                </LightTooltip>
+                                                <LightTooltip title="Decline">
+                                                    <IconButton
+                                                        onClick={async () =>
+                                                            await mutateAsync(
+                                                                friend.id
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            isAccepting ||
+                                                            isLoading
+                                                        }
+                                                    >
+                                                        <Clear color="error" />
+                                                    </IconButton>
+                                                </LightTooltip>
                                             </>
                                         ) : (
-                                            <>
+                                            <LightTooltip
+                                                title={
+                                                    friend.type === 2
+                                                        ? "Unblock"
+                                                        : "Cancel"
+                                                }
+                                            >
                                                 <IconButton
                                                     onClick={async () =>
                                                         await mutateAsync(
@@ -278,9 +329,13 @@ const FriendsView = () => {
                                                         isAccepting || isLoading
                                                     }
                                                 >
-                                                    <Clear color="error" />
+                                                    {friend.type === 2 ? (
+                                                        <PersonRemove color="error" />
+                                                    ) : (
+                                                        <Clear color="error" />
+                                                    )}
                                                 </IconButton>
-                                            </>
+                                            </LightTooltip>
                                         )}
                                     </ListItemSecondaryAction>
                                 </ListItemButton>

@@ -23,9 +23,7 @@ export const TextViewer: React.FC<{
             //     url.replace("https", "http")
             // )}`,
             url,
-            {
-                credentials: "include",
-            }
+            {}
         )
             .then(async res => {
                 setText(await res.text());
@@ -63,6 +61,7 @@ export const TextViewer: React.FC<{
                     size="small"
                     color="inherit"
                     variant="text"
+                    disabled={(numLines ?? 0) <= 7}
                     onClick={() => setExpanded(expanded => !expanded)}
                     startIcon={expanded ? <ExpandLess /> : <ExpandMore />}
                 >

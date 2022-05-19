@@ -5,15 +5,16 @@ import pyotp
 import sqlalchemy.exc
 from fastapi import APIRouter, Depends, Response, BackgroundTasks, Security, HTTPException
 from pydantic import BaseModel
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from api.api import deps
 from api.core import emitter, security, settings
 from api.core.events import Events, websocket_emitter
 from api.models import Relationship
-from api.models.channels import Channel, ChannelType
+from api.models.channels import Channel, ChannelType, ChannelMembers
 from api.models.guilds import GuildMembers
-from api.models.user import User, MFA
+from api.models.user import User, MFA, Unread
 from api.schemas.user import EnableTOTP
 from api.utils.validate_avatar import validate_avatar
 
@@ -32,10 +33,6 @@ class PatchUser(BaseModel):
 
 
 class CreateDm(BaseModel):
-    recipient_id: int
-
-
-class CreateGroup(BaseModel):
     recipient_ids: List[int]
 
 
@@ -87,42 +84,45 @@ async def edit_me(body: PatchUser, db: Session = Depends(deps.get_db),
     return current_user.serialize()
 
 
-# TODO: update this function
 @router.post("/@me/channels")
-def create_dm_channel(body: CreateDm, response: Response, db: Session = Depends(deps.get_db),
-                      current_user: User = Depends(deps.get_current_user)):
-    channel: Channel = Channel(ChannelType.dm, None, "", owner_id=current_user.id)
-    recipient = db.query(User).filter_by(id=current_user.id).first()
-    if not recipient:
-        response.status_code = 404
-        return {"message": "User not found"}
-    channel.members.append(current_user)
-    channel.members.append(recipient)
+async def create_dm_channel(body: CreateDm, db: Session = Depends(deps.get_db),
+                            current_user: User = Depends(deps.get_current_user)):
+    existing_channel = db.query(Channel).filter(
+        db.query(ChannelMembers.channel_id).filter(
+            ChannelMembers.user_id.in_([body.recipient_ids[0], current_user.id]),
+            ChannelMembers.channel_id == Channel.id).having(
+            func.count("*") == 2).exists()
+    ).first()
+    if existing_channel:
+        for channel_member in existing_channel.members:
+            if channel_member.user_id == current_user.id and channel_member.closed:
+                channel_member.closed = False
+                db.commit()
+                await websocket_emitter(channel_id=existing_channel.id, event=Events.CHANNEL_CREATE, guild_id=None,
+                                        args=existing_channel.serialize(current_user.id),
+                                        user_id=current_user.id)
+        return existing_channel.serialize(current_user.id)
+
+    channel = Channel(channel_type=ChannelType.dm, guild_id=None, name="")
+    users = db.query(User).filter(User.id.in_(body.recipient_ids)).all()
+    for user in [*users, current_user]:
+        unread = Unread(channel_id=channel.id, user_id=user.id, message_id=None)
+        db.add(unread)
+        channel_member = ChannelMembers(closed=current_user.id != user.id)
+        channel_member.user = user
+        channel.members.append(channel_member)
     db.add(channel)
     db.commit()
-    return channel.serialize()
-
-
-# TODO: update this function
-@router.post("/@me/channels/group")
-def create_group_dm(body: CreateGroup, response: Response, db: Session = Depends(deps.get_db),
-                    current_user: User = Depends(deps.get_current_user)):
-    channel: Channel = Channel(ChannelType.group_dm, None, "", owner_id=current_user.id)
-    for recipient_id in body.recipient_ids:
-        recipient = db.query(User).filter_by(id=recipient_id).first()
-        if not recipient:
-            response.status_code = 404
-            return {"message": "User not found"}
-        channel.members.append(recipient)
-    channel.members.append(current_user)
-    db.add(channel)
-    db.commit()
-    return channel.serialize()
+    await websocket_emitter(channel_id=channel.id, event=Events.CHANNEL_CREATE, guild_id=None,
+                            args=channel.serialize(current_user.id),
+                            user_id=current_user.id)
+    return channel.serialize(current_user.id)
 
 
 @router.get("/@me/channels")
 def get_dm_channels(current_user: User = Depends(deps.get_current_user)):
-    return {[channel.serialize() for channel in current_user.channels]}
+    return {[channel.channel.serialize(current_user.id) for channel in
+             filter(lambda c: not c.closed, current_user.channels)]}
 
 
 @router.get('/{user_id}', dependencies=[Depends(deps.get_current_user)])
@@ -220,7 +220,7 @@ async def enable_totp(body: EnableTOTP, response: Response, db: Session = Depend
 
     backup_codes = []
     hotp = pyotp.HOTP(backup_secret, digits=8)
-    
+
     for i in range(10):
         backup_codes.append({
             "code": hotp.at(i),
@@ -247,7 +247,7 @@ async def enable_totp(body: EnableTOTP, response: Response, db: Session = Depend
 @router.get("/@me/relationships")
 async def get_relationships(db: Session = Depends(deps.get_db), current_user: User = Depends(deps.get_current_user)):
     relationships: list[Relationship] = db.query(Relationship).filter(
-        (Relationship.addressee_id == current_user.id & Relationship.type != 2) | (
+        ((Relationship.addressee_id == current_user.id) & (Relationship.type != 2)) | (
                 Relationship.requester_id == current_user.id)).all()
 
     return [relationship.serialize(current_user.id) for relationship in relationships]
@@ -258,16 +258,14 @@ class RelationshipCreate(BaseModel):
     tag: str
 
 
-@router.post("/@me/relationships", status_code=204)
-async def create_relationship(
-        body: RelationshipCreate,
-        db: Session = Depends(deps.get_db),
-        current_user: User = Depends(deps.get_current_user),
-):
+class RelationshipUpdate(BaseModel):
+    type: Optional[int] = None
+
+
+async def create_relationship_func(db: Session, current_user: User, user: User):
     if current_user.bot:
         raise HTTPException(status_code=403, detail="Bots cannot create relationships")
 
-    user: User = db.query(User).filter_by(username=body.username).filter_by(tag=body.tag).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -288,23 +286,70 @@ async def create_relationship(
 
         db.add(relationship)
         db.commit()
+        await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_ADD,
+                                args=relationship.serialize(current_user.id), user_id=current_user.id)
+        await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_ADD,
+                                args=relationship.serialize(user.id), user_id=user.id)
     except sqlalchemy.exc.IntegrityError:
         raise HTTPException(status_code=400, detail="You already have a relationship with this user")
 
-    return
+    return ""
+
+
+@router.post("/@me/relationships", status_code=204)
+async def create_relationship(
+        body: RelationshipCreate,
+        db: Session = Depends(deps.get_db),
+        current_user: User = Depends(deps.get_current_user),
+):
+    user: User = db.query(User).filter_by(username=body.username).filter_by(tag=body.tag).first()
+    return await create_relationship_func(db, current_user, user)
 
 
 @router.put("/@me/relationships/{relationship_id}", status_code=204)
 async def accept_relationship(
         relationship_id: int,
+        body: RelationshipUpdate,
         db: Session = Depends(deps.get_db),
         current_user: User = Depends(deps.get_current_user),
 ):
+    if body.type == 2:
+        existing_relationship: Relationship = db.query(Relationship).filter_by(
+            requester_id=current_user.id).filter_by(addressee_id=relationship_id).first()
+        if existing_relationship:
+            existing_relationship.type = 2
+            await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_REMOVE,
+                                    args={"id": str(current_user.id)}, user_id=relationship_id)
+        else:
+            existing_relationship = Relationship(requester_id=current_user.id, addressee_id=relationship_id,
+                                                 relationship_type=2)
+            db.add(existing_relationship)
+
+        other_relationship: Relationship = db.query(Relationship).filter_by(
+            requester_id=relationship_id).filter_by(addressee_id=current_user.id).filter(Relationship.type != 2).first()
+        if other_relationship:
+            db.delete(other_relationship)
+            await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_REMOVE,
+                                    args={"id": str(relationship_id)}, user_id=current_user.id)
+            await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_REMOVE,
+                                    args={"id": str(current_user.id)}, user_id=relationship_id)
+
+        db.commit()
+
+        await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_ADD,
+                                args=existing_relationship.serialize(current_user.id), user_id=current_user.id)
+
+        return ""
+
     relationship: Relationship = db.query(Relationship).filter_by(addressee_id=current_user.id).filter_by(
         requester_id=relationship_id).first()
 
     if not relationship:
-        raise HTTPException(status_code=404, detail="Relationship not found")
+        try:
+            user = db.query(User).filter_by(id=relationship_id).first()
+            return await create_relationship_func(db, current_user, user)
+        except sqlalchemy.exc.IntegrityError:
+            raise HTTPException(status_code=404, detail="Relationship not found")
 
     if relationship.addressee_id != current_user.id:
         raise HTTPException(status_code=403, detail="You do not have permission to update this relationship")
@@ -315,7 +360,12 @@ async def accept_relationship(
     relationship.type = 1
     db.commit()
 
-    return
+    await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_UPDATE,
+                            args=relationship.serialize(current_user.id), user_id=current_user.id)
+    await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_UPDATE,
+                            args=relationship.serialize(relationship_id), user_id=relationship_id)
+
+    return ""
 
 
 @router.delete("/@me/relationships/{relationship_id}", status_code=204)
@@ -331,7 +381,11 @@ async def delete_relationship(
     if not relationship:
         raise HTTPException(status_code=404, detail="Relationship not found")
 
+    await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_REMOVE,
+                            args=relationship.serialize(current_user.id), user_id=current_user.id)
+    await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_REMOVE,
+                            args=relationship.serialize(relationship_id), user_id=relationship_id)
     db.delete(relationship)
     db.commit()
 
-    return
+    return ""

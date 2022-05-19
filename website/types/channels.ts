@@ -1,3 +1,5 @@
+import { User } from "../stores/useUserStore";
+
 export enum ChannelTypes {
     guild_text = "GUILD_TEXT",
     dm = "DM",
@@ -22,6 +24,7 @@ export interface Channel {
     last_message_id?: string;
     last_message_timestamp?: string;
     overwrites: Overwrites[];
+    recipients: User[];
 }
 
 export interface Overwrites {
@@ -32,6 +35,6 @@ export interface Overwrites {
 }
 
 export interface ChannelStore {
-    privateChannels: Channel[];
+    privateChannels: Record<string, Channel>;
     channels: Record<string, Record<string, Channel>>;
 }

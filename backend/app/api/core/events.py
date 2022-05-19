@@ -39,11 +39,15 @@ class Events(str, enum.Enum):
     TYPING_START = 'TYPING_START'
     WEBHOOKS_UPDATE = 'WEBHOOKS_UPDATE'
     MESSAGE_ACK = 'MESSAGE_ACK'
+    RELATIONSHIP_ADD = 'RELATIONSHIP_ADD'
+    RELATIONSHIP_REMOVE = 'RELATIONSHIP_REMOVE'
+    USER_UPDATE = 'USER_UPDATE'
+    RELATIONSHIP_UPDATE = 'RELATIONSHIP_UPDATE'
 
 
 def get_dm_channel_recipients(db, channel_id: int) -> list[str]:
     recipients: models.Channel = db.query(models.Channel).filter_by(id=channel_id).first()
-    return [str(recipient.user_id) for recipient in recipients.members]
+    return [str(recipient.user.id) for recipient in recipients.members]
 
 
 SPECIAL_EVENTS = {
@@ -67,12 +71,16 @@ def get_recipients(event: Events, guild_id: Optional[int] = None, channel_id: Op
     if db is None:
         from api.api.deps import get_db
         db = next(get_db())
+    if event in {Events.RELATIONSHIP_ADD, Events.RELATIONSHIP_REMOVE, Events.RELATIONSHIP_UPDATE}:
+        return [str(user_id)]
     if event == Events.MESSAGE_ACK:
         return [str(user_id)]
     if event == Events.GUILD_CREATE or (event == Events.GUILD_DELETE and user_id):
         return [str(user_id)]
     if event in SPECIAL_EVENTS:
         if not guild_id:
+            if user_id:
+                return [str(user_id)]
             return get_dm_channel_recipients(db, channel_id)
         recipients = db.query(models.GuildMembers).filter(
             and_(models.GuildMembers.guild_id == guild_id,
@@ -87,10 +95,12 @@ def get_recipients(event: Events, guild_id: Optional[int] = None, channel_id: Op
     else:
         if guild_id:
             return [str(guild_id)]
+        if user_id:
+            return [str(user_id)]
         return get_dm_channel_recipients(db, channel_id)
 
 
 async def websocket_emitter(channel_id: Optional[int], guild_id: Optional[Union[int, str]], event: Events, args,
                             user_id: int = None):
-    my_recipients = get_recipients(event, guild_id, channel_id, user_id)
+    my_recipients = get_recipients(event=event, guild_id=guild_id, channel_id=channel_id, user_id=user_id)
     await emitter.to(my_recipients).emit(event, args)

@@ -13,5 +13,4 @@ export const deleteChannel = async (channel: string) => {
     return res.json();
 };
 
-export const useDeleteChannel = (channel: string) =>
-    useMutation(() => deleteChannel(channel));
+export const useDeleteChannel = () => useMutation(deleteChannel);

@@ -27,7 +27,7 @@ export const extraSpaces = {
         length: 2,
     },
     codeBlock: {
-        length: 2,
+        length: 3,
         syntaxBefore: "```",
         syntaxAfter: "```",
     },
@@ -100,15 +100,12 @@ export const extraSpaces = {
 
 const AST_PARSERS = {
     autolink,
-    codeBlock,
-    customEmoji,
     emoji,
     emote,
     emphasis,
     escape,
     inlineCode,
     lineBreak,
-    mention,
     newline,
     paragraph,
     spoiler,
@@ -122,13 +119,12 @@ const AST_PARSERS = {
 export const deserializeSyntaxTree = createASTParser({
     customEmoji,
     emoji,
-    emote,
     lineBreak,
     mention,
-    newline,
-    blockQuote,
+    codeBlock,
     paragraph,
     text,
+    newline,
 });
 
 export const syntaxTree = createASTParser(AST_PARSERS);

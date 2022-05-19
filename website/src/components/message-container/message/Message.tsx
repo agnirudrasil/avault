@@ -92,7 +92,7 @@ export const Message: React.FC<{
                         Permissions.ADD_REACTIONS
                     ),
                     children: [
-                        ...Object.keys(store.get("frequently"))
+                        ...Object.keys(store.get("frequently") ?? {})
                             .slice(0, 10)
                             .map(key => ({
                                 label: key,

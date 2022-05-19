@@ -12,6 +12,7 @@ from api.api.deps import get_db
 from api.core import emitter
 from api.core.config import settings
 from api.core.security import verify_jwt
+from api.models import Relationship
 from api.models.user import User
 
 
@@ -48,13 +49,15 @@ async def handle_message(message):
                     rooms.append(str(guild.guild.id))
                     guild_data.append(guild.guild.serialize())
                     merged_members.append(guild.serialize())
-                users: list[models.Relationship] = db.query(models.Relationship).filter(
-                    (models.Relationship.requester_id == user.id) | (models.Relationship.addressee_id == user.id)).all()
+                users: list[models.Relationship] = db.query(Relationship).filter(
+                    ((Relationship.addressee_id == user.id) & (Relationship.type != 2)) | (
+                            Relationship.requester_id == user.id)).all()
                 await emitter.in_room(socket_id).sockets_join(rooms)
                 await emitter.in_room(socket_id).emit(
                     "READY", {"guilds": guild_data, "user": user.json(),
                               "users": [relationship.serialize(user.id) for relationship in users],
-                              "private_channels": [channel.serialize() for channel in user.channel_members],
+                              "private_channels": [channel.channel.serialize(user.id) for channel in
+                                                   filter(lambda c: not c.closed, user.channels)],
                               'merged_members': merged_members,
                               "unread": unread_dict}
                 )

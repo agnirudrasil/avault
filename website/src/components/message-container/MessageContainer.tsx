@@ -1,4 +1,10 @@
-import { PushPin } from "@mui/icons-material";
+import {
+    AlternateEmail,
+    Call,
+    Group,
+    PushPin,
+    Videocam,
+} from "@mui/icons-material";
 import {
     Divider,
     IconButton,
@@ -19,11 +25,12 @@ import MessageBox from "./message-box";
 
 export const MessageContainer: React.FC = () => {
     const router = useRouter();
-    const channel = useChannelsStore(
-        state =>
-            state.channels[router.query.guild as string]?.[
-                router.query.channel as string
-            ]
+    const channel = useChannelsStore(state =>
+        router.query.guild
+            ? state.channels[router.query.guild as string]?.[
+                  router.query.channel as string
+              ]
+            : state.privateChannels[router.query.channel as string]
     );
 
     return (
@@ -49,7 +56,13 @@ export const MessageContainer: React.FC = () => {
                         }}
                     >
                         <ListItemIcon sx={{ minWidth: "32px" }}>
-                            <ChannelIcon />
+                            {channel.type === "DM" ? (
+                                <AlternateEmail />
+                            ) : channel.type === "GROUP_DM" ? (
+                                <Group />
+                            ) : (
+                                <ChannelIcon />
+                            )}
                         </ListItemIcon>
                         <ListItemText
                             sx={{ maxWidth: "100%" }}
@@ -64,7 +77,11 @@ export const MessageContainer: React.FC = () => {
                                         />
                                     }
                                 >
-                                    <Typography>{channel.name}</Typography>
+                                    <Typography>
+                                        {channel.type === "DM"
+                                            ? channel.recipients[0].username
+                                            : channel.name}
+                                    </Typography>
                                     {channel.topic && (
                                         <Typography
                                             sx={{
@@ -83,6 +100,17 @@ export const MessageContainer: React.FC = () => {
                             }
                         />
                         <ListItemSecondaryAction>
+                            {(channel.type === "DM" ||
+                                channel.type === "GROUP_DM") && (
+                                <>
+                                    <IconButton>
+                                        <Call />
+                                    </IconButton>
+                                    <IconButton>
+                                        <Videocam />
+                                    </IconButton>
+                                </>
+                            )}
                             <IconButton>
                                 <PushPin />
                             </IconButton>

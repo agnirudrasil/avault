@@ -56,7 +56,7 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
     const theme = useTheme();
     const { createInvite } = useCreateInvite();
     const { createChannel } = useCreateChannel();
-    const { mutateAsync } = useDeleteChannel(channel.id);
+    const { mutateAsync } = useDeleteChannel();
 
     const { handleContextMenu, ...props } = useContextMenu();
     const menuObject: ContextMenuShape[][] = [
@@ -168,7 +168,7 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
                     Permissions.MANAGE_CHANNELS
                 ),
                 action: async handleClose => {
-                    await mutateAsync();
+                    await mutateAsync(channel.id);
                     handleClose();
                 },
                 color: theme.palette.error.dark,

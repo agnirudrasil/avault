@@ -1,13 +1,10 @@
-import asyncio
-import json
 from datetime import datetime
-from json import JSONDecodeError
 from typing import Any, List, Optional, Union
 
 import emoji as emojilib
 import sqlalchemy.exc
-from fastapi import APIRouter, Depends, Response, Request, Header, status, HTTPException, UploadFile
-from pydantic import BaseModel, root_validator, ValidationError
+from fastapi import APIRouter, Depends, Response
+from pydantic import BaseModel, root_validator
 from sqlalchemy import desc, asc
 from sqlalchemy.orm import Session
 
@@ -24,7 +21,6 @@ from api.schemas.channel import ChannelEdit
 from api.schemas.invite import ChannelInvite
 from api.schemas.message import MessageCreate
 from api.schemas.overwrite import Overwrite as OverwriteSchema
-from api.utils.attachment import file_to_attachment
 from api.worker import embed_message
 
 router = APIRouter()
@@ -72,50 +68,23 @@ def get_messages(channel_id: int,
     return [message.serialize(user.id, db) for message in messages]
 
 
-@router.post('/{channel_id}/messages', dependencies=[])
+@router.post('/{channel_id}/messages')
 async def create_message(channel_id: int,
-                         request: Request,
-                         content_type: str = Header(...),
-                         content_length: int = Header(..., lt=1024 * 1024 * 10),
                          dependency: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES)),
+                         body_stuff: tuple[MessageCreate, list] = Depends(deps.ExtractBody(MessageCreate)),
                          db: Session = Depends(deps.get_db)) -> Any:
-    # return Response(status_code=status.HTTP_501_NOT_IMPLEMENTED)
     embed_checker = deps.ChannelPerms(Permissions.EMBED_LINKS)
-    attachments = []
-    body = None
-    if content_type.startswith('multipart/form-data'):
-        form_body = await request.form()
-        files: list[UploadFile] = form_body.getlist("files")
-        if files:
-            tasks = []
-            for file in files:
-                tasks.append(file_to_attachment(file, channel_id))
-            attachments = await asyncio.gather(*tasks)
-
-        payload_json: UploadFile = form_body.get('payload_json')
-        if payload_json and payload_json.content_type == "application/json":
-            try:
-                payload = await payload_json.read(1024 * 1024 * 1)
-                body = MessageCreate(**json.loads(payload))
-            except JSONDecodeError:
-                raise HTTPException(status_code=400, detail='Invalid JSON')
-            except ValidationError as e:
-                raise HTTPException(status_code=400, detail=e.json())
-    elif content_type.startswith('application/json'):
-        json_body = await request.json()
-        try:
-            body = MessageCreate(**json_body)
-        except ValidationError as e:
-            return {'error': e.json()}
-    else:
-        return Response(content="Invalid content type", status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, )
     channel, current_user = dependency
+    body, attachments = body_stuff
+
     my_attachments = []
+
     if body and body.attachments:
         for attachment in body.attachments:
             my_attachments.append({**attachments[attachment.id], "description": attachment.description})
     else:
         my_attachments = attachments
+
     message = Message(content=body.content.strip() if body else "",
                       channel_id=channel_id,
                       author_id=current_user.id,
@@ -124,16 +93,28 @@ async def create_message(channel_id: int,
                       message_type=MessageTypes.REPLY if body and body.message_reference else MessageTypes.DEFAULT,
                       attachments=my_attachments,
                       guild_id=channel.guild_id)
+
+    if channel.type == ChannelType.dm:
+        for channel_member in channel.members:
+            if channel_member.user_id != current_user.id and channel_member.closed:
+                channel_member.closed = False
+                await websocket_emitter(channel_id=channel.id, event=Events.CHANNEL_CREATE, guild_id=None,
+                                        args=channel.serialize(channel_member.user_id),
+                                        user_id=channel_member.user_id)
+            db.query(models.Unread).filter_by(channel_id=channel.id).filter_by(user_id=channel_member.user_id).update({
+                models.Unread.mentions_count: models.Unread.mentions_count + 1
+            })
     message.process_mentions(channel.guild_id, db)
     db.add(message)
     db.commit()
+
     if not message.embeds and await embed_checker.is_valid(channel, current_user, db):
         embed_message.delay(message.content, message.id, channel.guild_id, current_user.id)
-    print(body.nonce)
-    await websocket_emitter(channel_id, channel.guild_id, Events.MESSAGE_CREATE,
-                            message.serialize(current_user=current_user.id, db=db, nonce=body.nonce))
+    await websocket_emitter(channel_id=channel_id, guild_id=channel.guild_id, event=Events.MESSAGE_CREATE,
+                            args=message.serialize(current_user=current_user.id, db=db,
+                                                   nonce=body.nonce if body else None))
 
-    return message.serialize(current_user.id, db, nonce=body.nonce)
+    return message.serialize(current_user.id, db, nonce=body.nonce if body else None)
 
 
 @router.get('/{channel_id}/messages/{message_id}',
@@ -514,14 +495,25 @@ async def edit_channel(channel_id: int,
     return {"message": "Channel not found"}
 
 
-@router.delete("/{channel_id}", dependencies=[Depends(deps.ChannelPerms(Permissions.MANAGE_CHANNELS))])
+@router.delete("/{channel_id}")
 async def delete_channel(channel_id: int,
+                         dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_CHANNELS)),
                          db: Session = Depends(deps.get_db)):
-    channel = db.query(Channel).filter_by(id=channel_id).first()
+    channel, current_user = dependencies
     if channel:
+        if channel.type == ChannelType.dm:
+            for channel_member in channel.members:
+                if channel_member.user_id == current_user.id and not channel_member.closed:
+                    channel_member.closed = True
+                    db.commit()
+                    await websocket_emitter(channel_id=channel.id, event=Events.CHANNEL_DELETE, guild_id=None,
+                                            args=channel.serialize(current_user.id),
+                                            user_id=current_user.id)
+            return ""
         affected_channels = None
         if channel.type == ChannelType.guild_category:
             affected_channels = db.query(Channel).filter_by(parent_id=channel.id).all()
+        db.query(models.Unread).filter_by(channel_id=channel_id).delete()
         db.delete(channel)
         db.commit()
         await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_DELETE,

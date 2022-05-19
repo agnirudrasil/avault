@@ -63,6 +63,8 @@ import { withEmoji } from "./plugins/withEmoji";
 import { Roles, useRolesStore } from "../../../../../stores/useRolesStore";
 import { nanoid } from "nanoid";
 import { EmojiPicker } from "../../../EmojiPicker";
+import { deserialize } from "./deserialize";
+import { deserializeSyntaxTree } from "../../../markdown/parsers/parseMessageContent";
 
 export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
     const router = useRouter();
@@ -181,6 +183,14 @@ export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
     const renderElement = useCallback(props => <Element {...props} />, []);
     const onKeydown = useCallback(
         (event: React.KeyboardEvent<HTMLDivElement>) => {
+            if (event.key === "&") {
+                const tokens = deserialize(
+                    deserializeSyntaxTree(`Hello, **world!** :+1: <@123>
+> Blockquote :+1: <@123>
+Good day, :wave: <@123>`)
+                );
+                Transforms.insertFragment(editor, tokens);
+            }
             if (event.key === "Enter" && event.shiftKey) {
                 event.preventDefault();
                 handleSubmit();
@@ -256,7 +266,6 @@ export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
         <Slate
             onChange={value => {
                 const { selection } = editor;
-
                 if (selection && Range.isCollapsed(selection)) {
                     const [start] = Range.edges(selection);
                     const wordBefore = Editor.before(editor, start, {
@@ -288,7 +297,6 @@ export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
                     const afterRange = Editor.range(editor, start, after);
                     const afterText = Editor.string(editor, afterRange);
                     const afterMatch = afterText.match(/^(\s|$)/);
-
                     if (beforeMatch && afterMatch) {
                         setTarget(beforeRange);
                         setSearch({
@@ -299,7 +307,6 @@ export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
                         return;
                     }
                 }
-
                 setTarget(null);
                 setValue(value);
             }}
@@ -554,12 +561,14 @@ export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
                         readOnly={!channel}
                         autoFocus
                         onKeyDown={onKeydown}
-                        decorate={decorate}
+                        decorate={decorate(editor)}
                         renderLeaf={renderLeaf}
                         renderElement={renderElement}
                         placeholder={
                             channel
-                                ? `Message ${channel.name}`
+                                ? channel.type === "DM"
+                                    ? `Message @${channel.recipients[0].username}`
+                                    : `Message #${channel.name}`
                                 : "Select a channel to get started"
                         }
                         style={{

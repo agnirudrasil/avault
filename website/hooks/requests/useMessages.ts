@@ -24,7 +24,7 @@ export const useMessages = (channelId: string) =>
         staleTime: Infinity,
         getNextPageParam: previousPage => {
             return previousPage.length > 0
-                ? previousPage[previousPage.length - 1].id
+                ? previousPage[previousPage.length - 1]?.id
                 : previousPage.length < 50
                 ? null
                 : null;
