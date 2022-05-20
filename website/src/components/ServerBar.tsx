@@ -1,4 +1,4 @@
-import { Add, Home } from "@mui/icons-material";
+import { Add, Group, Home } from "@mui/icons-material";
 import { Avatar, Box, Divider, Grow, IconButton, Stack } from "@mui/material";
 import Link from "next/link";
 import router from "next/router";
@@ -104,8 +104,6 @@ export const PrivateChannels: React.FC = () => {
         shallow
     );
 
-    console.log(unread);
-
     return (
         <TransitionGroup>
             {Object.keys(channels)
@@ -128,27 +126,48 @@ export const PrivateChannels: React.FC = () => {
                                         }}
                                     >
                                         <Link href={`/channels/@me/${k}`}>
-                                            <Avatar
-                                                src={
-                                                    channel.recipients[0].avatar
-                                                        ? `${process.env.NEXT_PUBLIC_CDN_URL}avatars/${channel.recipients[0].id}/${channel.recipients[0].avatar}`
-                                                        : undefined
-                                                }
-                                                sx={{
-                                                    cursor: "pointer",
-                                                    width: 48,
-                                                    height: 48,
-                                                }}
-                                            >
-                                                <DefaultProfilePic
-                                                    width={48}
-                                                    height={48}
-                                                    tag={
-                                                        channel.recipients[0]
-                                                            .tag
+                                            {channel.type === "GROUP_DM" ? (
+                                                <Avatar
+                                                    src={
+                                                        channel.icon
+                                                            ? `${process.env.NEXT_PUBLIC_CDN_URL}channel-icons/${channel.id}/${channel.icon}`
+                                                            : undefined
                                                     }
-                                                />
-                                            </Avatar>
+                                                    sx={{
+                                                        width: "48px",
+                                                        height: "48px",
+                                                        bgcolor: "success.dark",
+                                                        color: "white",
+                                                        cursor: "pointer",
+                                                    }}
+                                                >
+                                                    <Group />
+                                                </Avatar>
+                                            ) : (
+                                                <Avatar
+                                                    src={
+                                                        channel.recipients[0]
+                                                            .avatar
+                                                            ? `${process.env.NEXT_PUBLIC_CDN_URL}avatars/${channel.recipients[0].id}/${channel.recipients[0].avatar}`
+                                                            : undefined
+                                                    }
+                                                    sx={{
+                                                        cursor: "pointer",
+                                                        width: 48,
+                                                        height: 48,
+                                                    }}
+                                                >
+                                                    <DefaultProfilePic
+                                                        width={48}
+                                                        height={48}
+                                                        tag={
+                                                            channel
+                                                                .recipients[0]
+                                                                .tag
+                                                        }
+                                                    />
+                                                </Avatar>
+                                            )}
                                         </Link>
                                     </StyledBadge>
                                 </Box>

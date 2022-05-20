@@ -39,6 +39,9 @@ import { useCreateFriend } from "../../../hooks/requests/useCreateFriend";
 import { useAcceptFriend } from "../../../hooks/requests/useAcceptFriend";
 import { useRemoveFriend } from "../../../hooks/requests/useRemoveFriend";
 import { LightTooltip } from "../../../src/components/LightTooltip";
+import { useRouter } from "next/router";
+import { useChannelsStore } from "../../../stores/useChannelsStore";
+import { useCreateDMChannel } from "../../../hooks/requests/useCreateDMChannel";
 
 const FriendsInput: React.FC = () => {
     const { mutateAsync, isSuccess, isError, isLoading } = useCreateFriend();
@@ -138,6 +141,9 @@ const FriendsInput: React.FC = () => {
 };
 
 const FriendsView = () => {
+    const router = useRouter();
+    const channels = useChannelsStore(state => state.privateChannels);
+    const { mutateAsync: createDM } = useCreateDMChannel();
     const [selected, setSelected] = useState<number>(1);
     const friends = useFriendsStore(state => state.friends);
     const { mutateAsync: accept, isLoading: isAccepting } = useAcceptFriend();
@@ -268,7 +274,50 @@ const FriendsView = () => {
                                         {friend.type === 1 ? (
                                             <>
                                                 <LightTooltip title="Message">
-                                                    <IconButton>
+                                                    <IconButton
+                                                        onClick={async () => {
+                                                            const channel =
+                                                                Object.keys(
+                                                                    channels
+                                                                ).find(key => {
+                                                                    const channel =
+                                                                        channels[
+                                                                            key
+                                                                        ];
+                                                                    return (
+                                                                        channel.type ===
+                                                                            "DM" &&
+                                                                        channel
+                                                                            .recipients[0]
+                                                                            .id ===
+                                                                            friend
+                                                                                .user
+                                                                                .id
+                                                                    );
+                                                                });
+                                                            if (channel) {
+                                                                router.replace(
+                                                                    `/channels/@me/${channel}`
+                                                                );
+                                                            } else {
+                                                                const channel =
+                                                                    await createDM(
+                                                                        {
+                                                                            recipient_ids:
+                                                                                [
+                                                                                    friend
+                                                                                        .user
+                                                                                        .id,
+                                                                                ],
+                                                                        }
+                                                                    );
+
+                                                                router.replace(
+                                                                    `/channels/@me/${channel.id}`
+                                                                );
+                                                            }
+                                                        }}
+                                                    >
                                                         <Message />
                                                     </IconButton>
                                                 </LightTooltip>

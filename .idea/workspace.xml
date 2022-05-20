@@ -5,10 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/80cf9c1ad6d8_.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ServerBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ServerBar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/addMessage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/addMessage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/applications.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/applications.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/channels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/developers/applications/[id]/url-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/developers/applications/[id]/url-generator.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -211,8 +215,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python tests.Python tests for api.tests.test_users.test_get_me" />
-        <item itemvalue="Python.snowflake" />
         <item itemvalue="Python.test" />
+        <item itemvalue="Python.snowflake" />
       </list>
     </recent_temporary>
   </component>
@@ -390,6 +394,8 @@
       <workItem from="1652896592323" duration="2627000" />
       <workItem from="1652943709850" duration="1008000" />
       <workItem from="1652958384848" duration="920000" />
+      <workItem from="1653045400047" duration="157000" />
+      <workItem from="1653045589611" duration="6708000" />
     </task>
     <servers />
   </component>
@@ -420,7 +426,7 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/avault$test.coverage" NAME="test Coverage Results" MODIFIED="1651387292791" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app/api" />
     <SUITE FILE_PATH="coverage/avault$snowflake.coverage" NAME="snowflake Coverage Results" MODIFIED="1651388679575" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app/api/utils" />
-    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1652958720091" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
+    <SUITE FILE_PATH="coverage/avault$Backend.coverage" NAME="Backend Coverage Results" MODIFIED="1653046509126" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
     <SUITE FILE_PATH="coverage/avault$celery.coverage" NAME="celery Coverage Results" MODIFIED="1651378190558" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app" />
     <SUITE FILE_PATH="coverage/avault$.coverage" NAME=" Coverage Results" MODIFIED="1652587113888" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/backend/app/api/tests" />
   </component>

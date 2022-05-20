@@ -1,3 +1,4 @@
+import { Group } from "@mui/icons-material";
 import { Avatar, Box, List, Typography } from "@mui/material";
 import { differenceInSeconds, format, isToday, isYesterday } from "date-fns";
 import { useRouter } from "next/router";
@@ -6,6 +7,7 @@ import { Waypoint } from "react-waypoint";
 import { useMessages } from "../../../hooks/requests/useMessages";
 import { useUserStore } from "../../../stores/useUserStore";
 import type { Channel } from "../../../types/channels";
+import { getGroupDMName } from "../../getGroupDmName";
 import { groupBy } from "../../group-by";
 import { ChannelIcon } from "../ChannelIcon";
 import { DefaultProfilePic } from "../DefaultProfilePic";
@@ -108,7 +110,11 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
                         sx={{
                             width: 64,
                             height: 64,
-                            p: channel.type === "DM" ? 0 : 1,
+                            p:
+                                channel.type === "DM" ||
+                                channel.type === "GROUP_DM"
+                                    ? 0
+                                    : 1,
                             borderRadius: "70px",
                             bgcolor: "grey.800",
                         }}
@@ -128,6 +134,22 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
                                     tag={channel.recipients[0].tag}
                                 />
                             </Avatar>
+                        ) : channel.type === "GROUP_DM" ? (
+                            <Avatar
+                                src={
+                                    channel.icon
+                                        ? `${process.env.NEXT_PUBLIC_CDN_URL}channel-icons/${channel.id}/${channel.icon}`
+                                        : undefined
+                                }
+                                sx={{
+                                    width: "64px",
+                                    height: "64px",
+                                    bgcolor: "success.dark",
+                                    color: "white",
+                                }}
+                            >
+                                <Group />
+                            </Avatar>
                         ) : (
                             <ChannelIcon
                                 sx={{
@@ -141,13 +163,27 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
                     <Typography fontWeight="bold" variant="h3">
                         {channel.type === "DM"
                             ? channel.recipients[0].username
+                            : channel.type === "GROUP_DM"
+                            ? getGroupDMName(channel)
                             : `Welcome to #${channel.name}!`}
                     </Typography>
                     <Typography variant="subtitle1" color="GrayText">
-                        {channel.type === "DM"
-                            ? "This is the beginning of your direct message history with @" +
-                              channel.recipients[0].username
-                            : `This is the start of #${channel.name}.`}
+                        {channel.type === "DM" ? (
+                            <span>
+                                This is the beginning of your direct message
+                                history with{" "}
+                                <strong>
+                                    @{channel.recipients[0].username}
+                                </strong>
+                            </span>
+                        ) : channel.type === "GROUP_DM" ? (
+                            <span>
+                                Welcome to the beginning of the{" "}
+                                <strong>{getGroupDMName(channel)}</strong> group
+                            </span>
+                        ) : (
+                            `This is the start of #${channel.name}.`
+                        )}
                     </Typography>
                 </Box>
             )}

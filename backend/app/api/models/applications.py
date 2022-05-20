@@ -56,6 +56,8 @@ class Application(Base):
 
     async def remove_bot_from_guild(self, db: Session, guild: Guild):
         member = db.query(GuildMembers).filter_by(guild_id=guild.id).filter_by(user_id=self.bot_id).first()
+        if not member:
+            return
         await websocket_emitter(None, guild.id, Events.GUILD_MEMBER_REMOVE, member.serialize())
         db.delete(member)
         db.commit()
@@ -67,6 +69,11 @@ class Application(Base):
         await self.delete_bot_role(db, guild)
 
     async def add_bot_to_guild(self, db: Session, guild: Guild, permissions: int):
+        existing = db.query(GuildMembers).filter_by(guild_id=guild.id).filter_by(user_id=self.bot_id).first()
+
+        if existing:
+            return
+
         try:
             role = await self.create_bot_role(db, guild, permissions)
             guild_member = GuildMembers()

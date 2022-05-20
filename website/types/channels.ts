@@ -11,6 +11,7 @@ export enum ChannelTypes {
 }
 
 export interface Channel {
+    icon?: string;
     id: string;
     type: ChannelTypes;
     position?: number;

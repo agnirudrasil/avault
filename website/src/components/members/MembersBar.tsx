@@ -13,7 +13,6 @@ export const MembarsBar: React.FC = () => {
         <List dense sx={{ minWidth: "240px", bgcolor: "grey.900", p: 1 }}>
             {Object.keys(members ?? {}).map(user_id => {
                 const member = members[user_id];
-                console.log(member);
                 return <Member key={user_id} member={member} />;
             })}
         </List>

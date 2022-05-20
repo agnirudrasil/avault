@@ -4,7 +4,7 @@ from typing import List, Optional
 import pyotp
 import sqlalchemy.exc
 from fastapi import APIRouter, Depends, Response, BackgroundTasks, Security, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -34,6 +34,13 @@ class PatchUser(BaseModel):
 
 class CreateDm(BaseModel):
     recipient_ids: List[int]
+
+    @classmethod
+    @validator("recipient_ids")
+    def validate_recipient_ids(cls, v):
+        if len(v) > 9:
+            raise HTTPException(status_code=400, detail="Too many recipients")
+        return v
 
 
 class DisableTOTP(BaseModel):
@@ -87,36 +94,88 @@ async def edit_me(body: PatchUser, db: Session = Depends(deps.get_db),
 @router.post("/@me/channels")
 async def create_dm_channel(body: CreateDm, db: Session = Depends(deps.get_db),
                             current_user: User = Depends(deps.get_current_user)):
-    existing_channel = db.query(Channel).filter(
-        db.query(ChannelMembers.channel_id).filter(
-            ChannelMembers.user_id.in_([body.recipient_ids[0], current_user.id]),
-            ChannelMembers.channel_id == Channel.id).having(
-            func.count("*") == 2).exists()
-    ).first()
-    if existing_channel:
-        for channel_member in existing_channel.members:
-            if channel_member.user_id == current_user.id and channel_member.closed:
-                channel_member.closed = False
-                db.commit()
-                await websocket_emitter(channel_id=existing_channel.id, event=Events.CHANNEL_CREATE, guild_id=None,
-                                        args=existing_channel.serialize(current_user.id),
-                                        user_id=current_user.id)
-        return existing_channel.serialize(current_user.id)
+    recipient_ids = set(body.recipient_ids)
 
-    channel = Channel(channel_type=ChannelType.dm, guild_id=None, name="")
-    users = db.query(User).filter(User.id.in_(body.recipient_ids)).all()
-    for user in [*users, current_user]:
-        unread = Unread(channel_id=channel.id, user_id=user.id, message_id=None)
+    if current_user.id in recipient_ids:
+        recipient_ids.remove(current_user.id)
+    if len(recipient_ids) > 9:
+        raise HTTPException(status_code=400, detail="Too many recipients")
+
+    if len(recipient_ids) == 1:
+        existing_channel = db.query(Channel).filter(
+            db.query(ChannelMembers.channel_id).filter(
+                ChannelMembers.user_id.in_([*[recipient_id for recipient_id in recipient_ids], current_user.id]),
+                ChannelMembers.channel_id == Channel.id).having(
+                func.count("*") == (len(recipient_ids) + 1)).exists()
+        ).first()
+
+        if existing_channel:
+            for channel_member in existing_channel.members:
+                if channel_member.user_id == current_user.id and channel_member.closed:
+                    channel_member.closed = False
+                    db.commit()
+                    await websocket_emitter(channel_id=existing_channel.id, event=Events.CHANNEL_CREATE, guild_id=None,
+                                            args=existing_channel.serialize(current_user.id),
+                                            user_id=current_user.id)
+
+            return existing_channel.serialize(current_user.id)
+
+    if len(recipient_ids) == 1:
+        channel = Channel(channel_type=ChannelType.dm, guild_id=None, name=None)
+
+        users = db.query(User).filter(User.id.in_(body.recipient_ids)).first()
+
+        for user in [users, current_user]:
+            unread = Unread(channel_id=channel.id, user_id=user.id, message_id=None)
+            db.add(unread)
+            channel_member = ChannelMembers(closed=current_user.id != user.id)
+            channel_member.user = user
+            channel.members.append(channel_member)
+        db.add(channel)
+        db.commit()
+
+        await websocket_emitter(channel_id=channel.id, event=Events.CHANNEL_CREATE, guild_id=None,
+                                args=channel.serialize(current_user.id),
+                                user_id=current_user.id)
+
+        return channel.serialize(current_user.id)
+    else:
+        if current_user.bot:
+            raise HTTPException(status_code=403, detail="Bots cannot create group dms")
+
+        users = db.query(User).filter(User.id.in_(body.recipient_ids)).all()
+
+        channel = Channel(channel_type=ChannelType.group_dm, guild_id=None, name=None, owner_id=current_user.id)
+
+        for user in users:
+            if user.bot:
+                raise HTTPException(status_code=403, detail="Bots cannot be in a group dm")
+            friend = db.query(Relationship).filter_by(type=1).filter(
+                ((Relationship.addressee_id == current_user.id) & (Relationship.requester_id == user.id)) |
+                ((Relationship.requester_id == current_user.id) & (Relationship.addressee_id == user.id))).first()
+            if not friend:
+                raise HTTPException(status_code=403, detail="You are not friends with this user")
+
+            unread = Unread(channel_id=channel.id, user_id=user.id, message_id=None)
+            db.add(unread)
+            channel_member = ChannelMembers(closed=False)
+            channel_member.user = user
+            channel.members.append(channel_member)
+
+        unread = Unread(channel_id=channel.id, user_id=current_user.id, message_id=None)
         db.add(unread)
-        channel_member = ChannelMembers(closed=current_user.id != user.id)
-        channel_member.user = user
+        channel_member = ChannelMembers(closed=False)
+        channel_member.user = current_user
         channel.members.append(channel_member)
-    db.add(channel)
-    db.commit()
-    await websocket_emitter(channel_id=channel.id, event=Events.CHANNEL_CREATE, guild_id=None,
-                            args=channel.serialize(current_user.id),
-                            user_id=current_user.id)
-    return channel.serialize(current_user.id)
+
+        db.add(channel)
+        db.commit()
+
+        for user in [*users, current_user]:
+            await websocket_emitter(channel_id=channel.id, event=Events.CHANNEL_CREATE, guild_id=None,
+                                    args=channel.serialize(user.id))
+
+        return channel.serialize(current_user.id)
 
 
 @router.get("/@me/channels")
@@ -134,7 +193,7 @@ def get_user(user_id: int, response: Response, db: Session = Depends(deps.get_db
 def get_guilds(oauth2_user: tuple[User, str] = Security(deps.get_oauth2_user, scopes=["guilds"])):
     current_user, scope = oauth2_user
 
-    return [guild.guild.preview() for guild in current_user.guilds]
+    return [guild.guild.serialize() for guild in current_user.guilds]
 
 
 @router.delete('/@me/guilds/{guild_id}', status_code=204)

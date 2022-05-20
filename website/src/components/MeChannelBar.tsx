@@ -1,29 +1,40 @@
 import { ListItem } from "@mantine/core";
-import { AccessibilityNew, Add, Clear } from "@mui/icons-material";
+import { AccessibilityNew } from "@mui/icons-material";
 import {
     List,
     ListItemButton,
     ListItemIcon,
     ListItemText,
     ListSubheader,
-    IconButton,
-    ListItemAvatar,
-    Avatar,
-    Link as MuiLink,
-    ListItemSecondaryAction,
 } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useDeleteChannel } from "../../hooks/requests/useDeleteChannel";
+import shallow from "zustand/shallow";
 import { useChannelsStore } from "../../stores/useChannelsStore";
+import { useUserStore } from "../../stores/useUserStore";
 import { ChannelBottom } from "./channels";
-import { DefaultProfilePic } from "./DefaultProfilePic";
-import { LightTooltip } from "./LightTooltip";
+import { orderBy } from "lodash";
+import { DMChannel } from "./channels/channel-types/DMChannel";
+import { CreateDMPicker } from "./CreateDmPicker";
+import { ChannelTypes } from "../../types/channels";
+import { GroupDMChannel } from "./channels/channel-types/GroupDMChannel";
 
 export const MeChannelBar = () => {
     const router = useRouter();
     const channels = useChannelsStore(state => state.privateChannels);
-    const { mutateAsync } = useDeleteChannel();
+
+    const unread = useUserStore(
+        state =>
+            Object.entries(state.unread)
+                .filter(([k]) => k in channels)
+                .reduce((acc, curr) => {
+                    acc[curr[0]] = curr[1].lastMessageId
+                        ? BigInt(curr[1].lastMessageId)
+                        : undefined;
+                    return acc;
+                }, {} as Record<string, bigint | undefined>),
+        shallow
+    );
 
     return (
         <List
@@ -60,99 +71,27 @@ export const MeChannelBar = () => {
                             alignItems: "center",
                         }}
                     >
-                        DIRECT MESSAGES{" "}
-                        <LightTooltip title="Create DM" placement="top">
-                            <IconButton size="small">
-                                <Add />
-                            </IconButton>
-                        </LightTooltip>
+                        DIRECT MESSAGES <CreateDMPicker />
                     </ListSubheader>
                 }
                 dense
                 sx={{
                     height: "100%",
                     maxHeight: "100%",
-                    overflowY: "hidden",
-                    mr: "10px",
-                    "&::-webkit-scrollbar": {
-                        width: "10px",
-                    },
-                    "&::-webkit-scrollbar-track": {
-                        bgcolor: "grey.900",
-                    },
-                    "&::-webkit-scrollbar-thumb": {
-                        border: "3px solid transparent",
-                        bgcolor: "background.paper",
-                    },
-                    "&:hover": { overflowY: "scroll", mr: 0 },
+                    overflowY: "auto",
+                    width: "100%",
                 }}
             >
-                {Object.keys(channels).map(key => {
-                    const channel = channels[key];
-                    return (
-                        <ListItem
-                            sx={{
-                                "&:hover .hidden": {
-                                    visibility: "visible",
-                                },
-                            }}
-                            key={key}
-                        >
-                            <Link href={`/channels/@me/${key}`}>
-                                <MuiLink
-                                    sx={{ color: "white" }}
-                                    underline="none"
-                                >
-                                    <ListItemButton
-                                        selected={
-                                            router.query.channel === channel.id
-                                        }
-                                        sx={{ m: 1, borderRadius: "4px" }}
-                                    >
-                                        <ListItemAvatar>
-                                            <Avatar
-                                                src={
-                                                    channel.recipients[0].avatar
-                                                        ? `${process.env.NEXT_PUBLIC_CDN_URL}avatars/${channel.recipients[0].id}/${channel.recipients[0].avatar}`
-                                                        : undefined
-                                                }
-                                            >
-                                                <DefaultProfilePic
-                                                    tag={
-                                                        channel.recipients[0]
-                                                            .tag
-                                                    }
-                                                />
-                                            </Avatar>
-                                        </ListItemAvatar>
-                                        <ListItemText
-                                            primary={
-                                                channel.recipients[0].username
-                                            }
-                                        />
-                                        <ListItemSecondaryAction
-                                            sx={{ visibility: "hidden" }}
-                                            className="hidden"
-                                        >
-                                            <IconButton
-                                                onClick={async () => {
-                                                    await mutateAsync(
-                                                        channel.id
-                                                    );
-                                                    router.replace(
-                                                        "/channels/@me"
-                                                    );
-                                                }}
-                                            >
-                                                <Clear />
-                                            </IconButton>
-                                        </ListItemSecondaryAction>
-                                    </ListItemButton>
-                                </MuiLink>
-                            </Link>
-                        </ListItem>
-                    );
-                })}
+                {orderBy(Object.keys(channels), [k => unread[k]], ["desc"]).map(
+                    key => {
+                        const channel = channels[key];
+                        return channel.type === ChannelTypes.group_dm ? (
+                            <GroupDMChannel channel={channel} />
+                        ) : (
+                            <DMChannel channel={channel} key={key} />
+                        );
+                    }
+                )}
             </List>
             <ChannelBottom />
         </List>

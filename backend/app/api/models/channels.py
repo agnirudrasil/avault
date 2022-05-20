@@ -2,7 +2,7 @@ import enum
 from typing import Optional
 
 from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Boolean, DateTime, BigInteger, \
-    PrimaryKeyConstraint
+    PrimaryKeyConstraint, Text
 from sqlalchemy import func
 from sqlalchemy.orm import relationship
 
@@ -116,10 +116,11 @@ class Channel(Base):
     guild_id = Column(BigInteger, ForeignKey(
         'guilds.id', ondelete="CASCADE"), nullable=True)
     position = Column(Integer, nullable=True)
-    name = Column(String(100), nullable=False)
+    name = Column(String(100), nullable=True)
     topic = Column(String(1024), nullable=True)
     nsfw = Column(Boolean, nullable=True)
     last_message_timestamp = Column(DateTime, nullable=True)
+    icon = Column(Text, nullable=True)
     last_message_id = Column(BigInteger, ForeignKey(
         'messages.id', ondelete="SET NULL", use_alter=True), nullable=True)
     owner_id = Column(BigInteger, ForeignKey(
@@ -159,12 +160,31 @@ class Channel(Base):
 
     def serialize(self, context: Optional[int] = None):
         match self.type:
+            case ChannelType.group_dm:
+                assert context is not None
+                return {
+                    "id": str(self.id),
+                    "name": self.name,
+                    "last_message_id": str(self.last_message_id) if self.last_message_id else None,
+                    "last_message_timestamp": self.last_message_timestamp.isoformat(
+                    ) if self.last_message_timestamp else None,
+                    "type": self.type,
+                    "owner_id": str(self.owner_id),
+                    "icon": self.icon,
+                    "recipients": [{
+                        "username": user.user.username,
+                        "tag": user.user.tag,
+                        "id": str(user.user.id),
+                        "avatar": user.user.avatar,
+                    } for user in filter(lambda u: u.user.id != context, self.members)]
+                }
             case ChannelType.dm:
                 assert context is not None
                 return {
                     "id": str(self.id),
-                    "last_message_id": self.last_message_id,
-                    "last_message_timestamp": self.last_message_timestamp.isoformat() if self.last_message_timestamp else None,
+                    "last_message_id": str(self.last_message_id) if self.last_message_id else None,
+                    "last_message_timestamp": self.last_message_timestamp.isoformat(
+                    ) if self.last_message_timestamp else None,
                     "type": self.type,
                     "recipients": [{
                         "username": user.user.username,

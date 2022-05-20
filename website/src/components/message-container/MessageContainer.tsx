@@ -2,6 +2,7 @@ import {
     AlternateEmail,
     Call,
     Group,
+    PersonAddAlt1,
     PushPin,
     Videocam,
 } from "@mui/icons-material";
@@ -22,6 +23,7 @@ import { useRouter } from "next/router";
 import { Messages } from "./Messages";
 import { MarkAsRead } from "./MarkAsRead";
 import MessageBox from "./message-box";
+import { getGroupDMName } from "../../getGroupDmName";
 
 export const MessageContainer: React.FC = () => {
     const router = useRouter();
@@ -80,6 +82,8 @@ export const MessageContainer: React.FC = () => {
                                     <Typography>
                                         {channel.type === "DM"
                                             ? channel.recipients[0].username
+                                            : channel.type === "GROUP_DM"
+                                            ? getGroupDMName(channel)
                                             : channel.name}
                                     </Typography>
                                     {channel.topic && (
@@ -110,6 +114,11 @@ export const MessageContainer: React.FC = () => {
                                         <Videocam />
                                     </IconButton>
                                 </>
+                            )}
+                            {channel.type === "GROUP_DM" && (
+                                <IconButton>
+                                    <PersonAddAlt1 />
+                                </IconButton>
                             )}
                             <IconButton>
                                 <PushPin />

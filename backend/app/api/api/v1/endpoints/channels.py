@@ -104,7 +104,12 @@ async def create_message(channel_id: int,
             db.query(models.Unread).filter_by(channel_id=channel.id).filter_by(user_id=channel_member.user_id).update({
                 models.Unread.mentions_count: models.Unread.mentions_count + 1
             })
-    message.process_mentions(channel.guild_id, db)
+    elif channel.type == ChannelType.group_dm:
+        db.query(models.Unread).filter_by(channel_id=channel.id).filter(
+            models.Unread.user_id.in_(map(lambda c: c.user_id, channel.members))). \
+            update({models.Unread.mentions_count: models.Unread.mentions_count + 1})
+    else:
+        message.process_mentions(channel.guild_id, db)
     db.add(message)
     db.commit()
 

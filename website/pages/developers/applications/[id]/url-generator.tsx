@@ -198,9 +198,9 @@ export const URLGeneratorPage: NextPage<{ id: string }> = ({ id }) => {
                         value={
                             requireCode
                                 ? !redirect
-                                    ? "Please select a redirect uri."
+                                    ? "Please select a redirect uri"
                                     : value ||
-                                      "Please select at least one OAuth2 scope."
+                                      "Please select at least one OAuth2 scope"
                                 : value
                         }
                         InputProps={{
