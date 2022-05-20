@@ -125,7 +125,18 @@ export const GuildSettings = () => {
                                     for this server.
                                 </Typography>
                                 <AvatarEditorDialog
-                                    buttonText="upload icon"
+                                    buttonText={
+                                        <Button
+                                            disableElevation
+                                            variant="contained"
+                                            color="primary"
+                                            size="small"
+                                            sx={{ mr: 1 }}
+                                            component="span"
+                                        >
+                                            upload icon
+                                        </Button>
+                                    }
                                     height={512}
                                     width={512}
                                     onChange={v => setFieldValue("icon", v)}

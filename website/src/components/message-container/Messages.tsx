@@ -144,7 +144,9 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
                                 sx={{
                                     width: "64px",
                                     height: "64px",
-                                    bgcolor: "success.dark",
+                                    bgcolor: channel.icon
+                                        ? "transparent"
+                                        : "success.dark",
                                     color: "white",
                                 }}
                             >

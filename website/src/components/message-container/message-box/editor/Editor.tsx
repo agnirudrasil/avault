@@ -65,6 +65,7 @@ import { nanoid } from "nanoid";
 import { EmojiPicker } from "../../../EmojiPicker";
 import { deserialize } from "./deserialize";
 import { deserializeSyntaxTree } from "../../../markdown/parsers/parseMessageContent";
+import { getGroupDMName } from "../../../../getGroupDmName";
 
 export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
     const router = useRouter();
@@ -568,6 +569,8 @@ Good day, :wave: <@123>`)
                             channel
                                 ? channel.type === "DM"
                                     ? `Message @${channel.recipients[0].username}`
+                                    : channel.type === "GROUP_DM"
+                                    ? `Message ${getGroupDMName(channel)}`
                                     : `Message #${channel.name}`
                                 : "Select a channel to get started"
                         }

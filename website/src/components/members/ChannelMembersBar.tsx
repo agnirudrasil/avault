@@ -12,11 +12,18 @@ export const ChannelMembersBar = () => {
     const user = useUserStore(state => state.user);
     return (
         <List dense sx={{ minWidth: "240px", bgcolor: "grey.900", p: 1 }}>
-            {members?.recipients.map(user => (
-                <ChannelMember key={user.id} member={user} />
+            {members?.recipients.map(u => (
+                <ChannelMember
+                    owner={u.id === members.owner_id}
+                    key={u.id}
+                    member={u}
+                />
             ))}
 
-            <ChannelMember member={user} />
+            <ChannelMember
+                owner={user.id === members?.owner_id}
+                member={user}
+            />
         </List>
     );
 };

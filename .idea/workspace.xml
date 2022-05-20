@@ -5,14 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/app/alembic/versions/80cf9c1ad6d8_.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/applications.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/applications.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/channels.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/developers/applications/[id]/url-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/developers/applications/[id]/url-generator.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/schemas/channel.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/schemas/channel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/pages/channels/@me/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/channels/@me/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/channels/channel-types/DMChannel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/channels/channel-types/DMChannel.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/channels/channel-types/GroupDMChannel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/channels/channel-types/GroupDMChannel.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/context-menus/ContextMenu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/context-menus/ContextMenu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/members/ChannelMember.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/members/ChannelMember.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/members/ChannelMembersBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/members/ChannelMembersBar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/message-box/editor/Editor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/message-box/editor/Editor.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -395,7 +397,7 @@
       <workItem from="1652943709850" duration="1008000" />
       <workItem from="1652958384848" duration="920000" />
       <workItem from="1653045400047" duration="157000" />
-      <workItem from="1653045589611" duration="6708000" />
+      <workItem from="1653045589611" duration="9670000" />
     </task>
     <servers />
   </component>

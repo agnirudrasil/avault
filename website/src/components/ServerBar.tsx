@@ -136,7 +136,9 @@ export const PrivateChannels: React.FC = () => {
                                                     sx={{
                                                         width: "48px",
                                                         height: "48px",
-                                                        bgcolor: "success.dark",
+                                                        bgcolor: channel.icon
+                                                            ? "transparent"
+                                                            : "success.dark",
                                                         color: "white",
                                                         cursor: "pointer",
                                                     }}

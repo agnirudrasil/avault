@@ -1,3 +1,4 @@
+import React from "react";
 import { ContextMenu } from "../../../hooks/useContextMenu";
 
 export interface ContextMenuBaseProps {
@@ -7,7 +8,7 @@ export interface ContextMenuBaseProps {
 
 export type ContextMenuShape = {
     visible: boolean;
-    label: string;
+    label: string | React.ReactNode;
     action: (handleClose: () => any) => any;
     icon?: React.ReactNode;
     disabled?: boolean;

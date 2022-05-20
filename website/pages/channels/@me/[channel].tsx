@@ -18,7 +18,7 @@ const MyPrivateChannelsPage: NextPage = () => {
     return (
         <MeLayout>
             <MessageContainer />
-            {channel.type === "GROUP_DM" && <ChannelMembersBar />}
+            {channel?.type === "GROUP_DM" && <ChannelMembersBar />}
         </MeLayout>
     );
 };

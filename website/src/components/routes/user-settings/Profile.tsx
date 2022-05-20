@@ -137,7 +137,18 @@ export const UserSettingsProfile = () => {
                                                     width={300}
                                                     height={300}
                                                     key="avatar"
-                                                    buttonText="change avatar"
+                                                    buttonText={
+                                                        <Button
+                                                            disableElevation
+                                                            variant="contained"
+                                                            color="primary"
+                                                            size="small"
+                                                            sx={{ mr: 1 }}
+                                                            component="span"
+                                                        >
+                                                            change avatar
+                                                        </Button>
+                                                    }
                                                     onChange={v =>
                                                         setFieldValue(
                                                             "avatar",
@@ -250,7 +261,18 @@ export const UserSettingsProfile = () => {
                                                     key="banner"
                                                     width={600}
                                                     height={240}
-                                                    buttonText="change banner"
+                                                    buttonText={
+                                                        <Button
+                                                            disableElevation
+                                                            variant="contained"
+                                                            color="primary"
+                                                            size="small"
+                                                            sx={{ mr: 1 }}
+                                                            component="span"
+                                                        >
+                                                            change banner
+                                                        </Button>
+                                                    }
                                                     onChange={e => {
                                                         setFieldValue(
                                                             "banner",

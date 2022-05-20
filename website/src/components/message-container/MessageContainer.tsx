@@ -15,6 +15,7 @@ import {
     ListItemSecondaryAction,
     ListItemText,
     Stack,
+    TextField,
     Typography,
 } from "@mui/material";
 import { ChannelIcon } from "../ChannelIcon";
@@ -24,6 +25,8 @@ import { Messages } from "./Messages";
 import { MarkAsRead } from "./MarkAsRead";
 import MessageBox from "./message-box";
 import { getGroupDMName } from "../../getGroupDmName";
+import { Form, Formik } from "formik";
+import { useChannelUpdate } from "../../../hooks/requests/useUpdateChannel";
 
 export const MessageContainer: React.FC = () => {
     const router = useRouter();
@@ -34,6 +37,7 @@ export const MessageContainer: React.FC = () => {
               ]
             : state.privateChannels[router.query.channel as string]
     );
+    const { mutateAsync } = useChannelUpdate();
 
     return (
         <List
@@ -80,11 +84,62 @@ export const MessageContainer: React.FC = () => {
                                     }
                                 >
                                     <Typography>
-                                        {channel.type === "DM"
-                                            ? channel.recipients[0].username
-                                            : channel.type === "GROUP_DM"
-                                            ? getGroupDMName(channel)
-                                            : channel.name}
+                                        {channel.type === "DM" ? (
+                                            channel.recipients[0].username
+                                        ) : channel.type === "GROUP_DM" ? (
+                                            <Formik
+                                                enableReinitialize
+                                                initialValues={{
+                                                    name: getGroupDMName(
+                                                        channel
+                                                    ),
+                                                }}
+                                                onSubmit={async values => {
+                                                    if (values.name) {
+                                                        await mutateAsync({
+                                                            channelId:
+                                                                channel.id,
+                                                            data: {
+                                                                name: values.name,
+                                                            },
+                                                        });
+                                                    }
+                                                }}
+                                            >
+                                                {({
+                                                    values,
+                                                    setFieldValue,
+                                                    initialValues,
+                                                    submitForm,
+                                                    resetForm,
+                                                }) => (
+                                                    <Form>
+                                                        <TextField
+                                                            onBlur={async () => {
+                                                                if (
+                                                                    initialValues.name !==
+                                                                    values.name
+                                                                ) {
+                                                                    await submitForm();
+                                                                }
+                                                                resetForm();
+                                                            }}
+                                                            size="small"
+                                                            onChange={e =>
+                                                                setFieldValue(
+                                                                    "name",
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            }
+                                                            value={values.name}
+                                                        />
+                                                    </Form>
+                                                )}
+                                            </Formik>
+                                        ) : (
+                                            channel.name
+                                        )}
                                     </Typography>
                                     {channel.topic && (
                                         <Typography

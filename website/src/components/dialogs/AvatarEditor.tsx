@@ -7,7 +7,7 @@ import {
     Slider,
     Stack,
 } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AvatarEditor from "react-avatar-editor";
 
 const ImageEditor: React.FC<{
@@ -86,7 +86,7 @@ const ImageEditor: React.FC<{
 
 export const AvatarEditorDialog: React.FC<{
     onChange: (image: string) => any;
-    buttonText: string;
+    buttonText: string | React.ReactNode;
     width: number;
     height: number;
 }> = ({ onChange, buttonText, width, height }) => {
@@ -112,16 +112,7 @@ export const AvatarEditorDialog: React.FC<{
                     }
                 }}
             />
-            <Button
-                disableElevation
-                variant="contained"
-                color="primary"
-                size="small"
-                sx={{ mr: 1 }}
-                component="span"
-            >
-                {buttonText}
-            </Button>
+            {buttonText}
             <ImageEditor
                 key={`${width}x${height}`}
                 width={width}

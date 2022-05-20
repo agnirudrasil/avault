@@ -21,6 +21,7 @@ from api.schemas.channel import ChannelEdit
 from api.schemas.invite import ChannelInvite
 from api.schemas.message import MessageCreate
 from api.schemas.overwrite import Overwrite as OverwriteSchema
+from api.utils.validate_avatar import validate_avatar
 from api.worker import embed_message
 
 router = APIRouter()
@@ -476,26 +477,41 @@ def get_channel(dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(P
     return dependencies[0].serialize()
 
 
-@router.patch('/{channel_id}', dependencies=[Depends(deps.ChannelPerms(Permissions.MANAGE_CHANNELS))])
+@router.patch('/{channel_id}', dependencies=[])
 async def edit_channel(channel_id: int,
                        body: ChannelEdit,
                        response: Response,
+                       dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_CHANNELS)),
                        db: Session = Depends(deps.get_db)):
-    channel = db.query(Channel).filter_by(id=channel_id).first()
+    channel, current_user = dependencies
     if channel:
-        channel.name = body.name
-        if body.icon:
-            channel.icon = body.icon
-        if body.topic is not None:
-            channel.topic = body.topic
+        if body.name:
+            channel.name = body.name
+        channel.topic = body.topic
         if body.parent_id and channel.type != ChannelType.guild_category:
             parent_channel = db.query(Channel).filter_by(id=body.parent_id).first()
             if parent_channel and parent_channel.type == ChannelType.guild_category:
                 channel.parent_id = body.parent_id
+        body_dict = body.dict(exclude_unset=True)
+        if body.owner_id and channel.owner_id == current_user.id:
+            member = db.query(models.ChannelMembers).filter_by(channel_id=channel_id).filter_by(
+                user_id=body.owner_id).first()
+            if member:
+                channel.owner_id = body.owner_id
+        if "icon" in body_dict:
+            icon = None
+            if body_dict["icon"]:
+                icon = await validate_avatar(channel.id, body.icon, "channel-icons")
+            channel.icon = icon
         db.commit()
-        await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_UPDATE,
-                                channel.serialize())
-        return channel.serialize()
+        if channel.type == ChannelType.group_dm or channel.type == ChannelType.dm:
+            for channel_member in channel.members:
+                await websocket_emitter(channel_id=channel.id, event=Events.CHANNEL_UPDATE, guild_id=None,
+                                        args=channel.serialize(channel_member.user_id), user_id=channel_member.user_id)
+        else:
+            await websocket_emitter(channel_id, channel.guild_id, Events.CHANNEL_UPDATE,
+                                    channel.serialize())
+        return channel.serialize(current_user.id)
     response.status_code = 404
     return {"message": "Channel not found"}
 
@@ -514,6 +530,20 @@ async def delete_channel(channel_id: int,
                     await websocket_emitter(channel_id=channel.id, event=Events.CHANNEL_DELETE, guild_id=None,
                                             args=channel.serialize(current_user.id),
                                             user_id=current_user.id)
+            return ""
+        elif channel.type == ChannelType.group_dm:
+            db.query(models.ChannelMembers).filter_by(channel_id=channel.id).filter_by(user_id=current_user.id).delete()
+            db.commit()
+            await websocket_emitter(channel_id=channel.id, event=Events.CHANNEL_DELETE, guild_id=None,
+                                    args={"id": str(channel_id)},
+                                    user_id=current_user.id)
+            if len(channel.members) == 0:
+                db.delete(channel)
+                db.commit()
+                return ""
+            for channel_member in channel.members:
+                await websocket_emitter(channel_id=channel.id, event=Events.CHANNEL_UPDATE, guild_id=None,
+                                        args=channel.serialize(channel_member.user_id), user_id=channel_member.user_id)
             return ""
         affected_channels = None
         if channel.type == ChannelType.guild_category:

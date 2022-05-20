@@ -73,13 +73,15 @@ export const CreateDMPicker = () => {
                 anchorEl={anchorEl}
                 onClose={handleClose}
             >
-                <PickerPopover />
+                <PickerPopover handleClose={handleClose} />
             </Popover>
         </div>
     );
 };
 
-const PickerPopover: React.FC = () => {
+const PickerPopover: React.FC<{ handleClose: () => any }> = ({
+    handleClose,
+}) => {
     const friends = useFriendsStore(
         state => Object.values(state.friends),
         shallow
@@ -165,9 +167,10 @@ const PickerPopover: React.FC = () => {
             <Divider flexItem />
             <LoadingButton
                 loading={isLoading}
-                onClick={async () =>
-                    await mutateAsync({ recipient_ids: value.map(v => v.id) })
-                }
+                onClick={async () => {
+                    await mutateAsync({ recipient_ids: value.map(v => v.id) });
+                    handleClose();
+                }}
                 variant="contained"
                 disableElevation
             >

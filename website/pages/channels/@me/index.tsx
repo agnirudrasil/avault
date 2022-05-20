@@ -242,8 +242,12 @@ const FriendsView = () => {
                     sx={{ m: 3 }}
                 >
                     <ListSubheader disableGutters disableSticky>
-                        {selected === 1 ? "ALL FRIENDS" : "PENDING"} -{" "}
-                        {keys.length}
+                        {selected === 1
+                            ? "ALL FRIENDS"
+                            : selected === 4
+                            ? "BLOCKED"
+                            : "PENDING"}{" "}
+                        - {keys.length}
                     </ListSubheader>
                     {keys.map(key => {
                         const friend = friends[key];

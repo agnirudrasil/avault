@@ -80,7 +80,7 @@ export const ContextMenu: React.FC<Props> = ({
                                                         color: menuItem.color,
                                                         "&:hover": {
                                                             color: "white",
-                                                            background: color,
+                                                            bgcolor: color,
                                                         },
                                                     }}
                                                     onClick={async e => {
@@ -141,7 +141,7 @@ export const ContextMenu: React.FC<Props> = ({
                                                 color,
                                                 "&:hover": {
                                                     color: "white",
-                                                    background: color,
+                                                    bgcolor: color,
                                                 },
                                                 "&:hover .make-white": {
                                                     color: "white",
