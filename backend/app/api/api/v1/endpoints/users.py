@@ -3,7 +3,7 @@ from typing import List, Optional
 
 import pyotp
 import sqlalchemy.exc
-from fastapi import APIRouter, Depends, Response, BackgroundTasks, Security, HTTPException
+from fastapi import APIRouter, Depends, Response, Security, HTTPException
 from pydantic import BaseModel, validator
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -116,7 +116,7 @@ async def create_dm_channel(body: CreateDm, db: Session = Depends(deps.get_db),
                     db.commit()
                     await websocket_emitter(channel_id=existing_channel.id, event=Events.CHANNEL_CREATE, guild_id=None,
                                             args=existing_channel.serialize(current_user.id),
-                                            user_id=current_user.id)
+                                            user_id=current_user.id, db=db)
 
             return existing_channel.serialize(current_user.id)
 
@@ -136,7 +136,7 @@ async def create_dm_channel(body: CreateDm, db: Session = Depends(deps.get_db),
 
         await websocket_emitter(channel_id=channel.id, event=Events.CHANNEL_CREATE, guild_id=None,
                                 args=channel.serialize(current_user.id),
-                                user_id=current_user.id)
+                                user_id=current_user.id, db=db)
 
         return channel.serialize(current_user.id)
     else:
@@ -168,12 +168,12 @@ async def create_dm_channel(body: CreateDm, db: Session = Depends(deps.get_db),
         channel_member.user = current_user
         channel.members.append(channel_member)
 
-        db.add(channel)
+        db.add(channel_member)
         db.commit()
 
         for user in [*users, current_user]:
             await websocket_emitter(channel_id=channel.id, event=Events.CHANNEL_CREATE, guild_id=None,
-                                    args=channel.serialize(user.id))
+                                    args=channel.serialize(user.id), db=db)
 
         return channel.serialize(current_user.id)
 
@@ -197,7 +197,7 @@ def get_guilds(oauth2_user: tuple[User, str] = Security(deps.get_oauth2_user, sc
 
 
 @router.delete('/@me/guilds/{guild_id}', status_code=204)
-async def leave_guild(guild_id: int, response: Response, background_task: BackgroundTasks,
+async def leave_guild(guild_id: int, response: Response,
                       current_user: User = Depends(deps.get_current_user),
                       db: Session = Depends(deps.get_db)):
     guild_member = db.query(GuildMembers).filter_by(
@@ -212,10 +212,11 @@ async def leave_guild(guild_id: int, response: Response, background_task: Backgr
             db.delete(guild_member)
             db.commit()
             await emitter.in_room(str(current_user.id)).sockets_leave(str(guild_id))
-            background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_MEMBER_REMOVE,
-                                     guild_member.serialize())
-            background_task.add_task(websocket_emitter, None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
-                                     current_user.id)
+            await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_MEMBER_REMOVE,
+                                    args=guild_member.serialize(), db=db)
+            await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_DELETE,
+                                    args={'id': str(guild_id)},
+                                    user_id=current_user.id, db=db)
         return
     response.status_code = 404
     return {'success': False}
@@ -346,9 +347,9 @@ async def create_relationship_func(db: Session, current_user: User, user: User):
         db.add(relationship)
         db.commit()
         await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_ADD,
-                                args=relationship.serialize(current_user.id), user_id=current_user.id)
+                                args=relationship.serialize(current_user.id), user_id=current_user.id, db=db)
         await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_ADD,
-                                args=relationship.serialize(user.id), user_id=user.id)
+                                args=relationship.serialize(user.id), user_id=user.id, db=db)
     except sqlalchemy.exc.IntegrityError:
         raise HTTPException(status_code=400, detail="You already have a relationship with this user")
 
@@ -378,7 +379,7 @@ async def accept_relationship(
         if existing_relationship:
             existing_relationship.type = 2
             await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_REMOVE,
-                                    args={"id": str(current_user.id)}, user_id=relationship_id)
+                                    args={"id": str(current_user.id)}, user_id=relationship_id, db=db)
         else:
             existing_relationship = Relationship(requester_id=current_user.id, addressee_id=relationship_id,
                                                  relationship_type=2)
@@ -389,14 +390,14 @@ async def accept_relationship(
         if other_relationship:
             db.delete(other_relationship)
             await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_REMOVE,
-                                    args={"id": str(relationship_id)}, user_id=current_user.id)
+                                    args={"id": str(relationship_id)}, user_id=current_user.id, db=db)
             await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_REMOVE,
-                                    args={"id": str(current_user.id)}, user_id=relationship_id)
+                                    args={"id": str(current_user.id)}, user_id=relationship_id, db=db)
 
         db.commit()
 
         await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_ADD,
-                                args=existing_relationship.serialize(current_user.id), user_id=current_user.id)
+                                args=existing_relationship.serialize(current_user.id), user_id=current_user.id, db=db)
 
         return ""
 
@@ -420,9 +421,9 @@ async def accept_relationship(
     db.commit()
 
     await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_UPDATE,
-                            args=relationship.serialize(current_user.id), user_id=current_user.id)
+                            args=relationship.serialize(current_user.id), user_id=current_user.id, db=db)
     await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_UPDATE,
-                            args=relationship.serialize(relationship_id), user_id=relationship_id)
+                            args=relationship.serialize(relationship_id), user_id=relationship_id, db=db)
 
     return ""
 
@@ -441,9 +442,9 @@ async def delete_relationship(
         raise HTTPException(status_code=404, detail="Relationship not found")
 
     await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_REMOVE,
-                            args=relationship.serialize(current_user.id), user_id=current_user.id)
+                            args=relationship.serialize(current_user.id), user_id=current_user.id, db=db)
     await websocket_emitter(channel_id=None, guild_id=None, event=Events.RELATIONSHIP_REMOVE,
-                            args=relationship.serialize(relationship_id), user_id=relationship_id)
+                            args=relationship.serialize(relationship_id), user_id=relationship_id, db=db)
     db.delete(relationship)
     db.commit()
 

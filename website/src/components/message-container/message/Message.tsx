@@ -44,6 +44,7 @@ import {
 } from "material-ui-popup-state/hooks";
 import { MessageToolbar } from "./Toolbar";
 import { useDeleteMessage } from "../../../../hooks/requests/useMessageDelete";
+import { Invite } from "../../Invite";
 
 export const Message: React.FC<{
     message: Messages;
@@ -79,6 +80,17 @@ export const Message: React.FC<{
         const date = new Date(message.timestamp);
 
         const { handleContextMenu, ...props } = useContextMenu();
+
+        const regex = new RegExp(
+            `${window.location.host}/invite/(\\w{8,21})`,
+            "g"
+        );
+
+        const invites = Array.from(
+            new Set(
+                [...message.content.matchAll(regex)].map(([_, code]) => code)
+            )
+        );
 
         const menuObject: ContextMenuShape[][] = [
             [
@@ -298,6 +310,7 @@ export const Message: React.FC<{
                         secondary={
                             <Stack>
                                 <Typography
+                                    component="div"
                                     sx={{
                                         p: 0,
                                         color: error
@@ -305,11 +318,22 @@ export const Message: React.FC<{
                                             : confirmed
                                             ? "GrayText"
                                             : undefined,
+                                        userSelect: "text",
+                                        cursor: "text",
                                     }}
                                     variant="body1"
                                 >
                                     <Markdown content={message.content} />
                                 </Typography>
+                                <Stack spacing={1}>
+                                    {invites.map(invite => (
+                                        <Invite
+                                            author={message.author}
+                                            key={invite}
+                                            code={invite}
+                                        />
+                                    ))}
+                                </Stack>
                                 <Stack spacing={1}>
                                     {message.attachments &&
                                         message.attachments.map(attachment => (

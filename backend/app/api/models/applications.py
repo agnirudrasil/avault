@@ -33,11 +33,11 @@ class Application(Base):
             Role.position >= 1).update({Role.position: Role.position + 1})
         updated_roles = db.query(Role).filter_by(guild_id=guild.id).filter(Role.position >= 2).all()
         db.commit()
-        await (websocket_emitter(None, guild.id, Events.GUILD_ROLE_CREATE,
-                                 {'role': role.serialize(), 'guild_id': str(guild.id)}))
+        await websocket_emitter(channel_id=None, guild_id=guild.id, event=Events.GUILD_ROLE_CREATE,
+                                args={'role': role.serialize(), 'guild_id': str(guild.id)}, db=db)
         for role in updated_roles:
-            await (websocket_emitter(None, guild.id, Events.GUILD_ROLE_UPDATE,
-                                     {'role': role.serialize(), 'guild_id': str(guild.id)}))
+            await websocket_emitter(channel_id=None, guild_id=guild.id, event=Events.GUILD_ROLE_UPDATE,
+                                    args={'role': role.serialize(), 'guild_id': str(guild.id)}, db=db)
         return role
 
     async def delete_bot_role(self, db: Session, guild: Guild):
@@ -46,26 +46,29 @@ class Application(Base):
         db.delete(role)
         db.query(Role).filter_by(guild_id=guild.id).filter(Role.position > position).update(
             {Role.position: Role.position - 1})
-        await (websocket_emitter(None, guild.id, Events.GUILD_ROLE_DELETE,
-                                 {'role': role.serialize(), 'guild_id': str(guild.id)}))
+        await websocket_emitter(channel_id=None, guild_id=guild.id, event=Events.GUILD_ROLE_DELETE,
+                                args={'role': role.serialize(), 'guild_id': str(guild.id)}, db=db)
         update_roles = db.query(Role).filter_by(guild_id=guild.id).filter(Role.position >= position).all()
         for role in update_roles:
-            await (websocket_emitter(None, guild.id, Events.GUILD_ROLE_UPDATE,
-                                     {'role': role.serialize(), 'guild_id': str(guild.id)}))
+            await websocket_emitter(channel_id=None, guild_id=guild.id, event=Events.GUILD_ROLE_UPDATE,
+                                    args={'role': role.serialize(), 'guild_id': str(guild.id)}, db=db)
         db.commit()
 
     async def remove_bot_from_guild(self, db: Session, guild: Guild):
         member = db.query(GuildMembers).filter_by(guild_id=guild.id).filter_by(user_id=self.bot_id).first()
         if not member:
             return
-        await websocket_emitter(None, guild.id, Events.GUILD_MEMBER_REMOVE, member.serialize())
+        await websocket_emitter(channel_id=None, guild_id=guild.id, event=Events.GUILD_MEMBER_REMOVE,
+                                args=member.serialize(), db=db)
         db.delete(member)
         db.commit()
 
-        await (websocket_emitter(None, guild.id, Events.GUILD_MEMBER_REMOVE, member.serialize()))
+        await websocket_emitter(channel_id=None, guild_id=guild.id, event=Events.GUILD_MEMBER_REMOVE,
+                                args=member.serialize(), db=db)
         await emitter.in_room(str(self.bot.id)).sockets_leave(str(guild.id))
-        await websocket_emitter(None, guild.id, Events.GUILD_DELETE, {'id': str(guild.id)},
-                                self.bot.id)
+        await websocket_emitter(channel_id=None, guild_id=guild.id, event=Events.GUILD_DELETE,
+                                args={'id': str(guild.id)},
+                                user_id=self.bot.id, db=db)
         await self.delete_bot_role(db, guild)
 
     async def add_bot_to_guild(self, db: Session, guild: Guild, permissions: int):
@@ -84,12 +87,12 @@ class Application(Base):
             db.commit()
 
             await emitter.in_room(str(self.bot.id)).sockets_join(str(guild.id))
-            await websocket_emitter(None, guild.id, Events.GUILD_CREATE,
-                                    {"guild": guild.serialize(
+            await websocket_emitter(channel_id=None, guild_id=guild.id, event=Events.GUILD_CREATE,
+                                    args={"guild": guild.serialize(
                                     ), "member": guild_member.serialize()},
-                                    self.bot.id)
-            await websocket_emitter(None, guild.id, Events.GUILD_MEMBER_ADD,
-                                    guild_member.serialize())
+                                    user_id=self.bot.id, db=db)
+            await websocket_emitter(channel_id=None, guild_id=guild.id, event=Events.GUILD_MEMBER_ADD,
+                                    args=guild_member.serialize(), db=db)
         except sqlalchemy.exc.IntegrityError:
             pass
 

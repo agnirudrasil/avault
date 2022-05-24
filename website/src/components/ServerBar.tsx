@@ -1,5 +1,13 @@
 import { Add, Group, Home } from "@mui/icons-material";
-import { Avatar, Box, Divider, Grow, IconButton, Stack } from "@mui/material";
+import {
+    Avatar,
+    Box,
+    Divider,
+    Grow,
+    IconButton,
+    Stack,
+    Link as MuiLink,
+} from "@mui/material";
 import Link from "next/link";
 import router from "next/router";
 import { Fragment, useCallback, useState } from "react";
@@ -22,69 +30,73 @@ const HomeButton: React.FC = () => {
     ).length;
 
     return (
-        <Link href={`/channels/@me`}>
-            <Box onContextMenu={() => {}} sx={{ m: 1 }}>
-                <StyledBadge
-                    badgeContent={mentionCount}
-                    color="error"
-                    overlap="circular"
-                    invisible={mentionCount === 0}
-                    anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "right",
-                    }}
-                >
-                    <LightTooltip
-                        placement="right"
-                        title="Home"
-                        disableInteractive
+        <Link passHref href={`/channels/@me`}>
+            <MuiLink sx={{ color: "inherit" }} underline="none">
+                <Box onContextMenu={() => {}} sx={{ m: 1 }}>
+                    <StyledBadge
+                        badgeContent={mentionCount}
+                        color="error"
+                        overlap="circular"
+                        invisible={mentionCount === 0}
+                        anchorOrigin={{
+                            vertical: "bottom",
+                            horizontal: "right",
+                        }}
                     >
-                        <Avatar
-                            sx={{
-                                bgcolor:
-                                    router.query.guild === undefined
-                                        ? "primary.dark"
-                                        : "grey.900",
-                                // m: 1,
-                                color: "white",
-                                borderRadius:
-                                    router.query.guild === undefined ? 3 : 10,
-                                cursor: "pointer",
-                                display: "grid",
-                                placeItems: "center",
-                                width: 48,
-                                height: 48,
-                                transition: "all 300ms ease",
-                                "&:hover": {
-                                    borderRadius: 3,
-                                    bgcolor: "primary.dark",
-                                },
-                                position: "relative",
-                                ":before": {
-                                    content: "''",
-                                    position: "absolute",
-                                    width: "5px",
-                                    height: 0,
-                                    top: "50%",
-                                    left: "-8px",
-                                    bgcolor: "common.white",
-                                    borderRadius: "0 20px 20px 0",
-                                    transform: "translateY(-50%)",
-                                    transition: "height 300ms",
-                                },
-                                ":hover::before": {
-                                    height:
-                                        router.query.guild === undefined
-                                            ? "70%"
-                                            : "50%",
-                                },
-                            }}
+                        <LightTooltip
+                            placement="right"
+                            title="Home"
+                            disableInteractive
                         >
-                            <Home />
-                        </Avatar>
-                    </LightTooltip>
-                </StyledBadge>
-            </Box>
+                            <Avatar
+                                sx={{
+                                    bgcolor:
+                                        router.query.guild === undefined
+                                            ? "primary.dark"
+                                            : "grey.900",
+                                    // m: 1,
+                                    color: "white",
+                                    borderRadius:
+                                        router.query.guild === undefined
+                                            ? 3
+                                            : 10,
+                                    cursor: "pointer",
+                                    display: "grid",
+                                    placeItems: "center",
+                                    width: 48,
+                                    height: 48,
+                                    transition: "all 300ms ease",
+                                    "&:hover": {
+                                        borderRadius: 3,
+                                        bgcolor: "primary.dark",
+                                    },
+                                    position: "relative",
+                                    ":before": {
+                                        content: "''",
+                                        position: "absolute",
+                                        width: "5px",
+                                        height: 0,
+                                        top: "50%",
+                                        left: "-8px",
+                                        bgcolor: "common.white",
+                                        borderRadius: "0 20px 20px 0",
+                                        transform: "translateY(-50%)",
+                                        transition: "height 300ms",
+                                    },
+                                    ":hover::before": {
+                                        height:
+                                            router.query.guild === undefined
+                                                ? "70%"
+                                                : "50%",
+                                    },
+                                }}
+                            >
+                                <Home />
+                            </Avatar>
+                        </LightTooltip>
+                    </StyledBadge>
+                </Box>
+            </MuiLink>
         </Link>
     );
 };

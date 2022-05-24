@@ -64,7 +64,6 @@ export const WebsocketProvider: React.FC = ({ children }) => {
     );
     const {
         updateMessage,
-        deleteBulkMessages,
         messageReactionAdd,
         messageReactionRemove,
         messageReactionRemoveAll,
@@ -141,7 +140,6 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 }
             });
             socket.once("READY", (data: any) => {
-                console.log(data);
                 const guildChannels: Record<
                     string,
                     Record<string, Channel>
@@ -319,7 +317,21 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 );
             });
             socket.on("MESSAGE_DELETE_BULK", data => {
-                deleteBulkMessages(data);
+                console.log(data);
+                queryClient.setQueryData<InfiniteData<Messages[]>>(
+                    ["messages", data.channel_id],
+                    produce(draft => {
+                        if (draft) {
+                            const messages = draft.pages.flat();
+                            draft.pages = chunk(
+                                messages.filter(
+                                    m => !(data.ids as string[]).includes(m.id)
+                                ),
+                                50
+                            );
+                        }
+                    })
+                );
             });
             socket.on("MESSAGE_REACTION_ADD", data => {
                 queryClient.invalidateQueries([
@@ -367,7 +379,6 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                         "/login?next=" + encodeURIComponent(router.asPath)
                     );
                 }
-                console.log("Disconnected");
             });
             socket.on("connect_error", data => {
                 console.error("connect_error", data);

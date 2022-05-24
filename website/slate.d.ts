@@ -5,7 +5,7 @@ import { MentionTypes } from "./types/mentions";
 import { EmojiData } from "emoji-mart";
 
 export type BlockQuoteElement = {
-    type: "block-quote";
+    type: "blockquote";
     align?: string;
     children: Descendant[];
 };

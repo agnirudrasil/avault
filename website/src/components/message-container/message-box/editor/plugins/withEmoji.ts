@@ -1,5 +1,6 @@
 import { Editor, Transforms } from "slate";
-import { syntaxTree } from "../../../../markdown/parsers/parseMessageContent";
+import { deserializeSyntaxTree } from "../../../../markdown/parsers/parseMessageContent";
+import { deserialize } from "../deserialize";
 
 export const withEmoji =
     (onImageUpload: (file: File) => any) => (editor: Editor) => {
@@ -20,22 +21,10 @@ export const withEmoji =
                 }
             } else {
                 if (text) {
-                    const tree = syntaxTree(text);
-                    for (const item of tree) {
-                        if (item.type === "emoji") {
-                            Transforms.insertFragment(editor, [
-                                {
-                                    type: "emoji",
-                                    emoji: item.emoji,
-                                    src: item.src,
-                                    children: [{ text: " " }],
-                                },
-                                { text: " " },
-                            ] as any);
-                            Transforms.move(editor);
-                            return;
-                        }
-                    }
+                    const tree = deserialize(deserializeSyntaxTree(text));
+                    Transforms.insertFragment(editor, tree);
+                    Transforms.move(editor);
+                    return;
                 } else {
                     insertData(data);
                 }

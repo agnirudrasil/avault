@@ -9,6 +9,7 @@ from api.api import deps
 from api.api.v1.endpoints import auth, channels, gifs, users, guilds, invites, oauth2, webhooks, applications
 from api.core import emitter
 from api.core.events import Events, websocket_emitter
+from api.models import ChannelMembers
 from api.models.guilds import Guild, GuildMembers, GuildBans
 from api.models.invites import Invite
 from api.models.user import User
@@ -22,7 +23,7 @@ async def proxy(path: str, response: Response):
     return StreamingResponse(io.BytesIO(content.content), media_type=content.headers["content-type"])
 
 
-@api_router.post('/join/{code}')
+@api_router.post('/invites/{code}')
 async def join_guild(code: str,
                      response: Response,
                      current_user: User = Depends(deps.get_current_user),
@@ -31,6 +32,19 @@ async def join_guild(code: str,
         raise HTTPException(status_code=403, detail="Bots cannot join invites")
     invite: Invite = db.query(Invite).filter_by(id=code).first()
     if invite:
+        if not invite.guild_id:
+            if len(invite.channel.members) < 10:
+                channel_member = ChannelMembers(closed=False)
+                channel_member.user = current_user
+                invite.channel.members.append(channel_member)
+                db.commit()
+                await websocket_emitter(channel_id=invite.channel_id, guild_id=None, event=Events.CHANNEL_CREATE,
+                                        args=invite.channel.serialize(current_user.id), user_id=current_user.id, db=db)
+                for cm in invite.channel.members:
+                    await websocket_emitter(channel_id=invite.channel_id, guild_id=None, event=Events.CHANNEL_UPDATE,
+                                            args=invite.channel.serialize(cm.user_id), user_id=cm.user_id, db=db)
+                return {'success': True}
+            raise HTTPException(status_code=404, detail="Invite not found")
         guild_id = invite.channel.guild_id
         if invite.max_uses != 0 and invite.max_uses == invite.count:
             db.delete(invite)
@@ -60,12 +74,12 @@ async def join_guild(code: str,
             db.commit()
             response.status_code = 200
             await emitter.in_room(str(current_user.id)).sockets_join(str(guild_id))
-            await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_CREATE,
-                                    {"guild": guild.serialize(
+            await websocket_emitter(channel_id=None, guild_id=invite.channel.guild_id, event=Events.GUILD_CREATE,
+                                    args={"guild": guild.serialize(
                                     ), "member": guild_member.serialize()},
-                                    current_user.id)
-            await websocket_emitter(None, invite.channel.guild_id, Events.GUILD_MEMBER_ADD,
-                                    guild_member.serialize())
+                                    user_id=current_user.id, db=db)
+            await websocket_emitter(channel_id=None, guild_id=invite.channel.guild_id, event=Events.GUILD_MEMBER_ADD,
+                                    args=guild_member.serialize(), db=db)
             return guild.serialize()
         return "Success"
     response.status_code = 404

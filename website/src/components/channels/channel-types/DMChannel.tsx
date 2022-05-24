@@ -137,7 +137,7 @@ export const DMChannel: React.FC<{ channel: Channel }> = ({ channel }) => {
     ];
 
     return (
-        <Link href={`/channels/@me/${channel.id}`}>
+        <Link passHref href={`/channels/@me/${channel.id}`}>
             <MuiLink sx={{ color: "white" }} underline="none">
                 <ListItemButton
                     onContextMenu={handleContextMenu}

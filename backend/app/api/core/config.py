@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     TENOR_BASE_URL: str = "https://g.tenor.com/v1"
     FERNET_KEY: str = os.getenv("FERNET_KEY", "")
     CDN_URL: str = os.getenv("CDN_URL", "https://cdn.avault.agnirudra.me")
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:

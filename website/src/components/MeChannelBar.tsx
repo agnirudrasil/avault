@@ -1,6 +1,7 @@
 import { ListItem } from "@mantine/core";
-import { AccessibilityNew } from "@mui/icons-material";
+import { AccessibilityNew, Add } from "@mui/icons-material";
 import {
+    IconButton,
     List,
     ListItemButton,
     ListItemIcon,
@@ -18,6 +19,7 @@ import { DMChannel } from "./channels/channel-types/DMChannel";
 import { CreateDMPicker } from "./CreateDmPicker";
 import { ChannelTypes } from "../../types/channels";
 import { GroupDMChannel } from "./channels/channel-types/GroupDMChannel";
+import { LightTooltip } from "./LightTooltip";
 
 export const MeChannelBar = () => {
     const router = useRouter();
@@ -71,7 +73,28 @@ export const MeChannelBar = () => {
                             alignItems: "center",
                         }}
                     >
-                        DIRECT MESSAGES <CreateDMPicker />
+                        DIRECT MESSAGES{" "}
+                        <CreateDMPicker
+                            anchorOrigin={{
+                                vertical: "bottom",
+                                horizontal: "center",
+                            }}
+                            transformOrigin={{
+                                vertical: "top",
+                                horizontal: "left",
+                            }}
+                        >
+                            {handleOpen => (
+                                <LightTooltip title="Create DM" placement="top">
+                                    <IconButton
+                                        onClick={handleOpen}
+                                        size="small"
+                                    >
+                                        <Add />
+                                    </IconButton>
+                                </LightTooltip>
+                            )}
+                        </CreateDMPicker>
                     </ListSubheader>
                 }
                 dense

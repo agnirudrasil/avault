@@ -87,8 +87,9 @@ async def create_guild(
     db.add(role)
     db.commit()
     await emitter.in_room(str(current_user.id)).sockets_join(str(guild.id))
-    await (websocket_emitter(None, None, Events.GUILD_CREATE,
-                             {"guild": guild.serialize(), "member": guild_member.serialize()}, current_user.id))
+    await websocket_emitter(channel_id=None, guild_id=None, event=Events.GUILD_CREATE,
+                            args={"guild": guild.serialize(), "member": guild_member.serialize()},
+                            user_id=current_user.id, db=db)
     return guild.preview()
 
 
@@ -126,7 +127,8 @@ async def edit_guild(body: GuildEdit,
             icon_hash = await validate_avatar(guild.id, body.icon, "icons")
         guild.icon = icon_hash
     db.commit()
-    await (websocket_emitter(None, guild.id, Events.GUILD_UPDATE, guild.serialize()))
+    await websocket_emitter(channel_id=None, guild_id=guild.id, event=Events.GUILD_UPDATE, args=guild.serialize(),
+                            db=db)
     return guild.serialize()
 
 
@@ -137,7 +139,8 @@ async def delete_guild(guild_id: int,
                        user: User = Depends(deps.get_current_user)):
     guild: Guild = db.query(Guild).filter_by(id=guild_id).first()
     if guild and guild.is_owner(user.id):
-        await (websocket_emitter(None, guild_id, Events.GUILD_DELETE, guild.serialize()))
+        await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_DELETE, args=guild.serialize(),
+                                db=db)
         db.delete(guild)
         db.commit()
         return
@@ -161,8 +164,8 @@ async def add_user_role(guild_id: int,
             guild_member.roles.append(role)
             db.commit()
 
-            await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE,
-                                     guild_member.serialize()))
+            await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_MEMBER_UPDATE,
+                                    args=guild_member.serialize(), db=db)
             return ''
         return Response(status_code=403)
     return Response(status_code=404)
@@ -185,8 +188,8 @@ async def delete_user_role(guild_id: int,
             if member.is_owner or (member.roles and role.position < member.roles[0].position):
                 guild_member.roles.remove(role)
                 db.commit()
-                await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE,
-                                         guild_member.serialize()))
+                await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_MEMBER_UPDATE,
+                                        args=guild_member.serialize(), db=db)
         except ValueError:
             pass
         return ''
@@ -250,11 +253,11 @@ async def create_role(guild_id: int,
         guild_id=guild_id).filter(Role.position >= position + 1).all()
     db.add(role)
     db.commit()
-    await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_CREATE,
-                             {'role': role.serialize(), 'guild_id': str(guild_id)}))
+    await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_ROLE_CREATE,
+                            args={'role': role.serialize(), 'guild_id': str(guild_id)}, db=db)
     for role in updated_roles:
-        await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_UPDATE,
-                                 {'role': role.serialize(), 'guild_id': str(guild_id)}))
+        await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_ROLE_UPDATE,
+                                args={'role': role.serialize(), 'guild_id': str(guild_id)}, db=db)
     return role.serialize()
 
 
@@ -297,8 +300,8 @@ async def update_role_positions(guild_id: int,
                 Role).filter_by(guild_id=guild_id).filter(Role.position >= data.position,
                                                           Role.position <= original_position).all()
             for role in update_roles:
-                await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_UPDATE,
-                                         {'role': role.serialize(), 'guild_id': str(guild_id)}))
+                await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_ROLE_UPDATE,
+                                        args={'role': role.serialize(), 'guild_id': str(guild_id)}, db=db)
             return
         return {'success': False, 'error': 'Role not found'}, 404
     return {'success': False, 'error': 'No position provided'}, 404
@@ -329,8 +332,8 @@ async def update_role(guild_id: int, role_id: int,
     if data.mentionable:
         role.mentionable = data.mentionable
     db.commit()
-    await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_UPDATE,
-                             {'role': role.serialize(), 'guild_id': str(guild_id)}))
+    await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_ROLE_UPDATE,
+                            args={'role': role.serialize(), 'guild_id': str(guild_id)}, db=db)
     return role.serialize()
 
 
@@ -348,13 +351,13 @@ async def delete_role(guild_id: int, role_id: int,
         db.delete(role)
         db.query(Role).filter_by(guild_id=guild_id).filter(Role.position > position).update(
             {Role.position: Role.position - 1})
-        await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_DELETE,
-                                 {'role': role.serialize(), 'guild_id': str(guild_id)}))
+        await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_ROLE_DELETE,
+                                args={'role': role.serialize(), 'guild_id': str(guild_id)}, db=db)
         update_roles = db.query(Role).filter_by(
             guild_id=guild_id).filter(Role.position >= position).all()
         for role in update_roles:
-            await (websocket_emitter(None, guild_id, Events.GUILD_ROLE_UPDATE,
-                                     {'role': role.serialize(), 'guild_id': str(guild_id)}))
+            await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_ROLE_UPDATE,
+                                    args={'role': role.serialize(), 'guild_id': str(guild_id)}, db=db)
         db.commit()
         return ''
     return Response(status_code=404)
@@ -385,7 +388,8 @@ async def create_channel(guild_id: int,
         channel.overwrites.append(overwrite)
     db.add(channel)
     db.commit()
-    await (websocket_emitter(channel.id, guild_id, Events.CHANNEL_CREATE, channel.serialize()))
+    await websocket_emitter(channel_id=channel.id, guild_id=guild_id, event=Events.CHANNEL_CREATE,
+                            args=channel.serialize(), db=db)
     return channel.serialize()
 
 
@@ -462,11 +466,12 @@ async def add_guild_member(guild_id: int, user_id: int,
         db.add(member)
         db.commit()
         await emitter.in_room(str(current_user.id)).sockets_join(str(guild_id))
-        await websocket_emitter(None, guild_id, Events.GUILD_CREATE,
-                                {"guild": guild.serialize(
+        await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_CREATE,
+                                args={"guild": guild.serialize(
                                 ), "member": member.serialize()},
-                                current_user.id)
-        await (websocket_emitter(member.id, guild_id, Events.GUILD_MEMBER_ADD, member.serialize()))
+                                user_id=current_user.id, db=db)
+        await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_MEMBER_ADD,
+                                args=member.serialize(), db=db)
         return member.serialize()
 
 
@@ -482,7 +487,8 @@ async def update_guild_member_me(guild_id: int, data: GuildMemberUpdate,
         member.nickname = data.nick
         db.add(member)
         db.commit()
-        await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE, member.serialize()))
+        await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_MEMBER_UPDATE,
+                                args=member.serialize(), db=db)
         return member.serialize()
     return Response(status_code=404)
 
@@ -501,7 +507,8 @@ async def update_guild_member(guild_id: int, user_id: int, data: GuildMemberUpda
                     my_member.is_owner or my_member.roles[0].position >= member.roles[0].position)):
                 member.nickname = data.nick
                 db.commit()
-                await (websocket_emitter(None, guild_id, Events.GUILD_MEMBER_UPDATE, member.serialize()))
+                await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_MEMBER_UPDATE,
+                                        args=member.serialize(), db=db)
                 return member.serialize()
             return Response(status_code=403)
     return Response(status_code=404)
@@ -523,12 +530,14 @@ async def delete_guild_member(guild_id: int, user_id: int,
             if member.member.bot:
                 await member.member.application.remove_bot_from_guild(db, member.guild)
             else:
-                await websocket_emitter(None, guild_id, Events.GUILD_MEMBER_REMOVE, member.serialize())
+                await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_MEMBER_REMOVE,
+                                        args=member.serialize(), db=db)
                 db.delete(member)
                 db.commit()
                 await emitter.in_room(str(user_id)).sockets_leave(str(guild_id))
-                await websocket_emitter(None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
-                                        user_id)
+                await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_DELETE,
+                                        args={'id': str(guild_id)},
+                                        user_id=user_id, db=db)
             return ''
         return Response(status_code=403)
     return Response(status_code=404)
@@ -571,11 +580,12 @@ async def add_guild_ban(guild_id: int, user_id: int, body: CreateGuildBan,
                     await member.member.application.remove_bot_from_guild(db, member.guild)
                 else:
                     await emitter.in_room(str(member.user_id)).sockets_leave(str(guild_id))
-                    await websocket_emitter(None, guild_id, Events.GUILD_MEMBER_REMOVE,
-                                            member.serialize())
+                    await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_MEMBER_REMOVE,
+                                            args=member.serialize(), db=db)
                     db.delete(member)
-                    await websocket_emitter(None, guild_id, Events.GUILD_DELETE, {'id': str(guild_id)},
-                                            user_id)
+                    await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_DELETE,
+                                            args={'id': str(guild_id)},
+                                            user_id=user_id, db=db)
             else:
                 return Response(status_code=403)
         else:
@@ -584,7 +594,8 @@ async def add_guild_ban(guild_id: int, user_id: int, body: CreateGuildBan,
 
         db.add(ban)
         db.commit()
-        await websocket_emitter(None, guild_id, Events.GUILD_BAN_ADD, ban.serialize())
+        await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_BAN_ADD, args=ban.serialize(),
+                                db=db)
         return ban.serialize()
 
     except IntegrityError:
@@ -597,7 +608,8 @@ async def delete_guild_ban(guild_id: int, user_id: int,
     guild_ban = db.query(GuildBans).filter_by(
         guild_id=guild_id).filter_by(user_id=user_id).first()
     if guild_ban:
-        await websocket_emitter(None, guild_id, Events.GUILD_BAN_REMOVE, guild_ban.serialize())
+        await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_BAN_REMOVE,
+                                args=guild_ban.serialize(), db=db)
         db.delete(guild_ban)
         db.commit()
         return Response(status_code=204)
@@ -658,13 +670,13 @@ async def create_guild_emoji(guild_id: int,
     animated = await validate_emoji(emoji.id, body.image)
     emoji.animated = animated
     db.add(emoji)
-    
+
     db.commit()
 
     emojis = db.query(Emoji).filter_by(guild_id=guild_id).all()
 
-    await websocket_emitter(None, guild_id, Events.GUILD_EMOJIS_UPDATE,
-                            {"emojis": [emoji.serialize() for emoji in emojis], "guild_id": str(guild_id)}, None)
+    await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_EMOJIS_UPDATE,
+                            args={"emojis": [emoji.serialize() for emoji in emojis], "guild_id": str(guild_id)}, db=db)
 
     return emoji.serialize()
 
@@ -692,8 +704,8 @@ async def update_guild_emoji(guild_id: int,
 
     emojis = db.query(Emoji).filter_by(guild_id=guild_id).all()
 
-    await websocket_emitter(None, guild_id, Events.GUILD_EMOJIS_UPDATE,
-                            {"emojis": [emoji.serialize() for emoji in emojis], "guild_id": str(guild_id)}, None)
+    await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_EMOJIS_UPDATE,
+                            args={"emojis": [emoji.serialize() for emoji in emojis], "guild_id": str(guild_id)}, db=db)
 
     return emoji.serialize()
 
@@ -714,7 +726,7 @@ async def delete_guild_emoji(guild_id: int,
 
     emojis = db.query(Emoji).filter_by(guild_id=guild_id).all()
 
-    await websocket_emitter(None, guild_id, Events.GUILD_EMOJIS_UPDATE,
-                            {"emojis": [emoji.serialize() for emoji in emojis], "guild_id": str(guild_id)}, None)
+    await websocket_emitter(channel_id=None, guild_id=guild_id, event=Events.GUILD_EMOJIS_UPDATE,
+                            args={"emojis": [emoji.serialize() for emoji in emojis], "guild_id": str(guild_id)}, db=db)
 
     return Response(status_code=204)

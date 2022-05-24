@@ -24,7 +24,9 @@ export const RemoveFriendConfirmation: React.FC<{ friend: Friend }> = ({
                 <Clear color="error" />
             </IconButton>
             <Dialog maxWidth="xs" open={open} onClose={() => setOpen(false)}>
-                <DialogTitle>Remove '{friend.user.username}'</DialogTitle>
+                <DialogTitle>
+                    Remove &apos;{friend.user.username}&apos;
+                </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         Are you sure you want to permanantly remove{" "}

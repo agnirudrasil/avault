@@ -1,12 +1,16 @@
-import {useMutation} from "react-query";
-import {request} from "../../src/request";
+import { useMutation } from "react-query";
+import { request } from "../../src/request";
+import { Invite } from "./useGetInvite";
 
 type PostData = {
     max_uses: number;
     max_age: number;
 };
 
-export const createInvite = async ({body, channelId}: {
+export const createInvite = async ({
+    body,
+    channelId,
+}: {
     channelId: string;
     body: PostData;
 }) => {
@@ -18,7 +22,16 @@ export const createInvite = async ({body, channelId}: {
             body: JSON.stringify(body),
         }
     );
-    return data.json();
+    if (!data.ok) {
+        throw new Error(data.statusText);
+    }
+    return data.json() as Promise<Invite>;
 };
 
-export const useCreateInvite = () => useMutation(createInvite as any);
+export const useCreateInvite = () =>
+    useMutation<
+        Invite,
+        unknown,
+        { channelId: string; body: PostData },
+        unknown
+    >(createInvite as any);

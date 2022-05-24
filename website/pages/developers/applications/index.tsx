@@ -198,6 +198,7 @@ export const ApplicationsIndexPage: React.FC = () => {
                     <Stack direction="row" spacing={2}>
                         {applications?.map(app => (
                             <Link
+                                key={app.id}
                                 href={`/developers/applications/${app.id}/`}
                                 passHref
                             >

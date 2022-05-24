@@ -27,6 +27,8 @@ import MessageBox from "./message-box";
 import { getGroupDMName } from "../../getGroupDmName";
 import { Form, Formik } from "formik";
 import { useChannelUpdate } from "../../../hooks/requests/useUpdateChannel";
+import { CreateDMPicker } from "../CreateDmPicker";
+import { LightTooltip } from "../LightTooltip";
 
 export const MessageContainer: React.FC = () => {
     const router = useRouter();
@@ -171,9 +173,26 @@ export const MessageContainer: React.FC = () => {
                                 </>
                             )}
                             {channel.type === "GROUP_DM" && (
-                                <IconButton>
-                                    <PersonAddAlt1 />
-                                </IconButton>
+                                <CreateDMPicker
+                                    anchorOrigin={{
+                                        vertical: "bottom",
+                                        horizontal: "center",
+                                    }}
+                                    transformOrigin={{
+                                        vertical: "top",
+                                        horizontal: "right",
+                                    }}
+                                    filter={channel.recipients.map(r => r.id)}
+                                    context="add"
+                                >
+                                    {handleOpen => (
+                                        <LightTooltip title="Add Friends to DM">
+                                            <IconButton onClick={handleOpen}>
+                                                <PersonAddAlt1 />
+                                            </IconButton>
+                                        </LightTooltip>
+                                    )}
+                                </CreateDMPicker>
                             )}
                             <IconButton>
                                 <PushPin />

@@ -7,7 +7,7 @@ export const addMessage = (queryClient: QueryClient, message: Messages) => {
     queryClient.setQueryData<InfiniteData<Messages[]>>(
         ["messages", message.channel_id],
         data => {
-            if (!data) return { pages: [[message]], pageParams: 1 } as any;
+            if (!data) return { pages: [[message]], pageParams: [message.id] };
             return produce(data, draft => {
                 const messages = draft.pages.flat();
                 draft.pages = chunk(

@@ -43,7 +43,7 @@ async def authorize(
             location = f"{redirect_uri}/?error=access_denied&error_description=The+resource+owner+or+authorization" \
                        f"+server+denied+the+request "
         else:
-            location = f"{redirect_uri or 'http://localhost:3000/oauth2/error/'}?error=access_denied",
+            location = f"{redirect_uri or settings.FRONTEND_URL + '/oauth2/error/'}?error=access_denied",
     elif require_code:
         if not redirect_uri:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OAuth2 redirect_uri")
@@ -66,9 +66,9 @@ async def authorize(
                  guild_member.permissions &
                  permissions.Permissions.MANAGE_GUILD == permissions.Permissions.MANAGE_GUILD):
             await application.add_bot_to_guild(db, guild_member.guild, body.permissions)
-            location = f"{redirect_uri or 'http://localhost:3000/oauth2/authorized'}",
+            location = f"{redirect_uri or settings.FRONTEND_URL + '/oauth2/authorized'}",
         else:
-            location = f"{redirect_uri or 'http://localhost:3000/oauth2/error/'}?error=access_denied"
+            location = f"{redirect_uri or settings.FRONTEND_URL + '/oauth2/error/'}?error=access_denied"
 
     return {"location": location}
 
@@ -214,4 +214,4 @@ async def create_token(body: OAuth2TokenBody = Depends(), db: Session = Depends(
 
 @router.post("/token/revoke")
 async def revoke(client_id: int, scopes: str, redirect_uri: Optional[str], body: AuthorizeBody):
-    pass
+    raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented")

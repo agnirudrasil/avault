@@ -31,7 +31,7 @@ async def handle_message(message):
             if user.mfa_enabled != data.mfa:
                 await emitter.to(msgobj["id"]).disconnect_sockets(True)
                 return
-            if user.last_login >= datetime.fromtimestamp(data.iat):
+            if user.last_login.replace(microsecond=0) > datetime.utcfromtimestamp(data.iat):
                 await emitter.to(msgobj["id"]).disconnect_sockets(True)
                 return
             if user:

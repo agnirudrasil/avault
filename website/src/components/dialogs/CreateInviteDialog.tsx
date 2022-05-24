@@ -94,7 +94,7 @@ export const CreateInviteDialog: React.FC<CreateInviteDialogProps> = ({
                     disabled={!data}
                     value={
                         data
-                            ? `${window.location.host}/invite/${
+                            ? `${window.location.origin}/invite/${
                                   (data as any)?.id
                               }`
                             : ""
@@ -104,7 +104,7 @@ export const CreateInviteDialog: React.FC<CreateInviteDialogProps> = ({
                             <InputAdornment position="end">
                                 <CopyButton
                                     disabled={!data}
-                                    text={`${window.location.host}/invite/${
+                                    text={`${window.location.origin}/invite/${
                                         (data as any)?.id
                                     }`}
                                 />

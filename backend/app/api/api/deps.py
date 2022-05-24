@@ -4,7 +4,7 @@ import json
 import operator
 from datetime import datetime
 from json import JSONDecodeError
-from typing import Generator, List, Union, TypeVar, Type
+from typing import List, Union, TypeVar, Type, Generator
 
 from fastapi import Depends, HTTPException, status, Request, Header, UploadFile, Path
 from fastapi.exceptions import RequestValidationError
@@ -23,7 +23,7 @@ from api.schemas.oauth2 import OAUTH2_SCOPES
 from api.utils.attachment import file_to_attachment
 
 reusable_oauth2 = OAuth2AuthorizationCodeBearer(
-    tokenUrl=f"{settings.API_V1_STR}/oauth2/token",
+    tokenUrl=f"{settings.FRONTEND_URL}/oauth2/token",
     authorizationUrl=f"{settings.API_V1_STR}/oauth2/authorize",
     refreshUrl=f"{settings.API_V1_STR}/oauth2/token",
     scopes=OAUTH2_SCOPES,
@@ -38,9 +38,8 @@ def ensure_header(content_type: str = Header(...)):
 
 
 def get_db() -> Generator[Session, None, None]:
-    db = None
+    db = SessionLocal()
     try:
-        db = SessionLocal()
         yield db
     finally:
         db.close()
@@ -96,19 +95,16 @@ def get_current_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Token has expired",
         )
-
     if user.mfa_enabled != token_data.mfa:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Token has expired",
         )
-
-    if user.last_login >= datetime.fromtimestamp(token_data.iat):
+    if user.last_login.replace(microsecond=0) > datetime.fromtimestamp(token_data.iat):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Token has expired",
         )
-
     if not user:
         raise HTTPException(
             status_code=403, detail="Could not validate credentials")
@@ -272,6 +268,7 @@ class ExtractBody:
                 raise RequestValidationError(errors=e.raw_errors)
 
         else:
-            raise HTTPException(detail="Invalid content type", status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+            raise HTTPException(detail="Invalid content type",
+                                status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
         return body, attachments

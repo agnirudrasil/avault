@@ -32,7 +32,7 @@ export const UserSettingsAuthorizedApps = () => {
                     </div>
                 )}
                 {data?.map(app => (
-                    <Card variant="outlined">
+                    <Card key={app.application.id} variant="outlined">
                         <CardHeader
                             avatar={
                                 <Avatar
@@ -76,7 +76,10 @@ export const UserSettingsAuthorizedApps = () => {
                                 </Typography>
                                 <List dense disablePadding>
                                     {app.scopes.map(permission => (
-                                        <ListItem disableGutters>
+                                        <ListItem
+                                            key={permission}
+                                            disableGutters
+                                        >
                                             <ListItemIcon
                                                 sx={{ minWidth: 0, mr: 1 }}
                                             >

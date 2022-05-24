@@ -10,6 +10,7 @@ export const useContextMenu = () => {
 
     const handleContextMenu = (event: React.MouseEvent) => {
         event.preventDefault();
+        event.stopPropagation();
         setContextMenu(
             contextMenu === null
                 ? {

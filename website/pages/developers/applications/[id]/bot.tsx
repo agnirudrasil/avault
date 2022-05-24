@@ -41,7 +41,8 @@ export const ApplicationBotPage: NextPage<{ id: string }> = ({ id }) => {
             <Typography variant="h5">Bot</Typography>
             <Typography sx={{ mb: 6 }} color="GrayText" variant="subtitle1">
                 Bring your app to life on AVAULT with a bot user. Be a part of
-                chat in your users' servers and interact with them directly.
+                chat in your users&apos; servers and interact with them
+                directly.
             </Typography>
             <Typography sx={{ mb: 4 }} variant="h5">
                 Build-A-Bot

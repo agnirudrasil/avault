@@ -25,7 +25,7 @@ class Invite(Base):
     channel: Channel = relationship('Channel')
     inviter = relationship('User')
 
-    def serialize(self):
+    def serialize(self, user_id: int):
         my_invite = {
             'id': str(self.id),
             'inviter': self.inviter.serialize(),
@@ -35,8 +35,7 @@ class Invite(Base):
         }
         if self.channel.guild_id:
             my_invite['guild'] = self.channel.guild.preview()
-        elif self.channel.guild_id:
-            my_invite['channel'] = self.channel.serialize()
+        my_invite['channel'] = self.channel.serialize(user_id)
         return my_invite
 
     def gen_id(self, db):

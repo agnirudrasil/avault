@@ -46,7 +46,6 @@ export const emoji: MarkdownRule = {
         };
     },
     react: (node, _, state) => {
-        console.log(node);
         return (
             <Emoji
                 key={state.key}

@@ -2,6 +2,7 @@ import enum
 from typing import Optional, Union
 
 from sqlalchemy import func, or_, and_
+from sqlalchemy.orm import Session
 
 from api import models
 from api.core import emitter
@@ -66,11 +67,8 @@ SPECIAL_EVENTS = {
 }
 
 
-def get_recipients(event: Events, guild_id: Optional[int] = None, channel_id: Optional[int] = None,
-                   user_id: Optional[int] = None, db=None) -> list[str]:
-    if db is None:
-        from api.api.deps import get_db
-        db = next(get_db())
+def get_recipients(event: Events, db: Session, guild_id: Optional[int] = None, channel_id: Optional[int] = None,
+                   user_id: Optional[int] = None) -> list[str]:
     if event in {Events.RELATIONSHIP_ADD, Events.RELATIONSHIP_REMOVE, Events.RELATIONSHIP_UPDATE}:
         return [str(user_id)]
     if event == Events.MESSAGE_ACK:
@@ -101,6 +99,7 @@ def get_recipients(event: Events, guild_id: Optional[int] = None, channel_id: Op
 
 
 async def websocket_emitter(channel_id: Optional[int], guild_id: Optional[Union[int, str]], event: Events, args,
+                            db: Session,
                             user_id: int = None):
-    my_recipients = get_recipients(event=event, guild_id=guild_id, channel_id=channel_id, user_id=user_id)
+    my_recipients = get_recipients(event=event, guild_id=guild_id, channel_id=channel_id, user_id=user_id, db=db)
     await emitter.to(my_recipients).emit(event, args)

@@ -81,7 +81,7 @@ export const GuildSettingsEmoji = () => {
                 </Alert>
             )}
             {Object.entries(groupBy(guild.emojis, "animated")).map(group => (
-                <List dense>
+                <List key={group[0]} dense>
                     <ListSubheader>
                         {group[0] === "true" ? "ANIMATED " : ""}EMOJI -{" "}
                         {50 - group[1].length} SLOTS AVAILABLE

@@ -1,7 +1,9 @@
 import {
     AccessibilityNew,
+    Api,
     Check,
     Clear,
+    GitHub,
     Message,
     PersonRemove,
 } from "@mui/icons-material";
@@ -160,8 +162,6 @@ const FriendsView = () => {
               )
             : Object.keys(friends).filter(k => friends[k].type === 2);
 
-    console.log(friends);
-
     return (
         <Stack sx={{ width: "100%" }}>
             <AppBar
@@ -230,6 +230,26 @@ const FriendsView = () => {
                             Add Friend
                         </ToggleButton>
                     </StyledToggleButtonGroup>
+                    <Divider
+                        orientation="vertical"
+                        sx={{ m: 2, ml: "auto", height: "70%" }}
+                    />
+                    <LightTooltip title="Source Code">
+                        <IconButton
+                            href="https://github.com/agnirudrasil/avault"
+                            target="_blank"
+                        >
+                            <GitHub />
+                        </IconButton>
+                    </LightTooltip>
+                    <LightTooltip title="Developer Portal">
+                        <IconButton
+                            href="/developers/applications"
+                            target="_blank"
+                        >
+                            <Api />
+                        </IconButton>
+                    </LightTooltip>
                 </Toolbar>
             </AppBar>
             {selected === 3 ? (

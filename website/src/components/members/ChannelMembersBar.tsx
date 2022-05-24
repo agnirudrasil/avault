@@ -1,7 +1,9 @@
-import { List } from "@mui/material";
+import { GitHub, Api } from "@mui/icons-material";
+import { IconButton, List, ListSubheader } from "@mui/material";
 import { useRouter } from "next/router";
 import { useChannelsStore } from "../../../stores/useChannelsStore";
 import { useUserStore } from "../../../stores/useUserStore";
+import { LightTooltip } from "../LightTooltip";
 import { ChannelMember } from "./ChannelMember";
 
 export const ChannelMembersBar = () => {
@@ -11,18 +13,48 @@ export const ChannelMembersBar = () => {
     );
     const user = useUserStore(state => state.user);
     return (
-        <List dense sx={{ minWidth: "240px", bgcolor: "grey.900", p: 1 }}>
+        <List
+            subheader={
+                <ListSubheader
+                    sx={{ m: -1, mb: 2, p: 1, pl: "auto", bgcolor: "grey.800" }}
+                >
+                    <LightTooltip title="Source Code">
+                        <IconButton
+                            sx={{ ml: "63%" }}
+                            href="https://github.com/agnirudrasil/avault"
+                            target="_blank"
+                        >
+                            <GitHub />
+                        </IconButton>
+                    </LightTooltip>
+                    <LightTooltip title="Developer Portal">
+                        <IconButton
+                            href="/developers/applications"
+                            target="_blank"
+                        >
+                            <Api />
+                        </IconButton>
+                    </LightTooltip>
+                </ListSubheader>
+            }
+            dense
+            sx={{ minWidth: "240px", bgcolor: "grey.900", p: 1 }}
+        >
             {members?.recipients.map(u => (
                 <ChannelMember
-                    owner={u.id === members.owner_id}
+                    ownerId={members?.owner_id! ?? ""}
+                    owner={u.id === (members?.owner_id ?? "")}
                     key={u.id}
                     member={u}
+                    channelId={members?.id ?? ""}
                 />
             ))}
 
             <ChannelMember
-                owner={user.id === members?.owner_id}
+                ownerId={members.owner_id!}
+                owner={user.id === (members?.owner_id ?? "")}
                 member={user}
+                channelId={members?.id ?? ""}
             />
         </List>
     );

@@ -22,7 +22,7 @@ export const EmojiPicker: React.FC<PickerProps> = props => {
 
     const icons = {
         categories: {
-            custom: () => <img src="/logo-black.png" />,
+            custom: () => <img alt="logo" src="/logo-black.png" />,
         },
     };
 

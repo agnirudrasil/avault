@@ -1,3 +1,4 @@
+import { GitHub, Api } from "@mui/icons-material";
 import {
     List,
     Stack,
@@ -6,6 +7,7 @@ import {
     ListItemButton,
     ListItemText,
     Divider,
+    IconButton,
 } from "@mui/material";
 import shallow from "zustand/shallow";
 import { useRoutesStore } from "../../../../stores/useRoutesStore";
@@ -65,6 +67,24 @@ export const UserSettings: React.FC = ({ children }) => {
                     </ListItemButton>
                     <Divider flexItem />
                     <ConfirmLogout />
+                    <Divider flexItem />
+                    <Stack direction="row">
+                        <IconButton
+                            size="small"
+                            sx={{ ml: "63%" }}
+                            href="https://github.com/agnirudrasil/avault"
+                            target="_blank"
+                        >
+                            <GitHub fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                            size="small"
+                            href="/developers/applications"
+                            target="_blank"
+                        >
+                            <Api fontSize="small" />
+                        </IconButton>
+                    </Stack>
                 </List>
             }
         >

@@ -1,12 +1,7 @@
 import asyncio
-import time
 
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from limits import parse
-from limits.aio import storage
-from limits.aio import strategies
-from starlette import status
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.cors import CORSMiddleware
 
@@ -16,6 +11,9 @@ from api.core import redis
 from api.core.config import settings
 from api.core.emitter import Emitter
 from api.core.rabbitmq import consume
+
+# logging.basicConfig()
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 app = FastAPI(
     title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json",
@@ -49,41 +47,14 @@ def handle(_, exc):
 app.include_router(api_router, prefix=settings.API_V1_STR)
 emitter = Emitter(redis)
 
-memory_storage = storage.RedisStorage(f"redis://{settings.REDIS_HOST}:6379/")
 
-fixed_window = strategies.FixedWindowRateLimiter(memory_storage)
-
-
-class RateLimit:
-    def __init__(self, limit_str: str, global_limit: bool = False):
-        self.item = parse(limit_str)
-        self.global_limit = global_limit
-
-    async def __call__(self, response: Response):
-        _, remaining = fixed_window.get_window_stats(self.item, "test")
-
-        reset_time = max(memory_storage.storage.pttl(self.item.key_for("test")), 0)
-
-        headers = {
-            "X-RateLimit-Limit": str(self.item.amount),
-            "X-RateLimit-Remaining": str(remaining),
-            "X-RateLimit-Reset": str(reset_time / 1000),
-            "X-RateLimit-Reset-After": str((reset_time + int(time.time() * 1000))),
-            "X-RateLimit-Scope": "global" if self.global_limit else "user"
-        }
-
-        response.headers.update(headers)
-
-        if not fixed_window.hit(self.item, "test"):
-            raise HTTPException(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                headers=headers,
-                detail={"message": "You are being rate limited",
-                        "retry_after": reset_time / 1000,
-                        "global": self.global_limit}
-            )
-
-        return
+@app.middleware("http")
+async def db_session_middleware(request: Request, call_next):
+    print(request.scope["method"])
+    response = await call_next(request)
+    if response.status_code != 429 and hasattr(request.state, "rate_limit"):
+        response.headers.update(request.state.rate_limit)
+    return response
 
 
 @app.on_event('startup')

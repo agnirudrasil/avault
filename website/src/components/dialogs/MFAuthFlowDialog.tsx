@@ -205,7 +205,8 @@ export const MFAAuthFlowDialog: React.FC<{ user: User }> = ({ user }) => {
                                                                 app and scan the
                                                                 image to the
                                                                 left using your
-                                                                phone's camera
+                                                                phone&apos;s
+                                                                camera
                                                             </Typography>
                                                         </Stack>
                                                     }

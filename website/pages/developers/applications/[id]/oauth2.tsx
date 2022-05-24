@@ -144,7 +144,7 @@ export const ApplicationOAuth2Page: NextPage<{ id: string }> = ({ id }) => {
                                             <Stack spacing={1}>
                                                 {values.redirect_uris.map(
                                                     (_, index) => (
-                                                        <div>
+                                                        <div key={index}>
                                                             <TextField
                                                                 value={
                                                                     values

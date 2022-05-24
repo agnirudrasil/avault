@@ -23,12 +23,15 @@ export const ConfirmLeaveGroupDM: React.FC<{
         <>
             {children(setOpen)}
             <Dialog maxWidth="sm" open={open} onClose={() => setOpen(false)}>
-                <DialogTitle>Leave '{getGroupDMName(channel)}'</DialogTitle>
+                <DialogTitle>
+                    Leave &apos;{getGroupDMName(channel)}&apos;
+                </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         Are you sure you want to leave{" "}
-                        <strong>{getGroupDMName(channel)}</strong>? You won't be
-                        able to rejoin this group unless you are re-invited.
+                        <strong>{getGroupDMName(channel)}</strong>? You
+                        won&apos;t be able to rejoin this group unless you are
+                        re-invited.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions sx={{ bgcolor: "grey.900" }}>

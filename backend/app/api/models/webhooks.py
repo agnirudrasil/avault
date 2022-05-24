@@ -1,7 +1,8 @@
-from api.core.security import generate_token, snowflake_id
-from api.db.base_class import Base
 from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
+
+from api.core.security import generate_token, snowflake_id
+from api.db.base_class import Base
 
 
 class Webhook(Base):
@@ -16,6 +17,7 @@ class Webhook(Base):
     name = Column(String(100), nullable=False)
     avatar = Column(String(2048))
     token = Column(Text, nullable=True)
+
     channel = relationship('Channel', backref='webhooks')
     guild = relationship('Guild', backref='webhooks')
     user = relationship('User')

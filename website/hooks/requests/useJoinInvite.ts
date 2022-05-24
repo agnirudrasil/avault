@@ -9,7 +9,7 @@ export const joinInvite = async ({
     onError: () => {};
 }) => {
     const data = await request(
-        `${process.env.NEXT_PUBLIC_API_URL}/join/${code}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/invites/${code}`,
         {
             credentials: "include",
             method: "POST",

@@ -19,8 +19,8 @@ def register(
         response: Response,
         email: EmailStr = Form(...),
         username: str = Form(..., min_length=3, max_length=80),
-        password: str = Form(..., min_length=8, max_length=25,
-                             regex='^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$'),
+        password: str = Form(..., min_length=8, max_length=25),
+        # regex='^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$'),
         db: Session = Depends(deps.get_db)):
     email = email.lower().strip()
     username = username.strip()
@@ -115,7 +115,7 @@ def refresh_token(response: Response, jid: str = Cookie(None), db: Session = Dep
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Token has expired",
         )
-    if user.last_login >= datetime.fromtimestamp(token_data.iat):
+    if user.last_login.replace(microsecond=0) > datetime.utcfromtimestamp(token_data.iat):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Token has expired",

@@ -93,7 +93,7 @@ export const URLGeneratorPage: NextPage<{ id: string }> = ({ id }) => {
                     subheader={<ListSubheader>SCOPES</ListSubheader>}
                 >
                     {Object.keys(SCOPES).map(scope => (
-                        <ListItem>
+                        <ListItem key={scope}>
                             <ListItemIcon>
                                 <Checkbox
                                     checked={scopes.includes(scope)}
@@ -122,8 +122,10 @@ export const URLGeneratorPage: NextPage<{ id: string }> = ({ id }) => {
                             value={redirect}
                             onChange={e => setRedirect(e.target.value)}
                         >
-                            {data?.redirect_uris.map(uri => (
-                                <MenuItem value={uri}>{uri}</MenuItem>
+                            {data?.redirect_uris.map((uri, index) => (
+                                <MenuItem key={`${index}-${uri}`} value={uri}>
+                                    {uri}
+                                </MenuItem>
                             ))}
                         </Select>
                     </FormControl>
@@ -137,7 +139,7 @@ export const URLGeneratorPage: NextPage<{ id: string }> = ({ id }) => {
                         }
                     >
                         {Object.keys(Permissions).map(permission => (
-                            <ListItem>
+                            <ListItem key={permission}>
                                 <ListItemIcon>
                                     <Checkbox
                                         disabled={

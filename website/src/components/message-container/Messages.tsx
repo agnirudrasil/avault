@@ -20,8 +20,6 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
         useMessages(router.query.channel as string);
     const lastRead = useUserStore(state => state.unread[channel.id]?.lastRead);
 
-    console.log(data?.pages.flat());
-
     const group = useMemo(() => {
         if (data) {
             return groupBy(data.pages.flat());
