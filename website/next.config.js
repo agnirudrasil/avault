@@ -1,12 +1,9 @@
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
-    enabled: process.env.ANALYZE === "true",
-});
-
-module.exports = withBundleAnalyzer({
+module.exports = {
     reactStrictMode: true,
     env: {
         NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
         NEXT_PUBLIC_GATEWAY_URL: process.env.NEXT_PUBLIC_GATEWAY_URL,
+        NEXT_PUBLIC_CDN_URL: process.env.NEXT_PUBLIC_CDN_URL,
     },
     async redirects() {
         return [
@@ -27,4 +24,4 @@ module.exports = withBundleAnalyzer({
             },
         ];
     },
-});
+};

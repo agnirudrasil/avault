@@ -5,62 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4f9e1df1-1f63-44bb-a3b8-78bf5bbc6e5f" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/app/api/core/ratelimit.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/spam.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/clients/javascript/.gitkeep" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/avault.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/avault.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/Dockerfile.backend" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Dockerfile.backend" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/Dockerfile.celery" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Dockerfile.celery" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/alembic/env.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/alembic/env.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/api/deps.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/deps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/auth.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/guilds.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/invites.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/invites.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/oauth2.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/oauth2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/events.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/events.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/core/rabbitmq.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/applications.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/applications.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/app/api/models/invites.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/invites.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/webhooks.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/api/v1/endpoints/webhooks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/app/api/models/messages.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/messages.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/app/api/models/webhooks.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/app/api/models/webhooks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/contexts/WebsocketProvider.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useCreateInvite.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useCreateInvite.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useGetInvite.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useGetInvite.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/requests/useJoinInvite.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/requests/useJoinInvite.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/hooks/useContextMenu.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/hooks/useContextMenu.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/channels/@me/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/channels/@me/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/developers/applications/[id]/bot.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/developers/applications/[id]/bot.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/developers/applications/[id]/oauth2.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/developers/applications/[id]/oauth2.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/developers/applications/[id]/url-generator.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/developers/applications/[id]/url-generator.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/developers/applications/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/pages/developers/applications/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/pages/test.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/slate.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/slate.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/CreateDmPicker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/CreateDmPicker.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/EmojiPicker.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/EmojiPicker.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/MeChannelBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/MeChannelBar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/ServerBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/ServerBar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/addMessage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/addMessage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/channels/channel-types/DMChannel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/channels/channel-types/DMChannel.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/channels/channel-types/GroupDMChannel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/channels/channel-types/GroupDMChannel.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/dialogs/ConfirmLeaveGroupDM.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/dialogs/ConfirmLeaveGroupDM.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/dialogs/CreateInviteDialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/dialogs/CreateInviteDialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/dialogs/MFAuthFlowDialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/dialogs/MFAuthFlowDialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/dialogs/RemoveFriendsConfirmation.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/dialogs/RemoveFriendsConfirmation.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/layouts/routes/UserSettings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/layouts/routes/UserSettings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/markdown/rules/emoji.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/markdown/rules/emoji.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/members/ChannelMember.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/members/ChannelMember.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/members/ChannelMembersBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/members/ChannelMembersBar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/members/MembersBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/members/MembersBar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/MessageContainer.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/MessageContainer.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/Messages.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/Messages.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/message-box/editor/plugins/withEmoji.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/message-box/editor/plugins/withEmoji.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/message-box/editor/plugins/withShortcuts.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/message-box/editor/plugins/withShortcuts.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/message/Message.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/message/Message.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/routes/guild-settings/emoji.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/routes/guild-settings/emoji.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/src/components/routes/user-settings/AuthorizedApp.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/routes/user-settings/AuthorizedApp.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/website/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/next.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/website/next.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/src/components/message-container/message-box/editor/deserialize.ts" beforeDir="false" afterPath="$PROJECT_DIR$/website/src/components/message-container/message-box/editor/deserialize.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,18 +74,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "/home/agnirudras/Projects/avault/clients/python",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PythonContentEntriesConfigurable"
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings>
@@ -453,7 +411,9 @@
       <workItem from="1653288126957" duration="8529000" />
       <workItem from="1653313288279" duration="3878000" />
       <workItem from="1653371227232" duration="8236000" />
-      <workItem from="1653397171949" duration="565000" />
+      <workItem from="1653397171949" duration="3826000" />
+      <workItem from="1653457439462" duration="1273000" />
+      <workItem from="1654500930411" duration="51000" />
     </task>
     <servers />
   </component>

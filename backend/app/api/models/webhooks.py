@@ -24,7 +24,7 @@ class Webhook(Base):
 
     def get_author(self):
         return {
-            'id': self.id,
+            'id': str(self.id),
             'bot': True,
             'username': self.name,
             'tag': '#0000',

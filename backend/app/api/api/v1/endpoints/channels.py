@@ -31,7 +31,7 @@ router = APIRouter()
 
 class WebhookCreate(BaseModel):
     name: Optional[str] = None
-    avatar: Optional[Any] = None
+    avatar: Optional[str] = None
 
 
 class MessageBulkDelete(BaseModel):
@@ -83,7 +83,8 @@ def get_messages(channel_id: int,
 async def create_message(channel_id: int,
                          db: Session = Depends(deps.get_db),
                          dependency: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES)),
-                         body_stuff: tuple[MessageCreate, list] = Depends(deps.ExtractBody(MessageCreate))) -> Any:
+                         body_stuff: tuple[MessageCreate, list] = Depends(deps.ExtractBody(MessageCreate))
+                         ) -> Any:
     embed_checker = deps.ChannelPerms(Permissions.EMBED_LINKS)
     channel, current_user = dependency
     body, attachments = body_stuff
@@ -794,7 +795,11 @@ async def create_webhook(channel_id: int,
     channel, current_user = dependencies
     name = data.name if data.name else "Captain Hook"
     webhook = Webhook(1, channel_id, current_user.id,
-                      name, data.avatar, guild_id=channel.guild_id)
+                      name, None, guild_id=channel.guild_id)
+    if "avatar" in data.dict(exclude_unset=True):
+        if data.avatar:
+            avatar = await validate_avatar(user_id=webhook.id, avatar=data.avatar)
+            webhook.avatar = avatar
     channel.webhooks.append(webhook)
     db.add(webhook)
     db.commit()

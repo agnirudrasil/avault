@@ -24,7 +24,7 @@ export const deserialize = (tokens: any): any => {
     if (children.length === 0) {
         children = [
             {
-                type: paragraph,
+                type: "paragraph",
                 children: [
                     {
                         text:

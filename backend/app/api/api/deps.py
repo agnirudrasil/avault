@@ -6,7 +6,7 @@ from datetime import datetime
 from json import JSONDecodeError
 from typing import List, Union, TypeVar, Type, Generator
 
-from fastapi import Depends, HTTPException, status, Request, Header, UploadFile, Path
+from fastapi import Depends, HTTPException, status, Request, Header, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.security import OAuth2AuthorizationCodeBearer, SecurityScopes
 from jose import jwt
@@ -237,9 +237,13 @@ class ExtractBody:
     def __init__(self, body_type: Type[BodyType]) -> None:
         self.body_type = body_type
 
-    async def __call__(self, request: Request, channel_id: int = Path(...), content_type: str = Header(...)) -> \
+    async def __call__(self, request: Request, content_type: str = Header(...), db: Session = Depends(get_db)) -> \
             tuple[BodyType, list]:
         attachments = []
+        channel_id = request.path_params.get("channel_id", request.path_params.get("webhook_id"))
+        if "channel_id" not in request.path_params:
+            webhook = db.query(models.Webhook).filter_by(id=channel_id).first()
+            channel_id = webhook.channel_id
         body = self.body_type()
         if content_type.startswith('multipart/form-data'):
             form_body = await request.form()
