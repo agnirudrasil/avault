@@ -5,19 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4a37b9e5-6e8a-4f63-8394-35f9e6434335" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../javascript/.gitkeep" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/avault/models/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../.idea/avault.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../../.idea/avault.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../.idea/dataSources.local.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/avault/file.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/avault/models/channel.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/avault/models/guild.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/avault/models/message.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/avault/models/user.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/app/api/api/deps.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/app/api/api/deps.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/app/api/api/v1/endpoints/channels.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/app/api/api/v1/endpoints/channels.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/app/api/api/v1/endpoints/webhooks.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/app/api/api/v1/endpoints/webhooks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/app/api/models/messages.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/app/api/models/messages.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/app/api/models/webhooks.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/app/api/models/webhooks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../website/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../../website/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../website/next.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../website/next.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../website/src/components/message-container/message-box/editor/deserialize.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../website/src/components/message-container/message-box/editor/deserialize.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/app/api/core/rabbitmq.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/app/api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/app/api/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/avault/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/avault/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/avault/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/avault/client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/avault/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/avault/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../docker-compose.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,11 +33,17 @@
       </list>
     </option>
   </component>
+  <component name="FormatOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
+  </component>
+  <component name="OptimizeOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
   </component>
   <component name="ProjectId" id="2AC6jjqWuPUpT3teFijhY3prcPt" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -43,22 +51,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "/home/agnirudras/Projects/avault/clients/python/main.py",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;NewWatcherDialog.advanced.open&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/agnirudras/Projects/avault/clients/python/main.py&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;actions.on.save&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;Python&quot;
+    ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/avault" />
+      <recent name="$PROJECT_DIR$" />
     </key>
   </component>
   <component name="RunManager">
@@ -68,6 +83,7 @@
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="TOKEN" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1MjEwMDAyMTMwMjIwMjM2OCIsImlhdCI6MTY1NDYxNzI0NywibWZhIjpmYWxzZX0.lZTPVdcph82kz9aQKfO5z7vw0KhO1T0ijTs6iyk7SOY" />
       </envs>
       <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
@@ -94,7 +110,9 @@
       <option name="presentableId" value="Default" />
       <updated>1654500984668</updated>
       <workItem from="1654500986244" duration="363000" />
-      <workItem from="1654501359298" duration="1260000" />
+      <workItem from="1654501359298" duration="4801000" />
+      <workItem from="1654613767803" duration="5976000" />
+      <workItem from="1654623007031" duration="3173000" />
     </task>
     <servers />
   </component>
@@ -102,6 +120,6 @@
     <option name="version" value="3" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/python$Run.coverage" NAME="Run Coverage Results" MODIFIED="1654502369203" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/python$Run.coverage" NAME="Run Coverage Results" MODIFIED="1654626076883" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

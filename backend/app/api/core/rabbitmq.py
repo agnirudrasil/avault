@@ -18,13 +18,17 @@ from api.models.user import User
 
 async def handle_message(message):
     msgobj = json.loads(message)
+    db_gen = get_db()
+    db = next(db_gen)
     if msgobj["event"] == "IDENTIFY":
         try:
             token = msgobj.get("token", "")
             data = verify_jwt(token)
             socket_id = msgobj["id"]
-            db: Session = next(get_db())
             user: User = db.query(models.User).filter_by(id=data.sub).first()
+            if not user:
+                await emitter.to(msgobj["id"]).disconnect_sockets(True)
+                return
             if user.last_login is None:
                 await emitter.to(msgobj["id"]).disconnect_sockets(True)
                 return
@@ -73,6 +77,7 @@ async def consume(loop: AbstractEventLoop):
     connection = await aio_pika.connect_robust(
         host=settings.RABBITMQ_HOST, loop=loop
     )
+    db = Session()
 
     queue_name = "gateway_api_talks"
 

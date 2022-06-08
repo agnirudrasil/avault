@@ -40,13 +40,13 @@ services:
       interval: 3s
       timeout: 10s
       retries: 3
-  website:
-    image: agnirudrasil/avault-website
-    build:
-      context: ./website
-      dockerfile: ./Dockerfile
-    ports:
-      - "3000:3000"
+  # website:
+  #   image: agnirudrasil/avault-website
+  #   build:
+  #     context: ./website
+  #     dockerfile: ./Dockerfile
+  #   ports:
+  #     - "3000:3000"
   gateway:
     image: agnirudrasil/avault-gateway
     restart: on-failure

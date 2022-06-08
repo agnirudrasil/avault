@@ -50,7 +50,6 @@ emitter = Emitter(redis)
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
-    print(request.scope["method"])
     response = await call_next(request)
     if response.status_code != 429 and hasattr(request.state, "rate_limit"):
         response.headers.update(request.state.rate_limit)
