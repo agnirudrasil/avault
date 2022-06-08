@@ -5,21 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4a37b9e5-6e8a-4f63-8394-35f9e6434335" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/avault/file.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/avault/models/channel.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/avault/models/guild.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/avault/models/message.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/avault/models/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/app/api/core/rabbitmq.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/app/api/core/rabbitmq.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/app/api/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/app/api/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/avault/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/avault/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/avault/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/avault/client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/avault/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/avault/models/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../docker-compose.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,6 +99,7 @@
       <workItem from="1654501359298" duration="4801000" />
       <workItem from="1654613767803" duration="5976000" />
       <workItem from="1654623007031" duration="3173000" />
+      <workItem from="1654667320158" duration="148000" />
     </task>
     <servers />
   </component>
