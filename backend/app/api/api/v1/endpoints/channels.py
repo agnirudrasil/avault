@@ -628,6 +628,19 @@ async def delete_channel(channel_id: int,
 async def typing(channel_id: int,
                  dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.SEND_MESSAGES)),
                  db: Session = Depends(deps.get_db)):
+    """
+    Send a typing indicator to the specified channel.
+
+    This endpoint allows a user to indicate that they are typing in a channel.
+
+    Args:
+        channel_id (int): The ID of the channel where the typing indicator should be sent.
+        dependencies (tuple[Channel, User]): The channel and user dependencies, ensuring the user has permission to send messages.
+        db (Session): The database session.
+
+    Returns:
+        None
+    """
     channel, user = dependencies
     await websocket_emitter(channel_id=channel_id, guild_id=channel.guild_id, event=Events.TYPING_START, args={
         'channel_id': str(channel_id),
@@ -642,6 +655,17 @@ async def typing(channel_id: int,
 def get_pins(channel_id: int,
              db: Session = Depends(deps.get_db),
              dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.VIEW_CHANNEL))):
+    """
+    Retrieve pinned messages for a specific channel.
+
+    Args:
+        channel_id (int): The ID of the channel to retrieve pinned messages from.
+        db (Session): The database session.
+        dependencies (tuple[Channel, User]): The channel and user dependencies, ensuring the user has permission to view the channel.
+
+    Returns:
+        List[dict]: A list of serialized pinned messages.
+    """
     channel, user = dependencies
     pins: list[PinnedMessages] = db.query(
         PinnedMessages).filter_by(channel_id=channel_id).all()
@@ -654,6 +678,18 @@ def get_pins(channel_id: int,
 async def pin_message(channel_id: int, message_id: int,
                       db: Session = Depends(deps.get_db),
                       dependencies: tuple[Channel, User] = Depends(deps.ChannelPerms(Permissions.MANAGE_MESSAGES))):
+    """
+    Pin a message in a channel.
+
+    Args:
+        channel_id (int): The ID of the channel where the message is located.
+        message_id (int): The ID of the message to pin.
+        db (Session): The database session.
+        dependencies (tuple[Channel, User]): The channel and user dependencies, ensuring the user has permission to manage messages.
+
+    Returns:
+        None
+    """
     channel, user = dependencies
     message = db.query(Message).filter_by(
         id=message_id).filter_by(channel_id=channel.id).first()
