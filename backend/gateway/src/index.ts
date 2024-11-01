@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import Redis from "ioredis";
 import { connect } from "amqplib";
 import { Server } from "socket.io";
