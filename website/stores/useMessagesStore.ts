@@ -43,6 +43,7 @@ export const useMessagesStore = create(
             addMessage: (message: Messages) =>
                 set(state =>
                     produce(state, draft => {
+                        console.log(state);
                         if (draft[message.channel_id]) {
                             draft[message.channel_id] = [
                                 message,
@@ -163,9 +164,10 @@ export const useMessagesStore = create(
                 message_id: string;
                 emoji: string;
                 user_id: string;
-            }) =>
+            }) => {
                 set(state =>
                     produce(state, draft => {
+                        console.log(state);
                         const index = draft[data.channel_id].findIndex(
                             m => m.id === data.message_id
                         );
@@ -197,7 +199,8 @@ export const useMessagesStore = create(
                             }
                         }
                     })
-                ),
+                );
+            },
             deleteMessage: (channelId: string, messageId: string) =>
                 set(state =>
                     produce(state, draft => {

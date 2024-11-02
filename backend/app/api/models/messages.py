@@ -86,7 +86,7 @@ class Message(Base):
             author = self.webhook_author
         else:
             author = self.author.serialize()
-        reactions_count = db.query(func.bool_or(Reactions.user_id == current_user)).filter_by(
+        reactions_count = db.query(Reactions.reaction, func.count("*"), func.bool_or(Reactions.user_id == current_user)).filter_by(
             message_id=self.id).group_by(Reactions.reaction).all()
         serialized = {
             'id': str(self.id),

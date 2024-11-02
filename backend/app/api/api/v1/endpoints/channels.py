@@ -700,7 +700,7 @@ async def pin_message(channel_id: int, message_id: int,
             pinned_message.message = message
             channel.pinned_messages.append(pinned_message)
             new_message = Message(content="", channel_id=channel_id, author_id=user.id,
-                                  message_type=MessageTypes.CHANNEL_PINNED_MESSAGE, guild_id=channel.guild_id)
+                                  message_type=MessageTypes.CHANNEL_PINNED_MESSAGE, guild_id=channel.guild_id, replies_to=message_id)
             db.add(new_message)
             db.commit()
             await websocket_emitter(channel_id=channel_id, guild_id=channel.guild_id, event=Events.CHANNEL_PINS_UPDATE,

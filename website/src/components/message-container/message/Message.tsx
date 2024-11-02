@@ -8,6 +8,10 @@ import {
     useTheme,
     Theme,
     Popper,
+    Button,
+    ToggleButton,
+    ToggleButtonGroup,
+    ListItemIcon,
 } from "@mui/material";
 import { format, isToday, isYesterday } from "date-fns";
 import { memo, useMemo } from "react";
@@ -31,7 +35,7 @@ import {
     PushPin,
     Reply,
 } from "@mui/icons-material";
-import { Emoji, store } from "emoji-mart";
+import { Emoji as EmojiMartEmoji, store, emojiIndex } from "emoji-mart";
 import { usePermssions } from "../../../../hooks/usePermissions";
 import { checkPermissions } from "../../../compute-permissions";
 import { Permissions } from "../../../permissions";
@@ -45,6 +49,14 @@ import {
 import { MessageToolbar } from "./Toolbar";
 import { useDeleteMessage } from "../../../../hooks/requests/useMessageDelete";
 import { Invite } from "../../Invite";
+import { useCreateReaction } from "../../../../hooks/requests/useCreateReaction";
+import { Emoji } from "../../markdown/styles/Emoji";
+import { getEmojiUrl } from "../../markdown/emoji/getEmojiUrl";
+import { useDeleteReaction } from "../../../../hooks/requests/useDeleteReaction";
+import { usePinMessage } from "../../../../hooks/requests/usePinMessage";
+import { useUnpinMessage } from "../../../../hooks/requests/useUnpinMessage";
+import { useQueryClient } from "react-query";
+import { updateMessagePin } from "../../addMessage";
 
 export const Message: React.FC<{
     message: Messages;
@@ -64,9 +76,16 @@ export const Message: React.FC<{
         const { mutateAsync: deleteMessage } = useDeleteMessage(
             message.channel_id
         );
+        const { mutateAsync: createReaction } = useCreateReaction();
+        const { mutateAsync: deleteReaction } = useDeleteReaction();
+        const { mutateAsync: pinMesssage } = usePinMessage(message.channel_id);
+        const { mutateAsync: unpinMessage } = useUnpinMessage(
+            message.channel_id
+        );
         const member: GuildMembers | undefined = useGuildsStore(
             state => state.guilds[guild]?.members[getUser()]
         );
+        const queryClient = useQueryClient();
         const { permissions } = usePermssions(guild, message.channel_id);
 
         const isMention = useMemo(
@@ -108,12 +127,19 @@ export const Message: React.FC<{
                             .slice(0, 10)
                             .map(key => ({
                                 label: key,
-                                action: (handleClose: any) => {
+                                action: async (handleClose: any) => {
+                                    const emoji = emojiIndex.search(key);
+                                    if (emoji)
+                                        await createReaction({
+                                            channel_id: message.channel_id,
+                                            message_id: message.id,
+                                            emoji: (emoji[0] as any).native,
+                                        });
                                     handleClose();
                                 },
                                 visible: true,
                                 icon: (
-                                    <Emoji
+                                    <EmojiMartEmoji
                                         size={24}
                                         set="twitter"
                                         emoji={
@@ -143,14 +169,28 @@ export const Message: React.FC<{
                     icon: <Edit />,
                 },
                 {
-                    label: "Pin Message",
-                    action: handleClose => {
+                    label: message.pinned ? "Unpin Message" : "Pin Message",
+                    action: async handleClose => {
+                        if (!message.pinned) {
+                            await pinMesssage({
+                                messageId: message.id,
+                            });
+                        } else {
+                            await unpinMessage({
+                                messageId: message.id,
+                            });
+                        }
+                        updateMessagePin(queryClient, {
+                            channel_id: message.channel_id,
+                            message_id: message.id,
+                        });
                         handleClose();
                     },
-                    visible: checkPermissions(
-                        permissions,
-                        Permissions.MANAGE_MESSAGES
-                    ),
+                    visible:
+                        checkPermissions(
+                            permissions,
+                            Permissions.MANAGE_MESSAGES
+                        ) && message.type !== 2,
                     icon: <PushPin />,
                 },
                 {
@@ -255,31 +295,41 @@ export const Message: React.FC<{
                     {...bindHover(popupState)}
                 >
                     <ContextMenu {...props} menuObject={menuObject} />
-                    <ListItemAvatar
-                        className="message-avatar"
-                        sx={{
-                            alignSelf: "flex-start",
-                            mt: disableHeader ? 0.3 : 1,
-                            visibility: disableHeader ? "hidden" : "visible",
-                        }}
-                    >
-                        {disableHeader ? (
-                            <Typography color="graytext" variant="caption">
-                                {format(date, "p")}
-                            </Typography>
-                        ) : (
-                            <Avatar
-                                sx={{ width: 40, height: 40 }}
-                                src={
-                                    message.author.avatar
-                                        ? `${process.env.NEXT_PUBLIC_CDN_URL}avatars/${message.author.id}/${message.author.avatar}`
-                                        : undefined
-                                }
-                            >
-                                <DefaultProfilePic tag={message.author.tag} />
-                            </Avatar>
-                        )}
-                    </ListItemAvatar>
+                    {message.type === 2 ? (
+                        <ListItemIcon>
+                            <PushPin />
+                        </ListItemIcon>
+                    ) : (
+                        <ListItemAvatar
+                            className="message-avatar"
+                            sx={{
+                                alignSelf: "flex-start",
+                                mt: disableHeader ? 0.3 : 1,
+                                visibility: disableHeader
+                                    ? "hidden"
+                                    : "visible",
+                            }}
+                        >
+                            {disableHeader ? (
+                                <Typography color="graytext" variant="caption">
+                                    {format(date, "p")}
+                                </Typography>
+                            ) : (
+                                <Avatar
+                                    sx={{ width: 40, height: 40 }}
+                                    src={
+                                        message.author.avatar
+                                            ? `${process.env.NEXT_PUBLIC_CDN_URL}avatars/${message.author.id}/${message.author.avatar}`
+                                            : undefined
+                                    }
+                                >
+                                    <DefaultProfilePic
+                                        tag={message.author.tag}
+                                    />
+                                </Avatar>
+                            )}
+                        </ListItemAvatar>
+                    )}
                     <ListItemText
                         sx={{
                             m: 0.5,
@@ -308,42 +358,153 @@ export const Message: React.FC<{
                             )
                         }
                         secondary={
-                            <Stack>
-                                <Typography
-                                    component="div"
-                                    sx={{
-                                        p: 0,
-                                        color: error
-                                            ? "error.dark"
-                                            : confirmed
-                                            ? "GrayText"
-                                            : undefined,
-                                        userSelect: "text",
-                                        cursor: "text",
-                                    }}
-                                    variant="body1"
-                                >
-                                    <Markdown content={message.content} />
+                            message.type === 2 ? (
+                                <Typography variant="subtitle1">
+                                    {message.author.username}{" "}
+                                    {message.author.bot && <BotIndication />}{" "}
+                                    Pinned a{" "}
+                                    <Button variant="text" size="small">
+                                        message
+                                    </Button>{" "}
+                                    to this channel . See all{" "}
+                                    <Button variant="text" size="small">
+                                        pinned messages
+                                    </Button>
+                                    . <br />
+                                    <Typography
+                                        component="span"
+                                        variant="caption"
+                                        color="GrayText"
+                                        sx={{ fontWeight: "normal" }}
+                                    >
+                                        {isToday(date)
+                                            ? `Today at ${format(date, "p")}`
+                                            : isYesterday(date)
+                                            ? `Yesterday at ${format(
+                                                  date,
+                                                  "p"
+                                              )}`
+                                            : format(date, "p")}
+                                    </Typography>{" "}
                                 </Typography>
+                            ) : (
                                 <Stack spacing={1}>
-                                    {invites.map(invite => (
-                                        <Invite
-                                            author={message.author}
-                                            key={invite}
-                                            code={invite}
-                                        />
-                                    ))}
+                                    <Typography
+                                        component="div"
+                                        sx={{
+                                            p: 0,
+                                            color: error
+                                                ? "error.dark"
+                                                : confirmed
+                                                ? "GrayText"
+                                                : undefined,
+                                            userSelect: "text",
+                                            cursor: "text",
+                                        }}
+                                        variant="body1"
+                                    >
+                                        <Markdown content={message.content} />
+                                    </Typography>
+                                    {invites.length ? (
+                                        <Stack spacing={1}>
+                                            {invites.map(invite => (
+                                                <Invite
+                                                    author={message.author}
+                                                    key={invite}
+                                                    code={invite}
+                                                />
+                                            ))}
+                                        </Stack>
+                                    ) : null}
+                                    {message.attachments ? (
+                                        <Stack spacing={1}>
+                                            {message.attachments &&
+                                                message.attachments.map(
+                                                    attachment => (
+                                                        <Attachments
+                                                            key={attachment.id}
+                                                            attachment={
+                                                                attachment
+                                                            }
+                                                        />
+                                                    )
+                                                )}
+                                        </Stack>
+                                    ) : null}
+                                    {message.reactions.length ? (
+                                        <ToggleButtonGroup
+                                            value={message.reactions
+                                                .filter(r => r.me)
+                                                .map(r => r.emoji)}
+                                            exclusive={false}
+                                            onChange={async (_, emojis) => {
+                                                const newEmojis = emojis.filter(
+                                                    (e: string) =>
+                                                        !message.reactions.some(
+                                                            r =>
+                                                                r.emoji === e &&
+                                                                r.me
+                                                        )
+                                                );
+                                                const removedEmojis =
+                                                    message.reactions
+                                                        .filter(
+                                                            r =>
+                                                                !emojis.includes(
+                                                                    r.emoji
+                                                                ) && r.me
+                                                        )
+                                                        .map(r => r.emoji);
+                                                await Promise.all([
+                                                    ...newEmojis.map(
+                                                        (emoji: string) =>
+                                                            createReaction({
+                                                                channel_id:
+                                                                    message.channel_id,
+                                                                message_id:
+                                                                    message.id,
+                                                                emoji,
+                                                            })
+                                                    ),
+                                                    ...removedEmojis.map(
+                                                        emoji =>
+                                                            deleteReaction({
+                                                                channel_id:
+                                                                    message.channel_id,
+                                                                message_id:
+                                                                    message.id,
+                                                                emoji,
+                                                            })
+                                                    ),
+                                                ]);
+                                            }}
+                                        >
+                                            {message.reactions.map(reaction => {
+                                                const url = getEmojiUrl(
+                                                    reaction.emoji
+                                                );
+
+                                                return (
+                                                    <ToggleButton
+                                                        value={reaction.emoji}
+                                                        key={reaction.emoji}
+                                                        size="small"
+                                                    >
+                                                        <Emoji
+                                                            style={{
+                                                                marginRight:
+                                                                    "0.5rem",
+                                                            }}
+                                                            src={url}
+                                                        />
+                                                        {reaction.count}
+                                                    </ToggleButton>
+                                                );
+                                            })}
+                                        </ToggleButtonGroup>
+                                    ) : null}
                                 </Stack>
-                                <Stack spacing={1}>
-                                    {message.attachments &&
-                                        message.attachments.map(attachment => (
-                                            <Attachments
-                                                key={attachment.id}
-                                                attachment={attachment}
-                                            />
-                                        ))}
-                                </Stack>
-                            </Stack>
+                            )
                         }
                     />
                 </ListItemButton>

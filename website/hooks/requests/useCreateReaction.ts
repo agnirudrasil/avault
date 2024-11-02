@@ -10,7 +10,7 @@ export const createReaction = async ({
     message_id: string;
     emoji: string;
 }) => {
-    const data = await request(
+    await request(
         `${process.env.NEXT_PUBLIC_API_URL}/channels/${channel_id}/message/${message_id}/reactions/${emoji}/@me`,
         {
             method: "PUT",
@@ -18,7 +18,7 @@ export const createReaction = async ({
         }
     );
 
-    return data.json();
+    return;
 };
 
 export const useCreateReaction = () => useMutation(createReaction);

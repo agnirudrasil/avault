@@ -1,5 +1,4 @@
 import { jsx } from "slate-hyperscript";
-import { paragraph } from "../../../markdown/rules/paragraph";
 
 const TAGS: Record<string, Function> = {
     emoji: (token: any) => ({ ...token }),

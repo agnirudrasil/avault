@@ -3,7 +3,6 @@ import {
     Call,
     Group,
     PersonAddAlt1,
-    PushPin,
     Videocam,
 } from "@mui/icons-material";
 import {
@@ -29,6 +28,7 @@ import { Form, Formik } from "formik";
 import { useChannelUpdate } from "../../../hooks/requests/useUpdateChannel";
 import { CreateDMPicker } from "../CreateDmPicker";
 import { LightTooltip } from "../LightTooltip";
+import { ChannelPins } from "./ChannelPins";
 
 export const MessageContainer: React.FC = () => {
     const router = useRouter();
@@ -194,9 +194,9 @@ export const MessageContainer: React.FC = () => {
                                     )}
                                 </CreateDMPicker>
                             )}
-                            <IconButton>
-                                <PushPin />
-                            </IconButton>
+                            <ChannelPins
+                                channelId={router.query.channel as string}
+                            />
                         </ListItemSecondaryAction>
                     </ListItem>
                     <MarkAsRead channelId={router.query.channel as string} />

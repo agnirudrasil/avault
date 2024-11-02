@@ -6,7 +6,7 @@ import {
     Replay,
     Reply,
 } from "@mui/icons-material";
-import { Paper, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Paper, Popover, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useRouter } from "next/router";
 import { InfiniteData, useQueryClient } from "react-query";
 import { useMessageCreate } from "../../../../hooks/requests/useMessageCreate";
@@ -16,6 +16,9 @@ import { getUser } from "../../../user-cache";
 import { LightTooltip } from "../../LightTooltip";
 import produce from "immer";
 import { chunk } from "lodash";
+import { useRef, useState } from "react";
+import { EmojiPicker } from "../../EmojiPicker";
+import { useCreateReaction } from "../../../../hooks/requests/useCreateReaction";
 
 const ErrorToolbar: React.FC<{ args: any }> = ({ args }) => {
     const router = useRouter();
@@ -67,33 +70,73 @@ const RegularToolbar: React.FC<{
     message: Messages;
     handleContextMenu: (event: React.MouseEvent) => void;
 }> = ({ message, handleContextMenu }) => {
+    const pickerRef = useRef<HTMLDivElement | null>(null);
+    const [toolbarValue, setToolbarValue] = useState<string | null>(null);
+    const { mutateAsync } = useCreateReaction();
     return (
-        <ToggleButtonGroup size="small">
-            <ToggleButton value="edit">
-                <LightTooltip title="Add Reaction" placement="top">
-                    <AddReaction fontSize="small" />
-                </LightTooltip>
-            </ToggleButton>
-            <ToggleButton
-                value={message.author.id === getUser() ? "edit" : "reply"}
+        <>
+            <ToggleButtonGroup
+                exclusive
+                value={toolbarValue}
+                onChange={(_, v) => setToolbarValue(v)}
+                ref={pickerRef}
+                size="small"
             >
-                <LightTooltip
-                    title={message.author.id === getUser() ? "Edit" : "Reply"}
-                    placement="top"
+                <ToggleButton value="react">
+                    <LightTooltip title="Add Reaction" placement="top">
+                        <AddReaction fontSize="small" />
+                    </LightTooltip>
+                </ToggleButton>
+                <ToggleButton
+                    value={message.author.id === getUser() ? "edit" : "reply"}
                 >
-                    {message.author.id === getUser() ? (
-                        <Edit fontSize="small" />
-                    ) : (
-                        <Reply fontSize="small" />
-                    )}
-                </LightTooltip>
-            </ToggleButton>
-            <ToggleButton onClick={handleContextMenu} value="more">
-                <LightTooltip title="More" placement="top">
-                    <MoreHoriz fontSize="small" />
-                </LightTooltip>
-            </ToggleButton>
-        </ToggleButtonGroup>
+                    <LightTooltip
+                        title={
+                            message.author.id === getUser() ? "Edit" : "Reply"
+                        }
+                        placement="top"
+                    >
+                        {message.author.id === getUser() ? (
+                            <Edit fontSize="small" />
+                        ) : (
+                            <Reply fontSize="small" />
+                        )}
+                    </LightTooltip>
+                </ToggleButton>
+                <ToggleButton onClick={handleContextMenu} value="more">
+                    <LightTooltip title="More" placement="top">
+                        <MoreHoriz fontSize="small" />
+                    </LightTooltip>
+                </ToggleButton>
+            </ToggleButtonGroup>
+            <Popover
+                onClose={() => {
+                    setToolbarValue(null);
+                }}
+                anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                }}
+                transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                }}
+                anchorEl={pickerRef.current}
+                open={toolbarValue === "react"}
+            >
+                <EmojiPicker
+                    set="twitter"
+                    theme="dark"
+                    onSelect={async emoji => {
+                        await mutateAsync({
+                            channel_id: message.channel_id,
+                            message_id: message.id,
+                            emoji: (emoji as any).native,
+                        });
+                    }}
+                />
+            </Popover>
+        </>
     );
 };
 

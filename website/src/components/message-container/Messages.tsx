@@ -74,13 +74,14 @@ export const Messages: React.FC<{ channel: Channel }> = memo(({ channel }) => {
                                 confirmed={(message as any).confirmed}
                                 key={message.nonce || message.id}
                                 disableHeader={
-                                    i !== 0 &&
-                                    array[i - 1]?.author.id ===
-                                        message.author.id &&
-                                    differenceInSeconds(
-                                        new Date(message.timestamp),
-                                        new Date(array[i - 1].timestamp)
-                                    ) < 300
+                                    (i !== 0 &&
+                                        array[i - 1]?.author.id ===
+                                            message.author.id &&
+                                        differenceInSeconds(
+                                            new Date(message.timestamp),
+                                            new Date(array[i - 1].timestamp)
+                                        ) < 300) ||
+                                    message.type === 2
                                 }
                                 newMessage={
                                     lastRead === undefined

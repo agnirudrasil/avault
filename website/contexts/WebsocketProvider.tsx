@@ -12,7 +12,13 @@ import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/router";
 import { getUser, setUserId } from "../src/user-cache";
 import { InfiniteData, useQueryClient } from "react-query";
-import { addMessage } from "../src/components/addMessage";
+import {
+    addMessage,
+    addMessageReaction,
+    removeAllMessageReactions,
+    removeMessageReaction,
+    removeMessageReactionEmoji,
+} from "../src/components/addMessage";
 import {
     checkPermissions,
     computeBasePermissions,
@@ -62,37 +68,24 @@ export const WebsocketProvider: React.FC = ({ children }) => {
         }),
         shallow
     );
+
     const {
-        updateMessage,
-        messageReactionAdd,
-        messageReactionRemove,
-        messageReactionRemoveAll,
-        messageReactionRemoveEmoji,
-    } = useMessagesStore(
+        setUser,
+        updateLastMessage,
+        updateUnread,
+        incrementMentions,
+        isUserMe,
+    } = useUserStore(
         state => ({
-            addMessage: state.addMessage,
-            updateMessage: state.updateMessage,
-            deleteBulkMessages: state.deleteBulkMessages,
-            messageReactionRemoveAll: state.messageReactionRemoveAll,
-            messageReactionRemove: state.messageReactionRemove,
-            messageReactionAdd: state.messageReactionAdd,
-            messageReactionRemoveEmoji: state.messageReactionRemoveEmoji,
+            setUser: state.setUser,
+            isUserMe: state.isUserMe,
+            updateGuildMember: state.updateGuildMembers,
+            updateLastMessage: state.updateLastMessage,
+            updateUnread: state.updateUnread,
+            incrementMentions: state.incrementMentions,
         }),
         shallow
     );
-
-    const { setUser, updateLastMessage, updateUnread, incrementMentions } =
-        useUserStore(
-            state => ({
-                setUser: state.setUser,
-                isUserMe: state.isUserMe,
-                updateGuildMember: state.updateGuildMembers,
-                updateLastMessage: state.updateLastMessage,
-                updateUnread: state.updateUnread,
-                incrementMentions: state.incrementMentions,
-            }),
-            shallow
-        );
     const { setChannels, updateChannel, deleteChannel, addChannel } =
         useChannelsStore(
             state => ({
@@ -300,7 +293,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 }
             });
             socket.on("MESSAGE_UPDATE", data => {
-                updateMessage(data);
+                // updateMessage(data);
             });
             socket.on("MESSAGE_DELETE", data => {
                 queryClient.setQueryData<InfiniteData<Messages[]>>(
@@ -340,7 +333,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                     data.message_id,
                     data.emoji,
                 ]);
-                messageReactionAdd(data);
+                addMessageReaction(queryClient, isUserMe, data);
             });
             socket.on("MESSAGE_REACTION_REMOVE", data => {
                 queryClient.invalidateQueries([
@@ -349,7 +342,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                     data.message_id,
                     data.emoji,
                 ]);
-                messageReactionRemove(data);
+                removeMessageReaction(queryClient, data);
             });
             socket.on("MESSAGE_REACTION_REMOVE_ALL", data => {
                 queryClient.invalidateQueries([
@@ -358,7 +351,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                     data.message_id,
                     data.emoji,
                 ]);
-                messageReactionRemoveAll(data);
+                removeAllMessageReactions(queryClient, data);
             });
             socket.on("CHANNEL_PINS_UPDATE", data => {
                 queryClient.invalidateQueries(["pinned", data.channel_id]);
@@ -370,7 +363,7 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                     data.message_id,
                     data.emoji,
                 ]);
-                messageReactionRemoveEmoji(data);
+                removeMessageReactionEmoji(queryClient, data);
             });
             socket.on("disconnect", reason => {
                 if (reason === "io server disconnect") {
