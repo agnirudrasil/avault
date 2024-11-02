@@ -9,7 +9,7 @@ from starlette import status
 from api.api.deps import reusable_oauth2
 from .config import settings
 
-memory_storage = storage.RedisStorage(f"redis://{settings.REDIS_HOST}:6379/")
+memory_storage = storage.RedisStorage(settings.REDIS_HOST)
 
 fixed_window = strategies.FixedWindowRateLimiter(memory_storage)
 
