@@ -7,7 +7,7 @@ import { Channel } from "../types/channels";
 import shallow from "zustand/shallow";
 import { Roles, useRolesStore } from "../stores/useRolesStore";
 import { Unread, useUserStore } from "../stores/useUserStore";
-import { Messages, useMessagesStore } from "../stores/useMessagesStore";
+import { Messages } from "../stores/useMessagesStore";
 import { CircularProgress } from "@mui/material";
 import { useRouter } from "next/router";
 import { getUser, setUserId } from "../src/user-cache";
@@ -171,6 +171,9 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                         },
                         {}
                     ),
+                    hiddenChannels: JSON.parse(
+                        localStorage.getItem("hiddenChannels") ?? "{}"
+                    ),
                 });
                 setState(data.users);
                 setUserId(data.user.id);
@@ -293,7 +296,21 @@ export const WebsocketProvider: React.FC = ({ children }) => {
                 }
             });
             socket.on("MESSAGE_UPDATE", data => {
-                // updateMessage(data);
+                queryClient.setQueryData<InfiniteData<Messages[]>>(
+                    ["messages", data.channel_id],
+                    produce(draft => {
+                        if (draft) {
+                            const messages = draft.pages.flat();
+                            const index = messages.findIndex(
+                                m => m.id === data.id
+                            );
+                            if (index !== -1) {
+                                messages[index] = data;
+                            }
+                            draft.pages = chunk(messages, 50);
+                        }
+                    })
+                );
             });
             socket.on("MESSAGE_DELETE", data => {
                 queryClient.setQueryData<InfiniteData<Messages[]>>(

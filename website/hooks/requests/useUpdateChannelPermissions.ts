@@ -15,7 +15,9 @@ export const updateChannelPermissions = async (
         }
     );
 
-    return res.json();
+    if (!res.ok) {
+        throw new Error("Failed to update channel permissions");
+    }
 };
 
 export const useUpdateChannelPermissions = (channelId: string) =>

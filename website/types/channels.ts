@@ -38,4 +38,5 @@ export interface Overwrites {
 export interface ChannelStore {
     privateChannels: Record<string, Channel>;
     channels: Record<string, Record<string, Channel>>;
+    hiddenChannels: Record<string, string[] | undefined>;
 }

@@ -18,13 +18,13 @@ def add(x, y):
 
 UID = "emitter"
 
-pool = redis.ConnectionPool(host=settings.REDIS_HOST, port=6379, db=0)
+pool = redis.ConnectionPool(host="localhost", port=6379, db=0)
 r = redis.Redis(connection_pool=pool)
 
 
 def sync_websocket_emitter(db, channel_id: Optional[int], guild_id: Optional[Union[int, str]], event: Events, args,
                            user_id: int = None):
-    my_recipients = get_recipients(event, guild_id, channel_id, user_id, db)
+    my_recipients = get_recipients(event, db, guild_id, channel_id, user_id)
     sync_emit(r, my_recipients, [], event, args)
 
 

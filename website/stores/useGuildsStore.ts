@@ -58,7 +58,11 @@ export const useGuildsStore = create(
             updateGuild: (guild: Guild) => {
                 set(state =>
                     produce(state, draft => {
-                        draft.guilds[guild.id] = guild;
+                        console.log(guild);
+                        draft.guilds[guild.id] = {
+                            ...draft.guilds[guild.id],
+                            ...guild,
+                        };
                         draft.guildPreview[guild.id] = {
                             name: guild.name,
                             id: guild.id,
@@ -139,6 +143,7 @@ export const useGuildsStore = create(
                         deleteGuild(guildId);
                         deleteRoles(guildId);
                         delete draft.guilds[guildId];
+                        delete draft.guildPreview[guildId];
                         return draft;
                     })
                 ),

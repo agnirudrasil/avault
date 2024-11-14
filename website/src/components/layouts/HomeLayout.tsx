@@ -13,10 +13,14 @@ import { UserSettingsIndex } from "../routes/user-settings";
 import { UserSettingsAuthorizedApps } from "../routes/user-settings/AuthorizedApp";
 import { UserSettingsProfile } from "../routes/user-settings/Profile";
 import { ServerBar } from "../ServerBar";
+import { GuildSettingsRoles } from "../routes/guild-settings/roles";
+import { ChannelSettings } from "../routes/channel-settings";
+import { ChannelSettingsPermissions } from "../routes/channel-settings/permission";
 
 export const HomeLayout: React.FC = () => {
     const router = useRouter();
     const route = useRoutesStore(state => state.route);
+    console.log(route);
     switch (route) {
         case "/user-settings":
             return <UserSettingsIndex />;
@@ -26,10 +30,16 @@ export const HomeLayout: React.FC = () => {
             return <UserSettingsAuthorizedApps />;
         case "/guild-settings":
             return <GuildSettings />;
+        case "/guild-settings/roles":
+            return <GuildSettingsRoles />;
         case "/guild-settings/emoji":
             return <GuildSettingsEmoji />;
         case "/guild-settings/bans":
             return <GuildSettingsBans />;
+        case "/channel-settings":
+            return <ChannelSettings />;
+        case "/channel-settings/permissions":
+            return <ChannelSettingsPermissions />;
         case "/":
         default:
             return (

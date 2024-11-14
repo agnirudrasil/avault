@@ -8,6 +8,7 @@ import { Channel } from "../../../types/channels";
 import { CategoryChannel } from "./channel-types/CategoryChannel";
 import { TextChannel } from "./channel-types/TextChannel";
 import { VoiceChannel } from "./channel-types/VoiceChannel";
+import shallow from "zustand/shallow";
 
 interface Node {
     self: Channel;
@@ -39,9 +40,23 @@ const createHierarchy = (channels: Channel[]) => {
 
 export const ChannelTree: React.FC = () => {
     const router = useRouter();
-    const channels = useChannelsStore(
-        state => state.channels[router.query.guild as string]
+    const { allChannels, hiddenChannels } = useChannelsStore(
+        state => ({
+            allChannels: state.channels[router.query.guild as string],
+            hiddenChannels: state.hiddenChannels[router.query.guild as string],
+        }),
+        shallow
     );
+
+    const channels = useMemo(() => {
+        if (!allChannels) return {};
+        return Object.keys(allChannels)
+            .filter(channelId => !hiddenChannels?.includes(channelId))
+            .reduce((acc, channelId) => {
+                acc[channelId] = allChannels[channelId];
+                return acc;
+            }, {} as Record<string, Channel>);
+    }, [allChannels, hiddenChannels]);
 
     const richObject = useMemo(
         () => createHierarchy(Object.values(channels ?? {})),

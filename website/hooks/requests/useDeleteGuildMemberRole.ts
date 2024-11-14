@@ -12,15 +12,13 @@ export const deleteGuildMemberRole = async ({
     guildMember,
     roleId,
 }: Params) => {
-    const data = await request(
+    return request(
         `${process.env.NEXT_PUBLIC_API_URL}/guilds/${guildMember.guild_id}/members/${guildMember.user.id}/roles/${roleId}`,
         {
             method: "DELETE",
             credentials: "include",
         }
     );
-
-    return data.json();
 };
 
 export const useDeleteGuildMemberRole = () => {
@@ -40,10 +38,12 @@ export const useDeleteGuildMemberRole = () => {
                     variables.roleId,
                 ],
                 produce(prevData, draft => {
-                    if (draft) {
-                        draft = draft.filter(
-                            m => m.user.id !== variables.guildMember.user.id
-                        );
+                    const deletedIndex = draft?.findIndex(
+                        member =>
+                            member.user.id === variables.guildMember.user.id
+                    );
+                    if (deletedIndex !== -1) {
+                        draft?.splice(deletedIndex, 1);
                     }
                 })
             );

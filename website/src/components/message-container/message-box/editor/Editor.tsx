@@ -66,6 +66,9 @@ import { EmojiPicker } from "../../../EmojiPicker";
 import { deserialize } from "./deserialize";
 import { deserializeSyntaxTree } from "../../../markdown/parsers/parseMessageContent";
 import { getGroupDMName } from "../../../../getGroupDmName";
+import { usePermssions } from "../../../../../hooks/usePermissions";
+import { checkPermissions } from "../../../../compute-permissions";
+import { Permissions } from "../../../../permissions";
 
 export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
     const router = useRouter();
@@ -94,6 +97,10 @@ export const MessageEditor: React.FC<{ channel: Channel }> = ({ channel }) => {
     );
     const channels = useChannelsStore(
         state => state.channels[router.query.guild as string]
+    );
+    const { permissions } = usePermssions(
+        router.query.guild as string,
+        channel?.id
     );
 
     const roles = useRolesStore(state => state[router.query.guild as string]);
@@ -549,24 +556,46 @@ Good day, :wave: <@123>`)
                     justifyContent="center"
                     sx={{ width: "100%", m: 0.5, ml: 1, mr: 1, pl: 2, pr: 2 }}
                 >
-                    <IconButton
-                        onClick={e => {
-                            e.preventDefault();
-                            setOpen(e.currentTarget);
-                        }}
-                        disabled={!channel}
-                    >
-                        <AddCircle />
-                    </IconButton>
+                    {checkPermissions(
+                        permissions,
+                        Permissions.ATTACH_FILES
+                    ) && (
+                        <IconButton
+                            onClick={e => {
+                                e.preventDefault();
+                                setOpen(e.currentTarget);
+                            }}
+                            disabled={!channel}
+                        >
+                            <AddCircle />
+                        </IconButton>
+                    )}
                     <Editable
-                        readOnly={!channel}
+                        disabled={
+                            !checkPermissions(
+                                permissions,
+                                Permissions.SEND_MESSAGES
+                            )
+                        }
+                        readOnly={
+                            !channel ||
+                            !checkPermissions(
+                                permissions,
+                                Permissions.SEND_MESSAGES
+                            )
+                        }
                         autoFocus
                         onKeyDown={onKeydown}
                         decorate={decorate(editor)}
                         renderLeaf={renderLeaf}
                         renderElement={renderElement}
                         placeholder={
-                            channel
+                            !checkPermissions(
+                                permissions,
+                                Permissions.SEND_MESSAGES
+                            )
+                                ? "You do not have permission to send messages"
+                                : channel
                                 ? channel.type === "DM"
                                     ? `Message @${channel.recipients[0].username}`
                                     : channel.type === "GROUP_DM"
@@ -594,16 +623,21 @@ Good day, :wave: <@123>`)
                         <ToggleButton value="emoji">
                             <EmojiEmotions />
                         </ToggleButton>
-                        <ToggleButton value="gif">
+                        {/* <ToggleButton value="gif">
                             <Gif />
-                        </ToggleButton>
+                        </ToggleButton> */}
                     </StyledToggleButtonGroup>
-                    <IconButton
-                        onClick={() => handleSubmit()}
-                        disabled={!channel}
-                    >
-                        <Send />
-                    </IconButton>
+                    {checkPermissions(
+                        permissions,
+                        Permissions.SEND_MESSAGES
+                    ) && (
+                        <IconButton
+                            onClick={() => handleSubmit()}
+                            disabled={!channel}
+                        >
+                            <Send />
+                        </IconButton>
+                    )}
                 </Stack>
             </Paper>
             <Popover
@@ -631,7 +665,7 @@ Good day, :wave: <@123>`)
                     }}
                 />
             </Popover>
-            <Popover
+            {/* <Popover
                 onClose={() => {
                     setPicker(null);
                 }}
@@ -651,7 +685,7 @@ Good day, :wave: <@123>`)
                         handleSubmit(gif.src);
                     }}
                 />
-            </Popover>
+            </Popover> */}
         </Slate>
     );
 };

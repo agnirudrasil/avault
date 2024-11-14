@@ -6,9 +6,8 @@ export const DefaultProfilePic: React.FC<{
     return (
         <img
             alt="Profile Picture"
-            src={`https://avatars.dicebear.com/api/identicon/${tag.substring(
-                1
-            )}.svg?r=50&backgroundColor=white&width=${width}&height=${height}`}
+            src={`https://api.dicebear.com/9.x/adventurer-neutral/svg?seed=
+${tag.substring(1)}&width=${width}&height=${height}`}
         />
     );
 };

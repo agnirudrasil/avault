@@ -10,7 +10,12 @@ export const SettingsLayout: React.FC<{ nav: React.ReactNode }> = forwardRef(
             <Stack
                 {...props}
                 ref={ref}
-                sx={{ height: "100vh", width: "100%" }}
+                sx={{
+                    height: "100vh",
+                    maxHeight: "100vh",
+                    overflow: "hidden",
+                    width: "100%",
+                }}
                 direction="row"
             >
                 <Stack

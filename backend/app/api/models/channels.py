@@ -128,8 +128,8 @@ class Channel(Base):
     parent_id = Column(BigInteger, ForeignKey(
         'channels.id', ondelete="SET NULL"), nullable=True)
     overwrites = relationship('Overwrite', back_populates='channel', cascade='all, delete-orphan')
-    pinned_messages = relationship('PinnedMessages', back_populates='channel')
-    thread_metadata = relationship('ThreadMetadata', back_populates='channel')
+    pinned_messages = relationship('PinnedMessages', back_populates='channel', cascade='all, delete-orphan')
+    thread_metadata = relationship('ThreadMetadata', back_populates='channel', cascade='all, delete-orphan')
 
     def __init__(self,
                  channel_type: ChannelType,

@@ -9,15 +9,13 @@ interface Params {
 }
 
 export const addGuildMemberRole = async ({ guildMember, roleId }: Params) => {
-    const data = await request(
+    return request(
         `${process.env.NEXT_PUBLIC_API_URL}/guilds/${guildMember.guild_id}/members/${guildMember.user.id}/roles/${roleId}`,
         {
             method: "PUT",
             credentials: "include",
         }
     );
-
-    return data.json();
 };
 
 export const useAddGuildMemberRole = () => {

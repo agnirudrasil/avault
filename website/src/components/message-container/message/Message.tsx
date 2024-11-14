@@ -29,11 +29,9 @@ import { copyToClipboard } from "../../../copy";
 import {
     AddReaction,
     Delete,
-    Edit,
     Link,
     MarkChatUnread,
     PushPin,
-    Reply,
 } from "@mui/icons-material";
 import { Emoji as EmojiMartEmoji, store, emojiIndex } from "emoji-mart";
 import { usePermssions } from "../../../../hooks/usePermissions";
@@ -57,6 +55,8 @@ import { usePinMessage } from "../../../../hooks/requests/usePinMessage";
 import { useUnpinMessage } from "../../../../hooks/requests/useUnpinMessage";
 import { useQueryClient } from "react-query";
 import { updateMessagePin } from "../../addMessage";
+import { useAckMessage } from "../../../../hooks/requests/useAckMessage";
+import { EmbedMessage } from "./embed";
 
 export const Message: React.FC<{
     message: Messages;
@@ -78,6 +78,7 @@ export const Message: React.FC<{
         );
         const { mutateAsync: createReaction } = useCreateReaction();
         const { mutateAsync: deleteReaction } = useDeleteReaction();
+        const { mutate: ackMessage } = useAckMessage();
         const { mutateAsync: pinMesssage } = usePinMessage(message.channel_id);
         const { mutateAsync: unpinMessage } = useUnpinMessage(
             message.channel_id
@@ -160,14 +161,14 @@ export const Message: React.FC<{
                         },
                     ],
                 },
-                {
-                    label: "Edit Message",
-                    action: handleClose => {
-                        handleClose();
-                    },
-                    visible: message.author.id === getUser(),
-                    icon: <Edit />,
-                },
+                // {
+                //     label: "Edit Message",
+                //     action: handleClose => {
+                //         handleClose();
+                //     },
+                //     visible: message.author.id === getUser(),
+                //     icon: <Edit />,
+                // },
                 {
                     label: message.pinned ? "Unpin Message" : "Pin Message",
                     action: async handleClose => {
@@ -194,16 +195,12 @@ export const Message: React.FC<{
                     icon: <PushPin />,
                 },
                 {
-                    label: "Reply",
-                    action: handleClose => {
-                        handleClose();
-                    },
-                    visible: true,
-                    icon: <Reply />,
-                },
-                {
                     label: "Mark Unread",
                     action: handleClose => {
+                        ackMessage({
+                            message: message.id,
+                            channel: message.channel_id,
+                        });
                         handleClose();
                     },
                     visible: true,
@@ -431,7 +428,15 @@ export const Message: React.FC<{
                                                 )}
                                         </Stack>
                                     ) : null}
-                                    {message.reactions.length ? (
+                                    {message.embeds?.length
+                                        ? message.embeds.map(embed => (
+                                              <EmbedMessage
+                                                  key={embed.url}
+                                                  embed={embed}
+                                              />
+                                          ))
+                                        : null}
+                                    {message.reactions?.length ? (
                                         <ToggleButtonGroup
                                             value={message.reactions
                                                 .filter(r => r.me)

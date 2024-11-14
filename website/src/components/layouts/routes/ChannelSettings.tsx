@@ -9,13 +9,13 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import shallow from "zustand/shallow";
-import { useDeleteGuild } from "../../../../hooks/requests/useDeleteGuild";
 import { useGuildsStore } from "../../../../stores/useGuildsStore";
 import { useRoutesStore } from "../../../../stores/useRoutesStore";
-import { SettingsLayout } from "../../layouts/SettingsLayout";
+import { SettingsLayout } from "../SettingsLayout";
 import { checkPermissions } from "../../../compute-permissions";
 import { Permissions } from "../../../permissions";
 import { usePermssions } from "../../../../hooks/usePermissions";
+import { useDeleteChannel } from "../../../../hooks/requests/useDeleteChannel";
 
 const RouteItem: React.FC<{ title: string; route: string }> = ({
     title,
@@ -27,8 +27,8 @@ const RouteItem: React.FC<{ title: string; route: string }> = ({
     );
     return (
         <ListItemButton
-            selected={myRoute === `/guild-settings${route}`}
-            onClick={() => setRoute("/guild-settings" + route)}
+            selected={myRoute === `/channel-settings${route}`}
+            onClick={() => setRoute("/channel-settings" + route)}
             sx={{ borderRadius: "5px" }}
         >
             <ListItemText primary={title} />
@@ -36,14 +36,14 @@ const RouteItem: React.FC<{ title: string; route: string }> = ({
     );
 };
 
-export const GuildSettingsLayout: React.FC = ({ children }) => {
+export const ChannelSettingsLayout: React.FC = ({ children }) => {
     const router = useRouter();
     const setRoute = useRoutesStore(state => state.setRoute);
     const { name } = useGuildsStore(
         state => state.guildPreview[router.query.guild as string]
     );
-    const { mutateAsync } = useDeleteGuild();
-    const { permissions, guildMember } = usePermssions(
+    const { mutateAsync } = useDeleteChannel();
+    const { permissions } = usePermssions(
         router.query.guild as string,
         router.query.channel as string
     );
@@ -70,51 +70,33 @@ export const GuildSettingsLayout: React.FC = ({ children }) => {
                     </ListSubheader>
                     {checkPermissions(
                         permissions,
-                        Permissions.MANAGE_GUILD
+                        Permissions.MANAGE_CHANNELS
                     ) && <RouteItem title="Overview" route="" />}
                     {checkPermissions(
                         permissions,
-                        Permissions.MANAGE_ROLES
-                    ) && <RouteItem title="Roles" route="/roles" />}
+                        (
+                            BigInt(Permissions.MANAGE_CHANNELS) |
+                            BigInt(Permissions.MANAGE_ROLES)
+                        ).toString()
+                    ) && <RouteItem title="Permissions" route="/permissions" />}
+                    <Divider />
                     {checkPermissions(
                         permissions,
                         Permissions.MANAGE_CHANNELS
-                    ) && <RouteItem title="Emoji" route="/emoji" />}
-                    {/* <RouteItem title="Audit Log" route="/audit-logs" /> */}
-                    {/* <RouteItem
-                        title="Server Template"
-                        route="/server-template"
-                    />
-                    <RouteItem
-                        title="Custom Invite Link"
-                        route="/custom-link"
-                    /> */}
-                    <Divider />
-                    <ListSubheader
-                        disableSticky
-                        sx={{ bgcolor: "transparent", pl: 0 }}
-                        component="div"
-                    >
-                        <Typography variant="button">
-                            User management
-                        </Typography>
-                    </ListSubheader>
-                    {/* <RouteItem title="Members" route="/members" /> */}
-                    {/* <RouteItem title="Invites" route="/invites" /> */}
-                    {checkPermissions(permissions, Permissions.BAN_MEMBERS) && (
-                        <RouteItem title="Bans" route="/bans" />
-                    )}
-                    <Divider />
-                    {guildMember.is_owner && (
+                    ) && (
                         <ListItemButton
                             onClick={async () => {
                                 setRoute("/");
-                                router.replace("/channels/@me");
-                                await mutateAsync(router.query.guild as string);
+                                router.replace(
+                                    "/channels/" + router.query.guild
+                                );
+                                await mutateAsync(
+                                    router.query.channel as string
+                                );
                             }}
                             sx={{ borderRadius: "5px" }}
                         >
-                            <ListItemText primary="Delete Server" />
+                            <ListItemText primary="Delete Channel" />
                         </ListItemButton>
                     )}
                 </List>

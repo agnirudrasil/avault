@@ -15,6 +15,7 @@ export const messages: QueryFunction<Messages[], string[]> = async ({
             credentials: "include",
         }
     );
+    if (!data.ok) throw new Error("An error occurred while fetching messages");
     return data.json() as Promise<Messages[]>;
 };
 

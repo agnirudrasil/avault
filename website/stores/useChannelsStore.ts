@@ -5,7 +5,13 @@ import { ChannelStore, Channel, ChannelTypes } from "../types/channels";
 
 export const useChannelsStore = create(
     combine(
-        { ...({ privateChannels: {}, channels: {} } as ChannelStore) },
+        {
+            ...({
+                privateChannels: {},
+                channels: {},
+                hiddenChannels: {},
+            } as ChannelStore),
+        },
         (set, get) => ({
             deleteGuild: (guildId: string) => {
                 set(state =>
@@ -88,6 +94,43 @@ export const useChannelsStore = create(
                         } else {
                             delete draft.privateChannels[channel_id];
                         }
+                    })
+                );
+            },
+            hideChannel: (channel_id: string, guildId: string) => {
+                set(state =>
+                    produce(state, draft => {
+                        if (
+                            !draft.hiddenChannels[guildId]?.includes(channel_id)
+                        ) {
+                            draft.hiddenChannels[guildId] = [
+                                ...(draft.hiddenChannels[guildId] || []),
+                                channel_id,
+                            ];
+                        }
+                        localStorage.setItem(
+                            "hiddenChannels",
+                            JSON.stringify(draft.hiddenChannels)
+                        );
+                    })
+                );
+            },
+            unhideChannel: (channel_id: string, guildId: string) => {
+                set(state =>
+                    produce(state, draft => {
+                        if (
+                            draft.hiddenChannels[guildId]?.includes(channel_id)
+                        ) {
+                            draft.hiddenChannels[guildId] =
+                                draft.hiddenChannels[guildId].filter(
+                                    c => c !== channel_id
+                                );
+                        }
+
+                        localStorage.setItem(
+                            "hiddenChannels",
+                            JSON.stringify(draft.hiddenChannels)
+                        );
                     })
                 );
             },

@@ -32,6 +32,7 @@ import { ContextMenu } from "../../context-menus/ContextMenu";
 import { ContextMenuShape } from "../../context-menus/types";
 import { UnreadBadge } from "../UnreadBadge";
 import { StyledTreeItemRoot } from "./StyledTreeItemRoot";
+import { useRoutesStore } from "../../../../stores/useRoutesStore";
 
 type Props = TreeItemProps & {
     channel: Channel;
@@ -39,6 +40,8 @@ type Props = TreeItemProps & {
 
 export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
     const { permissions } = usePermssions(channel.guild_id || "", channel.id);
+    console.log(permissions);
+    const setRoute = useRoutesStore(state => state.setRoute);
 
     const channels = useChannelsStore(
         state =>
@@ -78,6 +81,7 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
                     Permissions.MANAGE_CHANNELS
                 ),
                 action: handleClose => {
+                    setRoute(`/channel-settings`);
                     handleClose();
                 },
             },
@@ -94,16 +98,6 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
                     handleClose();
                 },
                 color: theme.palette.primary.dark,
-            },
-            {
-                label: "Clone Channel",
-                visible: checkPermissions(
-                    permissions,
-                    Permissions.MANAGE_CHANNELS
-                ),
-                action: handleClose => {
-                    handleClose();
-                },
             },
             {
                 label: "Move To",
@@ -186,7 +180,7 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
         ],
     ];
 
-    return (
+    return checkPermissions(permissions, Permissions.VIEW_CHANNEL) ? (
         <StyledTreeItemRoot
             onContextMenu={e => {
                 e.stopPropagation();
@@ -293,7 +287,15 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
                                         permissions,
                                         Permissions.MANAGE_CHANNELS
                                     ) && (
-                                        <IconButton size="small">
+                                        <IconButton
+                                            onClick={e => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                console.log("clicked");
+                                                setRoute(`/channel-settings`);
+                                            }}
+                                            size="small"
+                                        >
                                             <Settings />
                                         </IconButton>
                                     )}
@@ -305,5 +307,5 @@ export const TextChannel: React.FC<Props> = ({ channel, ...other }) => {
             }
             {...other}
         />
-    );
+    ) : null;
 };

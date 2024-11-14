@@ -9,6 +9,7 @@ from api.models.guilds import GuildMembers
 from api.models.roles import Role
 from api.models.user import User
 from api.schemas.user import UserCreate, UserUpdate
+from api.worker import get_db
 
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):

@@ -10,6 +10,8 @@ export const getPinnedMessages = async (channelId: string) => {
             credentials: "include",
         }
     );
+    if (!res.ok)
+        throw new Error("An error occurred while fetching pinned messages");
     return res.json() as Promise<Messages[] | null>;
 };
 

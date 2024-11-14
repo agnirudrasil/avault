@@ -1,24 +1,19 @@
-import {
-    AddReaction,
-    Delete,
-    Edit,
-    MoreHoriz,
-    Replay,
-    Reply,
-} from "@mui/icons-material";
+import { AddReaction, Delete, MoreHoriz, Replay } from "@mui/icons-material";
 import { Paper, Popover, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useRouter } from "next/router";
 import { InfiniteData, useQueryClient } from "react-query";
 import { useMessageCreate } from "../../../../hooks/requests/useMessageCreate";
 import { Messages } from "../../../../stores/useMessagesStore";
 import { useUserStore } from "../../../../stores/useUserStore";
-import { getUser } from "../../../user-cache";
 import { LightTooltip } from "../../LightTooltip";
 import produce from "immer";
 import { chunk } from "lodash";
 import { useRef, useState } from "react";
 import { EmojiPicker } from "../../EmojiPicker";
 import { useCreateReaction } from "../../../../hooks/requests/useCreateReaction";
+import { checkPermissions } from "../../../compute-permissions";
+import { usePermssions } from "../../../../hooks/usePermissions";
+import { Permissions } from "../../../permissions";
 
 const ErrorToolbar: React.FC<{ args: any }> = ({ args }) => {
     const router = useRouter();
@@ -73,6 +68,11 @@ const RegularToolbar: React.FC<{
     const pickerRef = useRef<HTMLDivElement | null>(null);
     const [toolbarValue, setToolbarValue] = useState<string | null>(null);
     const { mutateAsync } = useCreateReaction();
+    const router = useRouter();
+    const { permissions } = usePermssions(
+        router.query.guild as string,
+        router.query.channel as string
+    );
     return (
         <>
             <ToggleButtonGroup
@@ -82,12 +82,14 @@ const RegularToolbar: React.FC<{
                 ref={pickerRef}
                 size="small"
             >
-                <ToggleButton value="react">
-                    <LightTooltip title="Add Reaction" placement="top">
-                        <AddReaction fontSize="small" />
-                    </LightTooltip>
-                </ToggleButton>
-                <ToggleButton
+                {checkPermissions(permissions, Permissions.ADD_REACTIONS) && (
+                    <ToggleButton value="react">
+                        <LightTooltip title="Add Reaction" placement="top">
+                            <AddReaction fontSize="small" />
+                        </LightTooltip>
+                    </ToggleButton>
+                )}
+                {/* <ToggleButton
                     value={message.author.id === getUser() ? "edit" : "reply"}
                 >
                     <LightTooltip
@@ -102,7 +104,7 @@ const RegularToolbar: React.FC<{
                             <Reply fontSize="small" />
                         )}
                     </LightTooltip>
-                </ToggleButton>
+                </ToggleButton> */}
                 <ToggleButton onClick={handleContextMenu} value="more">
                     <LightTooltip title="More" placement="top">
                         <MoreHoriz fontSize="small" />
